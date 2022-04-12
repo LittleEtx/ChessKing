@@ -1,6 +1,6 @@
 package edu.sustech.chessking.gameLogic;
 
-import edu.sustech.chessking.gameLogic.exception.InvalidConstructorException;
+import edu.sustech.chessking.gameLogic.exception.ConstructorException;
 
 /**
  * Immutable
@@ -27,7 +27,7 @@ public class Position {
         int row = position.charAt(0) - '0';
         --row;
         if (row < 0 || row > 7)
-            throw new InvalidConstructorException("Invalid row for position constructor");
+            throw new ConstructorException("Invalid row for position constructor");
         this.row = (short) row;
         char column = position.charAt(1);
         if (column >= 'a' && column <= 'h')
@@ -35,7 +35,7 @@ public class Position {
         else if (column >= 'A' && column <= 'H')
             this.column = (short) (column - 'A');
         else
-            throw new InvalidConstructorException("Invalid column for position constructor");
+            throw new ConstructorException("Invalid column for position constructor");
     }
 
     public short getRow() {
