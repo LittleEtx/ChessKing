@@ -33,21 +33,10 @@ public class MoveRule {
     }
 
     /**
-     * To check if the chess can eat the chess in the position
-     */
-    public static boolean isEatValid(Chess chess, Position position) {
-        if (chess == null)
-            return false;
-
-
-
-    }
-
-    /**
      * To check if the chess can move to the position
      */
     public static boolean isMoveValid(Chess chess, Position position) {
-        if (chess == null)
+        if (chess == null || position == null)
             return false;
 
         Position chessPos = chess.getPosition();
@@ -58,26 +47,130 @@ public class MoveRule {
             case KING -> {
                 return withinSide(chessPos, position);
             }
-            case
+            case QUEEN -> {
+                return withinSide(chessPos, position) ||
+                        withinCross(chessPos, position) ||
+                        withinSlash(chessPos, position);
+            }
+            case KNIGHT -> {
+                return withinKnight(chessPos, position);
+            }
+            case BISHOP -> {
+                return withinSlash(chessPos, position);
+            }
+            case ROOK -> {
+                return withinCross(chessPos, position);
+            }
+            case PAWN -> {
+                if (chessPos.getColumn() != position.getColumn())
+                    return false;
+
+                if (chess.getColorType() == ColorType.WHITE) {
+                    //Not moved, can move two block
+                    if (chessPos.getRow() == 1)
+                        return chessPos.getRow() + 2 == position.getRow() ||
+                                chessPos.getRow() + 1 == position.getRow();
+                    else
+                        return chessPos.getRow() + 1 == position.getRow();
+                } else {
+                    //Not moved, can move two block
+                    if (chessPos.getRow() == 6)
+                        return chessPos.getRow() - 2 == position.getRow() ||
+                                chessPos.getRow() - 1 == position.getRow();
+                    else
+                        return chessPos.getRow() - 1 == position.getRow();
+                }
+            }
         }
+        return false;
     }
 
+    /**
+     * To check if the chess can eat the chess in the position
+     */
+    public static boolean isEatValid(Chess chess, Position position) {
+        if (chess == null || position == null)
+            return false;
+
+        Position chessPos = chess.getPosition();
+        if (chessPos.equals(position))
+            return false;
+
+        if (chess.getChessType() == ChessType.PAWN) {
+
+            if (chess.getColorType() == ColorType.WHITE) {
+                return chessPos.getRow() + 1 == position.getRow() &&
+                        columnDistance(chessPos, position) == 1;
+            } else {
+                return chessPos.getRow() - 1 == position.getRow() &&
+                        columnDistance(chessPos, position) == 1;
+            }
+        }
+        //For none PAWN chess, move valid = eat valid
+        return isMoveValid(chess, position);
+    }
+
+    /**
+     * To check if two position are near each other
+     */
     public static boolean withinSide(Position pos1, Position pos2) {
         return !pos1.equals(pos2) &&
-                Math.abs(pos1.getColumn() - pos2.getColumn()) <= 1 &&
-                Math.abs(pos1.getRow() - pos2.getRow()) <= 1;
+                rowDistance(pos1, pos2) <= 1 &&
+                columnDistance(pos1, pos2) <= 1;
     }
 
+    /**
+     * To check if in the same row or column
+     */
+    public static boolean withinCross(Position pos1, Position pos2) {
+        return withinColumn(pos1, pos2) || withinRow(pos1, pos2);
+    }
+
+    /**
+     * To check if in the same column
+     */
     public static boolean withinColumn(Position pos1, Position pos2) {
         return !pos1.equals(pos2) &&
                 pos1.getColumn() == pos2.getColumn();
     }
 
+    /**
+     * To check if in the same row
+     */
     public static boolean withinRow(Position pos1, Position pos2) {
         return !pos1.equals(pos2) &&
                 pos1.getRow() == pos2.getRow();
 
     }
 
-    public static boolean withinParalle
+    /**
+     * To check if in the same slash 斜线
+     */
+    public static boolean withinSlash(Position pos1, Position pos2) {
+        return !pos1.equals(pos2) &&
+                rowDistance(pos1, pos2) == columnDistance(pos1, pos2);
+    }
+
+    /**
+     * To check if fit knight way
+     */
+    public static boolean withinKnight(Position pos1, Position pos2) {
+        return !pos1.equals(pos2) &&
+                ((rowDistance(pos1, pos2) == 1 && columnDistance(pos1, pos2) == 2) ||
+                        (rowDistance(pos1, pos2) == 2 && columnDistance(pos1, pos2)== 1));
+    }
+
+    /**
+     * Get row distance between two position
+     */
+    public static int rowDistance(Position pos1, Position pos2) {
+        return Math.abs(pos1.getRow() - pos2.getRow());
+    }
+
+    /**
+     * Get column distance between two position
+     */
+    public static int columnDistance(Position pos1, Position pos2) {
+        return Math.abs(pos1.getColumn() - pos2.getColumn());
+    }
 }

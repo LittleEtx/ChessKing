@@ -2,7 +2,7 @@ package edu.sustech.chessking.gameLogic;
 
 import java.util.ArrayList;
 
-public class GameHistory {
+public class MoveHistory {
 
     private final ArrayList<Move> moveHistory = new ArrayList<>();
 
@@ -35,8 +35,8 @@ public class GameHistory {
     }
 
     @Override
-    public GameHistory clone() {
-        GameHistory newHistory = new GameHistory();
+    public MoveHistory clone() {
+        MoveHistory newHistory = new MoveHistory();
         for (Move move : moveHistory) {
             newHistory.addMove(move);
         }

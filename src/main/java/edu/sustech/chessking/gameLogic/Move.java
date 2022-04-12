@@ -29,6 +29,8 @@ public class Move {
             case MOVE -> {
                 if (moveTarget.getClass() != Position.class)
                     throw new ConstructorException("Invalid object for move type MOVE");
+                else if (!MoveRule.isMoveValid(chess, (Position) moveTarget))
+                    throw new ConstructorException("Invalid move");
                 else
                     this.moveTarget = moveTarget;
             }
@@ -36,7 +38,7 @@ public class Move {
                 if (moveTarget.getClass() != Chess.class)
                     throw new ConstructorException("Invalid object for move type EAT");
                 else if (!MoveRule.isEatValid(chess, ((Chess) moveTarget).getPosition()))
-                    throw new
+                    throw new ConstructorException("Invalid eat");
                 else
                     this.moveTarget = moveTarget;
             }
