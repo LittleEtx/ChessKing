@@ -1,6 +1,5 @@
 package edu.sustech.chessking.gameLogic;
 
-import com.almasb.fxgl.time.LocalTimer;
 import com.almasb.fxgl.time.Timer;
 
 /**
