@@ -21,7 +21,7 @@ public class Position {
 
     /**
      * position should be in forms like "A5" or "e3"
-     * Incorrect string will throw out PositionOverBoundaryException
+     * Incorrect string will throw out InvalidConstructorException
      */
     public Position(String position) {
         int row = position.charAt(0) - '0';
@@ -36,6 +36,14 @@ public class Position {
             this.column = (short) (column - 'A');
         else
             throw new InvalidConstructorException("Invalid column for position constructor");
+    }
+
+    public short getRow() {
+        return row;
+    }
+
+    public short getColumn() {
+        return column;
     }
 
     /**

@@ -1,8 +1,9 @@
 package edu.sustech.chessking.gameLogic;
 
+import edu.sustech.chessking.gameLogic.enumType.ChessType;
+import javafx.geometry.Pos;
+
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 
 /**
@@ -22,7 +23,7 @@ public class GameCore {
 
     /**
      * This method will set all chess to the given chessList
-     * throw exception if
+     *
      */
     public void setChessList() {
 
@@ -50,18 +51,11 @@ public class GameCore {
 
     }
 
-    /**
-     * Target a MoveStep, return false if not available
-     */
-    public boolean moveChess(Chess chess, Position targetPos) {
-
-    }
-
 
     /**
      * reverseMove, return the reversed move
      */
-    public MoveStep reverseMove() {
+    public Move reverseMove() {
 
     }
 
@@ -94,13 +88,27 @@ public class GameCore {
     }
 
     /**
+     * Return a list of different color chess that will target the position
+     */
+    public ArrayList<Chess> getEnemy(Position position) {
+
+    }
+
+    /**
+     * Return a list of the same color chess that will protect the position
+     */
+    public ArrayList<Chess> getAlly(Position position) {
+
+    }
+
+    /**
      * Return if the position is available for the chess
      */
     public boolean isMoveAvailable(Chess chess, Position targetPos) {
 
     }
 
-    public boolean isMoveAvailable(MoveStep moveStep) {
+    public boolean isMoveAvailable(Move move) {
 
     }
 }

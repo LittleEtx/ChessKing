@@ -4,31 +4,31 @@ import java.util.ArrayList;
 
 public class GameHistory {
 
-    private final ArrayList<MoveStep> moveHistory = new ArrayList<>();
+    private final ArrayList<Move> moveHistory = new ArrayList<>();
 
     /**
-     * Add a gameStep
+     * Add a move step
      */
-    public void addMoveStep(MoveStep moveStep) {
+    public void addMove(Move move) {
 
     }
 
     /**
-     * get the last added gameStep
+     * get the last added move step
      */
-    public void getLastStep() {
+    public void getLastMove() {
 
     }
 
     /**
-     * remove a gameStep
+     * remove a move step
      */
-    public MoveStep popMoveStep() {
+    public Move popMove() {
 
     }
 
     /**
-     * Get the last gameStep
+     * reset the history
      */
     public void clearHistory() {
 
@@ -37,8 +37,8 @@ public class GameHistory {
     @Override
     public GameHistory clone() {
         GameHistory newHistory = new GameHistory();
-        for (MoveStep moveStep : moveHistory) {
-            newHistory.addMoveStep(moveStep);
+        for (Move move : moveHistory) {
+            newHistory.addMove(move);
         }
         return newHistory;
     }
