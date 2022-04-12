@@ -1,4 +1,4 @@
-package edu.sustech.chessking.gameLogic;
+package edu.sustech.chessking.gameLogic.enumType;
 
 public enum ChessType {
     //兵，马，象，车，后，王

@@ -1,34 +1,41 @@
 package edu.sustech.chessking.gameLogic;
 
+import edu.sustech.chessking.gameLogic.enumType.ChessType;
+import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.exception.InvalidConstructorException;
-
-import java.util.Objects;
 
 /**
  * Chess Class
  * Do not provide equal method
  */
 public class Chess{
+    private final ColorType colorType;
     private final ChessType chessType;
     private final Position position;
 
-
-    public Chess(ChessType chessType, Position position) {
+    public Chess(ColorType colorType, ChessType chessType, Position position) {
+        this.colorType = colorType;
         this.chessType = chessType;
         this.position = position;
     }
 
     /**
      * This Constructor provides a String-based method
-     * Format: "chess_name position", chess_name should be all lowercase
+     * Format: "color chess_type position", chess_name should be all lowercase
      * throw InvalidConstructorException when parameter not fit
      */
     public Chess(String chessInfo) {
         String[] info = chessInfo.split(" ");
-        if (info.length <= 2)
+        if (info.length <= 3)
             throw new InvalidConstructorException("Too few parameter");
 
         switch (info[0]) {
+            case "black" -> colorType = ColorType.BLACK;
+            case "white" -> colorType = ColorType.WHITE;
+            default -> throw new InvalidConstructorException("Invalid color type");
+        }
+
+        switch (info[1]) {
             case "king" -> chessType = ChessType.KING;
             case "queen" -> chessType = ChessType.QUEEN;
             case "pawn" -> chessType = ChessType.PAWN;
@@ -37,7 +44,19 @@ public class Chess{
             case "knight" -> chessType = ChessType.KNIGHT;
             default -> throw new InvalidConstructorException("Invalid chess type");
         }
-        position = new Position(info[1]);
+        position = new Position(info[2]);
+    }
+
+    public ColorType getColorType() {
+        return colorType;
+    }
+
+    public ChessType getChessType() {
+        return chessType;
+    }
+
+    public Position getPosition() {
+        return position;
     }
 
     /**
@@ -45,7 +64,7 @@ public class Chess{
      */
     @Override
     public Chess clone() {
-        return new Chess(this.chessType, this.position);
+        return new Chess(this.colorType, this.chessType, this.position);
     }
 
     /**
@@ -58,27 +77,27 @@ public class Chess{
 
         Chess chess = (Chess) o;
 
-        return chessType != chess.chessType &&
+        return colorType == chess.colorType &&
+                chessType == chess.chessType &&
             position.equals(chess.position);
     }
 
     @Override
     public int hashCode() {
-        int result = chessType != null ? chessType.hashCode() : 0;
+        int result = colorType != null ? colorType.hashCode() : 0;
+        result = 31 * result + (chessType != null ? chessType.hashCode() : 0);
         result = 31 * result + (position != null ? position.hashCode() : 0);
         return result;
     }
 
-    public ChessType getType() {
-        return chessType;
-    }
-
-    public Position getPosition() {
-        return position;
-    }
-
     @Override
     public String toString() {
+        String colorType;
+        switch (this.colorType) {
+            case BLACK -> colorType = "black";
+            case WHITE -> colorType = "white";
+            default -> colorType = "WrongColor";
+        }
         String chessType;
         switch (this.chessType) {
             case KING -> chessType = "king";
@@ -89,6 +108,6 @@ public class Chess{
             case KNIGHT -> chessType = "knight";
             default -> chessType = "WrongType";
         }
-        return String.format("%s %s",chessType, position.toString());
+        return String.format("%s %s %s", colorType, chessType, position.toString());
     }
 }

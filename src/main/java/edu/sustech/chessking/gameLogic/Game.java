@@ -6,7 +6,8 @@ import com.almasb.fxgl.time.Timer;
 /**
  * Contain all necessary information for a game
  */
-public class Game extends GameCore{
+public class Game{
+    private GameCore gameCore;
     private Timer timer;
     //The white player and the black player
     private Player player1, player2;
