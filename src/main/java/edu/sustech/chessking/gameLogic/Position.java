@@ -23,7 +23,6 @@ public class Position {
      * position should be in forms like "A5" or "e3"
      * Incorrect string will throw out InvalidConstructorException
      */
-    //Lumi: is the Position constructor setting the position in a "nX" way? Rather than "Xn"
     public Position(String position) {
         char column = position.charAt(0);
         if (column >= 'a' && column <= 'h')
@@ -62,6 +61,7 @@ public class Position {
         char col, row;
         if (chessStringType == ChessStringType.UPPERCASE) {
             col = 'A';
+
         } else {
             col = 'a';
         }

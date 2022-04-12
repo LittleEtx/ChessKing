@@ -3,7 +3,7 @@ package edu.sustech.chessking.gameLogic;
 import edu.sustech.chessking.gameLogic.enumType.CastleType;
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
-import edu.sustech.chessking.gameLogic.exception.InvalidConstructorException;
+import edu.sustech.chessking.gameLogic.exception.ConstructorException;
 
 /**
  * A class to help record every step
@@ -16,7 +16,7 @@ public class Move {
 
     /**
      * Constructor for a move step
-     * throw Invalid Constructor when moveTarget do not match the Object
+     * throw ConstructorException when moveTarget do not match the Object
      * Details:
      * (MoveType) (AcceptObjectType)
      *  MOVE        Position
@@ -25,37 +25,43 @@ public class Move {
      *  PROMOTION   ChessType
      */
     public Move(Chess chess, MoveType moveType, Object moveTarget) {
-        this.chess = chess;
-        this.moveType = moveType;
-
         switch (moveType) {
             case MOVE -> {
                 if (moveTarget.getClass() != Position.class)
-                    throw new InvalidConstructorException("Invalid object for move type MOVE");
+                    throw new ConstructorException("Invalid object for move type MOVE");
                 else
                     this.moveTarget = moveTarget;
             }
             case EAT -> {
                 if (moveTarget.getClass() != Chess.class)
-                    throw new InvalidConstructorException("Invalid object for move type EAT");
+                    throw new ConstructorException("Invalid object for move type EAT");
+                else if (!MoveRule.isEatValid(chess, ((Chess) moveTarget).getPosition()))
+                    throw new
                 else
                     this.moveTarget = moveTarget;
             }
+
             case CASTLE -> {
                 if (moveTarget.getClass() != CastleType.class)
-                    throw new InvalidConstructorException("Invalid object for move type CASTLE");
+                    throw new ConstructorException("Invalid object for move type CASTLE");
+                else if (!MoveRule.isKingCastleValid(chess))
+                    throw  new ConstructorException("Invalid chess king");
                 else
                     this.moveTarget = moveTarget;
             }
+
             case PROMOTE -> {
                 if (moveTarget.getClass() != ChessType.class)
-                    throw new InvalidConstructorException("Invalid object for move type CASTLE");
-
-
+                    throw new ConstructorException("Invalid object for move type CASTLE");
+                else if (!MoveRule.isPromotionValid(chess, (ChessType) moveTarget))
+                    throw new ConstructorException("Invalid promotion");
                 else
                     this.moveTarget = moveTarget;
             }
+            default -> throw new ConstructorException("Invalid move type");
         }
+        this.chess = chess;
+        this.moveType = moveType;
     }
 
     /**
