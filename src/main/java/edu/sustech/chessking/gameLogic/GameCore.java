@@ -1,7 +1,6 @@
 package edu.sustech.chessking.gameLogic;
 
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
-import javafx.geometry.Pos;
 
 import java.util.ArrayList;
 
@@ -12,7 +11,7 @@ import java.util.ArrayList;
  */
 public class GameCore {
     private final ArrayList<Chess> chessList = new ArrayList<>();
-    private final GameHistory gameHistory = new GameHistory();
+    private final MoveHistory moveHistory = new MoveHistory();
 
     /**
      * This method will set all chess to the beginning position
@@ -76,8 +75,8 @@ public class GameCore {
      * Get a list of all the chess copy in game
      */
     public ArrayList<Chess> getChessList() {
-        ArrayList<Chess> chessList = new ArrayList<>(chessList);
-        return chessList;
+        //For safe reason, return a copy of the list
+        return new ArrayList<>(this.chessList);
     }
 
     /**
