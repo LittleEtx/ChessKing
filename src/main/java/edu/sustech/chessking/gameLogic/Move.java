@@ -76,8 +76,30 @@ public class Move {
 
     @Override
     public String toString() {
+        String colorType;
+        switch(this.chess.getColorType()){
+            case BLACK -> colorType = "black";
+            case WHITE -> colorType = "white";
+            default -> colorType = "WrongColor";
+        }
+        String chessType;
+        switch(this.chess.getChessType()){
+            case KING -> chessType = "king";
+            case QUEEN -> chessType = "queen";
+            case PAWN -> chessType = "pawn";
+            case ROOK -> chessType = "rook";
+            case BISHOP -> chessType = "bishop";
+            case KNIGHT -> chessType = "knight";
+            default -> chessType = "WrongType";
+        }
+        String moveType;
+        switch (this.moveType){
+            case MOVE -> moveType = "move";
+            case EAT -> moveType = "eat";
+            case CASTLE -> moveType = "castle";
+            case PROMOTE -> moveType = "promote";
+            default -> moveType = "WrongMoveType";
+        }
 
-
-        String
     }
 }
