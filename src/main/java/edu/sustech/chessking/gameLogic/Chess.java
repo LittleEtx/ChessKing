@@ -2,7 +2,7 @@ package edu.sustech.chessking.gameLogic;
 
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
-import edu.sustech.chessking.gameLogic.exception.InvalidConstructorException;
+import edu.sustech.chessking.gameLogic.exception.ConstructorException;
 
 /**
  * Chess Class
@@ -27,12 +27,12 @@ public class Chess{
     public Chess(String chessInfo) {
         String[] info = chessInfo.split(" ");
         if (info.length <= 3)
-            throw new InvalidConstructorException("Too few parameter");
+            throw new ConstructorException("Too few parameter");
 
         switch (info[0]) {
             case "black" -> colorType = ColorType.BLACK;
             case "white" -> colorType = ColorType.WHITE;
-            default -> throw new InvalidConstructorException("Invalid color type");
+            default -> throw new ConstructorException("Invalid color type");
         }
 
         switch (info[1]) {
@@ -42,7 +42,7 @@ public class Chess{
             case "rook" -> chessType = ChessType.ROOK;
             case "bishop" -> chessType = ChessType.BISHOP;
             case "knight" -> chessType = ChessType.KNIGHT;
-            default -> throw new InvalidConstructorException("Invalid chess type");
+            default -> throw new ConstructorException("Invalid chess type");
         }
         position = new Position(info[2]);
     }

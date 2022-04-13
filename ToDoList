@@ -1,3 +1,21 @@
 Somethings we need to do over here so that I understands what we are doing:
+Update 2022.4.12 10:04
 
 4.12 Learn how to use the Git thing in IDEA
+
+Step1 Build basic game and test game
+
+1.Finish functions in gameLogic
+    a. Move: finish logic in constructor and toString
+    b. MoveRule: add function to support Move Constructor
+    c. GameCore: function finish
+    d. Game: add Player, Timer and so on
+
+2.Set basic textures in resources/assets/textures
+    a. including chessboard and chess and a background
+
+3.Construct basic game element
+    a. ChessKingClientApp
+    b. ChessKingEntityFactory
+    c. basic components in components package
+
