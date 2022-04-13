@@ -1,6 +1,6 @@
 package edu.sustech.chessking.gameLogic;
 
-import edu.sustech.chessking.gameLogic.exception.InvalidConstructorException;
+import edu.sustech.chessking.gameLogic.exception.ConstructorException;
 
 /**
  * Immutable
