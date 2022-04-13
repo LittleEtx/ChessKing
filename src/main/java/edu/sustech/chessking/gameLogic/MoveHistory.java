@@ -10,14 +10,14 @@ public class MoveHistory {
      * Add a move step
      */
     public void addMove(Move move) {
-
+        moveHistory.add(move);
     }
 
     /**
      * get the last added move step
      */
-    public void getLastMove() {
-
+    public Move getLastMove() {
+        return moveHistory.get(moveHistory.size()-1);
     }
 
     /**
