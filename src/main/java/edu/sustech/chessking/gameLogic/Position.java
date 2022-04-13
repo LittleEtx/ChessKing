@@ -21,9 +21,12 @@ public class Position {
 
     /**
      * position should be in forms like "A5" or "e3"
-     * Incorrect string will throw out InvalidConstructorException
+     * Incorrect string will throw out ConstructorException
      */
     public Position(String position) {
+        if (position.length() != 2)
+            throw new ConstructorException("Invalid string for position constructor");
+
         char column = position.charAt(0);
         if (column >= 'a' && column <= 'h')
             this.column = (short) (column - 'a');
