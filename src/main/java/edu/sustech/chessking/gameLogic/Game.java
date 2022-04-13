@@ -12,7 +12,7 @@ public class Game{
     private Player player1, player2;
 
     /**
-     * Star game
+     * Start game
      */
     public void gameStart(Player whitePlayer) {
 
