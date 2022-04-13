@@ -31,7 +31,7 @@ public class MoveHistory {
      * reset the history
      */
     public void clearHistory() {
-
+        moveHistory.clear();
     }
 
     @Override
