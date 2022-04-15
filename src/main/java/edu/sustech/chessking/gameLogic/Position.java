@@ -11,7 +11,7 @@ public class Position {
     private final short column;
 
     public enum ChessStringType {
-        UPPERCASE, LOWERCASE;
+        UPPERCASE, LOWERCASE
     }
 
     public Position(short row, short column) {

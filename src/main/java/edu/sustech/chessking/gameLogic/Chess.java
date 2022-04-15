@@ -26,8 +26,8 @@ public class Chess{
      */
     public Chess(String chessInfo) {
         String[] info = chessInfo.split(" ");
-        if (info.length <= 3)
-            throw new ConstructorException("Too few parameter");
+        if (info.length != 3)
+            throw new ConstructorException("Not correct number of  parameter");
 
         switch (info[0]) {
             case "black" -> colorType = ColorType.BLACK;

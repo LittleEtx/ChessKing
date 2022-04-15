@@ -24,7 +24,7 @@ public class Move {
      *  CASTLE      CastleType
      *  PROMOTION   ChessType
      */
-    public Move(Chess chess, MoveType moveType, Object moveTarget) {
+    public Move(Chess chess, MoveType moveType, Object ... moveTarget) {
         switch (moveType) {
             case MOVE -> {
                 if (moveTarget.getClass() != Position.class)
@@ -60,6 +60,11 @@ public class Move {
                 else
                     this.moveTarget = moveTarget;
             }
+
+            case EATPROMOTE -> {
+
+            }
+
             default -> throw new ConstructorException("Invalid move type");
         }
         this.chess = chess;
@@ -76,28 +81,17 @@ public class Move {
 
     @Override
     public String toString() {
-        String colorType;
-        switch(this.chess.getColorType()){
-            case BLACK -> colorType = "black";
-            case WHITE -> colorType = "white";
-            default -> colorType = "WrongColor";
-        }
-        String chessType;
-        switch(this.chess.getChessType()){
-            case KING -> chessType = "king";
-            case QUEEN -> chessType = "queen";
-            case PAWN -> chessType = "pawn";
-            case ROOK -> chessType = "rook";
-            case BISHOP -> chessType = "bishop";
-            case KNIGHT -> chessType = "knight";
-            default -> chessType = "WrongType";
-        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(chess.toString());
+        sb.append(' ');
+
         String moveType;
         switch (this.moveType){
             case MOVE -> moveType = "move";
             case EAT -> moveType = "eat";
             case CASTLE -> moveType = "castle";
             case PROMOTE -> moveType = "promote";
+            case EATPROMOTE -> moveType = "eatpromote";
             default -> moveType = "WrongMoveType";
         }
 
