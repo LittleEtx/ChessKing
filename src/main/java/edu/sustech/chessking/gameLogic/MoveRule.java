@@ -28,8 +28,8 @@ public class MoveRule {
         Position position = king.getPosition();
         ColorType color = king.getColorType();
         return king.getChessType() == ChessType.KING &&
-                (color == ColorType.WHITE && position.equals(new Position("D1")) ||
-                color == ColorType.BLACK && position.equals(new Position("D8")));
+                (color == ColorType.WHITE && position.equals(new Position("E1")) ||
+                color == ColorType.BLACK && position.equals(new Position("E8")));
     }
 
     /**
@@ -109,6 +109,16 @@ public class MoveRule {
         //For none PAWN chess, move valid = eat valid
         return isMoveValid(chess, position);
     }
+
+    /**
+     * To check if the chess can eat the other chess
+     */
+    public static boolean isEatValid(Chess chess, Chess target) {
+        if (chess.getColorType() == target.getColorType())
+            return false;
+        return isEatValid(chess, target.getPosition());
+    }
+
 
     /**
      * To check if two position are near each other

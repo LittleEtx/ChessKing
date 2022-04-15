@@ -21,30 +21,24 @@ public class Chess{
 
     /**
      * This Constructor provides a String-based method
-     * Format: "color chess_type position", chess_name should be all lowercase
+     * Format: "color chess_type position"
      * throw InvalidConstructorException when parameter not fit
      */
     public Chess(String chessInfo) {
-        String[] info = chessInfo.split(" ");
-        if (info.length != 3)
+        this(chessInfo.split(" "));
+    }
+
+    /**
+     * This Constructor provides StringList-based method using separate String
+     * throw InvalidConstructorException when parameter not fit
+     */
+    public Chess(String[] chessInfo) {
+        if (chessInfo.length != 3)
             throw new ConstructorException("Not correct number of  parameter");
 
-        switch (info[0]) {
-            case "black" -> colorType = ColorType.BLACK;
-            case "white" -> colorType = ColorType.WHITE;
-            default -> throw new ConstructorException("Invalid color type");
-        }
-
-        switch (info[1]) {
-            case "king" -> chessType = ChessType.KING;
-            case "queen" -> chessType = ChessType.QUEEN;
-            case "pawn" -> chessType = ChessType.PAWN;
-            case "rook" -> chessType = ChessType.ROOK;
-            case "bishop" -> chessType = ChessType.BISHOP;
-            case "knight" -> chessType = ChessType.KNIGHT;
-            default -> throw new ConstructorException("Invalid chess type");
-        }
-        position = new Position(info[2]);
+        colorType = ColorType.toEnum(chessInfo[0]);
+        chessType = ChessType.toEnum(chessInfo[1]);
+        position = new Position(chessInfo[2]);
     }
 
     public ColorType getColorType() {
@@ -92,22 +86,7 @@ public class Chess{
 
     @Override
     public String toString() {
-        String colorType;
-        switch (this.colorType) {
-            case BLACK -> colorType = "black";
-            case WHITE -> colorType = "white";
-            default -> colorType = "WrongColor";
-        }
-        String chessType;
-        switch (this.chessType) {
-            case KING -> chessType = "king";
-            case QUEEN -> chessType = "queen";
-            case PAWN -> chessType = "pawn";
-            case ROOK -> chessType = "rook";
-            case BISHOP -> chessType = "bishop";
-            case KNIGHT -> chessType = "knight";
-            default -> chessType = "WrongType";
-        }
-        return String.format("%s %s %s", colorType, chessType, position.toString());
+        return String.format("%s %s %s",
+                colorType.toString(), chessType.toString(), position.toString());
     }
 }
