@@ -6,11 +6,15 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
+import com.almasb.fxgl.input.UserAction;
 import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.Factories.BoardFactory;
 import edu.sustech.chessking.gameLogic.GameCore;
+import edu.sustech.chessking.gameLogic.components.ChessComponent;
 import edu.sustech.chessking.gameLogic.enumType.EntityType;
 import javafx.geometry.Point2D;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
@@ -22,9 +26,9 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
 
 public class ChessKingApp extends GameApplication {
 
-    private String skin = "default";
     private GameCore gameCore = new GameCore();
     public final ArrayList<Entity> board = new ArrayList<>();
+    private boolean isClicked = false;
 
 
     // ===============================
@@ -44,6 +48,12 @@ public class ChessKingApp extends GameApplication {
 
     @Override
     protected void initPhysics() {
+        FXGL.getInput().addAction(new UserAction("Move"){
+            @Override
+            protected void onAction() {
+
+            }
+        }, MouseButton.PRIMARY);
 
     }
 
@@ -57,22 +67,16 @@ public class ChessKingApp extends GameApplication {
         //System.out.println();
     }
 
-    public Point2D toPoint2D(Chess chess){
-        Point2D point = new Point2D(
-                80+chess.getPosition().getColumn()*80,640 - chess.getPosition().getRow()*80
-        );
-        return point;
-    }
 
     public void initChess() {
         gameCore.initialGame();
         for(Chess chess: gameCore.getChessList()){
-            String pic = skin + " " + chess.getChessType().toString() + "-" + chess.getColorType().toString() + ".png";
-            FXGL.entityBuilder()
-                    .at(toPoint2D(chess))
-                    .viewWithBBox(texture(pic.toLowerCase(),80,80))
-                    .buildAndAttach();
+            ChessComponent.setChess(chess);
+            spawn("chess");
         }
+    }
+    public void followMouse(){
+
     }
     public void initBoard(){
         for(int i = 1; i < 9; i++) {
