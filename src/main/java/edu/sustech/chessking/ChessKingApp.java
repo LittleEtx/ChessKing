@@ -39,6 +39,15 @@ public class ChessKingApp extends GameApplication {
 
 
     // ===============================
+    //initialize the physical properties of the game
+
+
+    @Override
+    protected void initPhysics() {
+
+    }
+
+    // ===============================
     //initialize the game
     @Override
     protected void initGame() {
