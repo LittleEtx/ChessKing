@@ -21,6 +21,21 @@ public class MoveHistory {
     }
 
     /**
+     * get the move of index i
+     * over the index will return null
+     */
+    public Move getMove(int index) {
+        if (index < 0 || index >= getMoveNum())
+            return null;
+        else
+            return moveHistory.get(index);
+    }
+
+    public int getMoveNum() {
+        return moveHistory.size();
+    }
+
+    /**
      * remove a move step
      */
     public Move popMove() {

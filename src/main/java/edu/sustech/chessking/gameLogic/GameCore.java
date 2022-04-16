@@ -29,6 +29,17 @@ public class GameCore {
      */
     public boolean setGame(MoveHistory history) {
 
+
+        //
+
+        return true;
+    }
+
+    /**
+     * Get a copy of current history
+     */
+    public MoveHistory getGameHistory() {
+        return moveHistory.clone();
     }
 
     /**
@@ -49,6 +60,9 @@ public class GameCore {
      */
     public boolean hasLost(ColorType side) {
 
+        //Needs to add
+
+        return false;
     }
 
     /**
@@ -70,6 +84,9 @@ public class GameCore {
      */
     public boolean hasDrawn() {
 
+        //Needs to add
+
+        return false;
     }
 
     /**
@@ -77,6 +94,9 @@ public class GameCore {
      */
     public boolean isChecked(ColorType side) {
 
+        //Needs to add
+
+        return false;
     }
 
     /**
@@ -97,6 +117,9 @@ public class GameCore {
     */
     public boolean moveChess(Chess chess, Position targetPos) {
 
+        //Needs to add
+
+        return false;
     }
 
     /**
@@ -104,6 +127,9 @@ public class GameCore {
      */
     public boolean moveChess(Position chessPos, Position targetPos) {
 
+        //Needs to add
+
+        return false;
     }
 
     /**
@@ -112,6 +138,9 @@ public class GameCore {
      */
     public boolean movePawnPromotion(Chess pawn, ChessType updateType) {
 
+        //Needs to add
+
+        return false;
     }
 
 
@@ -120,6 +149,9 @@ public class GameCore {
      */
     public Move reverseMove() {
 
+        //Needs to add
+
+        return null;
     }
 
     /**
@@ -127,10 +159,17 @@ public class GameCore {
      */
     public boolean isMoveAvailable(Chess chess, Position targetPos) {
 
+        //Needs to add
+
+        return false;
     }
 
     public boolean isMoveAvailable(Move move) {
 
+        //Needs to add
+
+
+        return false;
     }
 
 
@@ -158,10 +197,13 @@ public class GameCore {
     }
 
     /**
-     * Return a list of all available positions of a chess
+     * Return a list of all available move positions of a chess
      */
     public ArrayList<Position> getAvailablePosition(Chess chess) {
 
+        //Needs to add
+
+        return null;
     }
 
     /**
@@ -169,6 +211,9 @@ public class GameCore {
      */
     public ArrayList<Move> getAvailableMove(Chess chess) {
 
+        //Needs to add
+
+        return null;
     }
 
     /**
@@ -176,6 +221,9 @@ public class GameCore {
      */
     public ArrayList<Chess> getEnemy(Position position) {
 
+        //Needs to add
+
+        return  null;
     }
 
     /**
@@ -183,5 +231,8 @@ public class GameCore {
      */
     public ArrayList<Chess> getAlly(Position position) {
 
+        //Needs to add
+
+        return null;
     }
 }
