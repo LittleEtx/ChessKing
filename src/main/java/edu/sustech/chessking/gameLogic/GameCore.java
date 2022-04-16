@@ -5,6 +5,8 @@ import edu.sustech.chessking.gameLogic.enumType.ColorType;
 
 import java.util.ArrayList;
 
+import static edu.sustech.chessking.gameLogic.enumType.ColorType.*;
+import static edu.sustech.chessking.gameLogic.enumType.ChessType.*;
 
 /**
  * Provide major methods to control chess in a game
@@ -21,9 +23,30 @@ public class GameCore {
      * This method will set all chess to the beginning position
      */
     public void initialGame() {
-        chessList.add(new Chess("white pawn A2"));
+        for (int i = 0; i < 8; i++) {
+            chessList.add(new Chess(White, Pawn, String.format("%c2", 'A' + i)));
+            chessList.add(new Chess(Black, Pawn, String.format("%c7", 'A' + i)));
+        }
 
+        chessList.add(new Chess(White, Rook, "A1"));
+        chessList.add(new Chess(White, Rook, "H1"));
+        chessList.add(new Chess(Black, Rook, "A8"));
+        chessList.add(new Chess(Black, Rook, "H8"));
 
+        chessList.add(new Chess(White, Knight, "B1"));
+        chessList.add(new Chess(White, Knight, "G1"));
+        chessList.add(new Chess(Black, Knight, "B8"));
+        chessList.add(new Chess(Black, Knight, "G8"));
+
+        chessList.add(new Chess(White, Bishop, "C1"));
+        chessList.add(new Chess(White, Bishop, "F1"));
+        chessList.add(new Chess(Black, Bishop, "C8"));
+        chessList.add(new Chess(Black, Bishop, "F8"));
+
+        chessList.add(new Chess(White, Queen, "D1"));
+        chessList.add(new Chess(White, King, "F1"));
+        chessList.add(new Chess(Black, Queen, "D8"));
+        chessList.add(new Chess(Black, King, "F8"));
     }
 
     /**
@@ -32,7 +55,7 @@ public class GameCore {
     public boolean setGame(MoveHistory history) {
 
 
-        //
+        //Need to add
 
         return true;
     }
@@ -49,6 +72,8 @@ public class GameCore {
      * Waning: this action will clear game history, be careful
      */
     public void setGame(ArrayList<Chess> chessList) {
+
+        //Needs to add
 
     }
 
@@ -179,10 +204,27 @@ public class GameCore {
     //       Chess getting Method
     //==================================
     /**
+     * Check if the chess is in game
+     */
+    public boolean isInGame(Chess chess) {
+        if (chess == null)
+            return false;
+
+        for (Chess ch : chessList) {
+            if (ch.equals(chess))
+                return true;
+        }
+        return false;
+    }
+
+    /**
      * Get the chess at the position
      * May return null if not chess at the position
      */
     public Chess getChess(Position position) {
+        if (position == null)
+            return null;
+
         for (Chess chess : chessList) {
             if (chess.getPosition().equals(position))
                 return chess;
@@ -202,8 +244,26 @@ public class GameCore {
      * Return a list of all available move positions of a chess
      */
     public ArrayList<Position> getAvailablePosition(Chess chess) {
+        if (!isInGame(chess))
+            return null;
+
+        switch (chess.getChessType()) {
+            case PAWN -> {
 
 
+
+            }
+            case KNIGHT -> {
+            }
+            case BISHOP -> {
+            }
+            case ROOK -> {
+            }
+            case QUEEN -> {
+            }
+            case KING -> {
+            }
+        }
 
         return null;
     }

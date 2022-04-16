@@ -32,7 +32,7 @@ public class Chess{
      * This Constructor provides StringList-based method using separate String
      * throw InvalidConstructorException when parameter not fit
      */
-    public Chess(String[] chessInfo) {
+    public Chess(String ... chessInfo) {
         if (chessInfo.length != 3)
             throw new ConstructorException("Not correct number of  parameter");
 
