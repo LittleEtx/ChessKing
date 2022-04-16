@@ -3,6 +3,7 @@ package edu.sustech.chessking.gameLogic;
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
+import edu.sustech.chessking.gameLogic.exception.ChessLeapingException;
 
 import java.util.ArrayList;
 
@@ -18,7 +19,7 @@ import static edu.sustech.chessking.gameLogic.Chess.*;
 public class GameCore {
     private final ArrayList<Chess> chessList = new ArrayList<>();
     private final MoveHistory moveHistory = new MoveHistory();
-    private boolean isWhiteTurn;
+    private ColorType turn;
 
     //===============================
     //    ChessBoard Setting Method
@@ -55,7 +56,7 @@ public class GameCore {
         chessList.add(new Chess(Black, King, "E8"));
 
         moveHistory.clearHistory();
-        isWhiteTurn = true;
+        turn = WHITE;
     }
 
     /**
@@ -79,11 +80,21 @@ public class GameCore {
     /**
      * This method will set all chess to a given state
      * Waning: this action will clear game history, be careful
+     * Throw out ChessLeapingException when Chess overlaps
+     * @param turn who's turn in this situation
      */
-    public void setGame(ArrayList<Chess> chessList) {
-
-        //Needs to add
-
+    public void setGame(ArrayList<Chess> chessList, ColorType turn) {
+        this.chessList.clear();
+        moveHistory.clearHistory();
+        for (Chess chess : chessList) {
+            if (!hasChess(chess.getPosition()))
+                this.chessList.add(chess);
+            else {
+                this.chessList.clear();
+                throw new ChessLeapingException("Chess overlap in setGame");
+            }
+        }
+        this.turn = turn;
     }
 
     //==================================
@@ -246,7 +257,7 @@ public class GameCore {
             case KING -> {
                 if (isMoveValid(chess, targetPos) &&
                     //must check if the move will lead the king in danger
-                    getTargetChess(targetPos, chess.getColorType()) == null &&
+                    getEnemyChess(targetPos, chess.getColorType()) == null &&
                             !isEatValid(getChess(chess.getColorType().reverse(), KING).get(0), targetPos))
                     return true;
             }
@@ -354,8 +365,8 @@ public class GameCore {
             return null;
 
         class PosList {
-            private ArrayList<Position> posList = new ArrayList<>();
-            private Chess chess;
+            private final ArrayList<Position> posList = new ArrayList<>();
+            private final Chess chess;
             public PosList(Chess chess) {
                 this.chess = chess;
             }
@@ -363,12 +374,45 @@ public class GameCore {
             public ArrayList<Position> getPosList() {
                 return posList;
             }
+
             public boolean checkAndAdd(Position pos) {
                 if (isMoveAvailable(chess, pos)) {
                     posList.add(pos);
                     return true;
                 }
                 return false;
+            }
+
+            public void checkCross() {
+                Position pos = chess.getPosition();
+                Position p = pos;
+                while (checkAndAdd(p.getLeft()))
+                    p = p.getLeft();
+                p = pos;
+                while (checkAndAdd(p.getDown()))
+                    p = p.getDown();
+                p = pos;
+                while (checkAndAdd(p.getRight()))
+                    p = p.getRight();
+                p = pos;
+                while (checkAndAdd(p.getUp()))
+                    p = p.getUp();
+            }
+
+            public void checkSlash() {
+                Position pos = chess.getPosition();
+                Position p = pos;
+                while (checkAndAdd(p.getLeftUp()))
+                    p = p.getLeftUp();
+                p = pos;
+                while (checkAndAdd(p.getLeftDown()))
+                    p = p.getLeftDown();
+                p = pos;
+                while (checkAndAdd(p.getRightUp()))
+                    p = p.getRightUp();
+                p = pos;
+                while (checkAndAdd(p.getRightDown()))
+                    p = p.getRightDown();
             }
         }
 
@@ -392,29 +436,24 @@ public class GameCore {
                         posList.checkAndAdd(pos.getDown().getDown());
                 }
             }
-
             case KNIGHT -> {
                 for (Position p : getKnightPosition(pos)) {
                     posList.checkAndAdd(p);
                 }
             }
-
-            case BISHOP -> {
-
-
-            }
-            case ROOK -> {
-            }
+            case BISHOP -> posList.checkSlash();
+            case ROOK -> posList.checkCross();
             case QUEEN -> {
+                posList.checkCross();
+                posList.checkSlash();
             }
             case KING -> {
+                for (Position p : getSidePosition(pos)) {
+                    posList.checkAndAdd(p);
+                }
             }
         }
-
-
-
-
-        return null;
+        return posList.getPosList();
     }
 
     /**
@@ -428,12 +467,12 @@ public class GameCore {
     }
 
     /**
-     * Return a list of all the enemy chess (that are opposite the side)
+     * Return a list of all the enemy chess (that are OPPOSITE the given side)
      * that can target the position.
      * The difference of this from below is that this function won't test
      * whether the king will target the position, i.e. King is not included
      */
-    public ArrayList<Chess> getTargetChess(Position position, ColorType side) {
+    public ArrayList<Chess> getEnemyChess(Position position, ColorType side) {
         ArrayList<Chess> list = new ArrayList<>();
         for (Chess chess : chessList) {
             if (chess.getColorType() != side &&

@@ -231,4 +231,19 @@ public class MoveRule {
         }
         return posList;
     }
+
+    /**
+     * Get all possible positions for the knight
+     */
+    public static ArrayList<Position> getSidePosition(Position pos) {
+        ArrayList<Position> posList = new ArrayList<>();
+        for (int row = -1; row <= 1; ++row) {
+            for (int col = -1; col <= 1; ++col) {
+                if (row != 0 && col != 0 &&
+                        Position.withinRange(pos.getRow() + row, pos.getColumn() + col))
+                    posList.add(new Position(pos.getRow() + row, pos.getColumn() + col));
+            }
+        }
+        return posList;
+    }
 }
