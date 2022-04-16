@@ -75,9 +75,6 @@ public class ChessKingApp extends GameApplication {
             spawn("chess");
         }
     }
-    public void followMouse(){
-
-    }
     public void initBoard(){
         for(int i = 1; i < 9; i++) {
             for (int f = 1; f < 9; f++) {

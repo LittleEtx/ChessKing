@@ -12,6 +12,8 @@ import javafx.geometry.Point2D;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 
+import java.nio.channels.SelectableChannel;
+
 import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
 
 public class BoardFactory implements EntityFactory {
