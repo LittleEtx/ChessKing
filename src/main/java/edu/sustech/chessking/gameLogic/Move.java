@@ -107,47 +107,47 @@ public class Move {
             case MOVE -> {
                 if (moveTarget.length != 1)
                     throw new ConstructorException("Invalid parameter number");
-                else if (moveTarget[0].getClass() != Position.class)
+                if (moveTarget[0].getClass() != Position.class)
                     throw new ConstructorException("Invalid object for move type MOVE");
-                else if (!MoveRule.isMoveValid(chess, (Position) moveTarget[0]))
+                if (!MoveRule.isMoveValid(chess, (Position) moveTarget[0]))
                     throw new ConstructorException("Invalid move");
             }
             case EAT -> {
                 if (moveTarget.length != 1)
                     throw new ConstructorException("Invalid parameter number");
-                else if (moveTarget[0].getClass() != Chess.class)
+                if (moveTarget[0].getClass() != Chess.class)
                     throw new ConstructorException("Invalid object for move type EAT");
-                else if (!MoveRule.isEatValid(chess, (Chess) moveTarget[0]))
+                if (!MoveRule.isEatValid(chess, (Chess) moveTarget[0]))
                     throw new ConstructorException("Invalid eat");
             }
 
             case CASTLE -> {
                 if (moveTarget.length != 1)
                     throw new ConstructorException("Invalid parameter number");
-                else if (moveTarget[0].getClass() != CastleType.class)
+                if (moveTarget[0].getClass() != CastleType.class)
                     throw new ConstructorException("Invalid object for move type CASTLE");
-                else if (!MoveRule.isKingCastleValid(chess))
+                if (!MoveRule.isKingCastleValid(chess))
                     throw  new ConstructorException("Invalid chess king");
             }
 
             case PROMOTE -> {
                 if (moveTarget.length != 1)
                     throw new ConstructorException("Invalid parameter number");
-                else if (moveTarget[0].getClass() != ChessType.class)
+                if (moveTarget[0].getClass() != ChessType.class)
                     throw new ConstructorException("Invalid object for move type CASTLE");
-                else if (!MoveRule.isPromotionValid(chess, (ChessType) moveTarget[0]))
+                if (!MoveRule.isPromotionValid(chess, (ChessType) moveTarget[0]))
                     throw new ConstructorException("Invalid promotion");
             }
 
             case EATPROMOTE -> {
                 if (moveTarget.length != 2)
                     throw new ConstructorException("Invalid parameter number");
-                else if (moveTarget[0].getClass() != Chess.class ||
+                if (moveTarget[0].getClass() != Chess.class ||
                         moveTarget[1].getClass() != ChessType.class)
                     throw new ConstructorException("Invalid object for move type EATPROMOTE");
-                else if (!MoveRule.isEatValid(chess, (Chess) moveTarget[0]))
+                if (!MoveRule.isEatValid(chess, (Chess) moveTarget[0]))
                     throw new ConstructorException("Invalid eat");
-                else if (!MoveRule.isPromotionValid(chess, (ChessType) moveTarget[1]))
+                if (!MoveRule.isPromotionValid(chess, (ChessType) moveTarget[1]))
                     throw  new ConstructorException("Invalid promotion");
             }
             default -> throw new ConstructorException("Invalid move type");

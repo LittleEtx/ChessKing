@@ -119,6 +119,19 @@ public class MoveRule {
         return isEatValid(chess, target.getPosition());
     }
 
+    /**
+     * To check if the pawn is at the origin position
+     */
+    public static boolean isPawnNotMove(Chess pawn) {
+        if (pawn == null || pawn.getChessType() != ChessType.PAWN)
+            return false;
+
+        if (pawn.getColorType() == ColorType.WHITE)
+            return pawn.getPosition().getRow() == 1;
+        else
+            return pawn.getPosition().getRow() == 6;
+    }
+
 
     /**
      * To check if two position are near each other
@@ -160,6 +173,23 @@ public class MoveRule {
         return !pos1.equals(pos2) &&
                 rowDistance(pos1, pos2) == columnDistance(pos1, pos2);
     }
+
+    /**
+     * To check if in the left-down to right-up slash
+     */
+    public static boolean withinUpSlash(Position pos1, Position pos2) {
+        return !pos1.equals(pos2) &&
+                pos1.getRow() - pos2.getRow() == pos1.getColumn() - pos2.getColumn();
+    }
+
+    /**
+     * To check if in the left-up to right-down slash
+     */
+    public static boolean withinDownSlash(Position pos1, Position pos2) {
+        return !pos1.equals(pos2) &&
+                pos2.getRow() - pos1.getRow() == pos1.getColumn() - pos2.getColumn();
+    }
+
 
     /**
      * To check if fit knight way

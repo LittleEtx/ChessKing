@@ -19,8 +19,10 @@ public class GameCore {
     //===============================
     //    ChessBoard Setting Method
     //===============================
+
     /**
      * This method will set all chess to the beginning position
+     * Game History will be cleaned
      */
     public void initialGame() {
         for (int i = 0; i < 8; i++) {
@@ -47,6 +49,8 @@ public class GameCore {
         chessList.add(new Chess(White, King, "F1"));
         chessList.add(new Chess(Black, Queen, "D8"));
         chessList.add(new Chess(Black, King, "F8"));
+
+
     }
 
     /**
@@ -80,6 +84,7 @@ public class GameCore {
     //==================================
     //      Game Checking Method
     //==================================
+
     /**
      * see if one side has lost, including:
      * 1. No king on the chessboard
@@ -96,11 +101,11 @@ public class GameCore {
      * see if one side has wined
      */
     public boolean hasWined(ColorType side) {
-         if (side == ColorType.BLACK)
-             return hasLost(ColorType.WHITE);
-         else
-             return hasLost(ColorType.BLACK);
-     }
+        if (side == ColorType.BLACK)
+            return hasLost(ColorType.WHITE);
+        else
+            return hasLost(ColorType.BLACK);
+    }
 
     /**
      * see if it has drawn at the time, including:
@@ -139,9 +144,10 @@ public class GameCore {
     //==================================
     //        Chess Moving Method
     //==================================
+
     /**
-    * Target a chess move to the position, return false if not available
-    */
+     * Target a chess move to the position, return false if not available
+     */
     public boolean moveChess(Chess chess, Position targetPos) {
 
         //Needs to add
@@ -203,15 +209,30 @@ public class GameCore {
     //==================================
     //       Chess getting Method
     //==================================
+
     /**
      * Check if the chess is in game
      */
-    public boolean isInGame(Chess chess) {
+    public boolean isChessInGame(Chess chess) {
         if (chess == null)
             return false;
 
         for (Chess ch : chessList) {
             if (ch.equals(chess))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if the position has chess
+     */
+    public boolean hasChess(Position position) {
+        if (position == null)
+            return false;
+
+        for (Chess ch : chessList) {
+            if (ch.getPosition().equals(position))
                 return true;
         }
         return false;
@@ -244,13 +265,18 @@ public class GameCore {
      * Return a list of all available move positions of a chess
      */
     public ArrayList<Position> getAvailablePosition(Chess chess) {
-        if (!isInGame(chess))
+        if (!isChessInGame(chess))
             return null;
 
+        ArrayList<Position> positions;
         switch (chess.getChessType()) {
             case PAWN -> {
+                if (chess.getColorType() == WHITE) {
 
+                }
+                else {
 
+                }
 
             }
             case KNIGHT -> {
@@ -285,7 +311,7 @@ public class GameCore {
 
         //Needs to add
 
-        return  null;
+        return null;
     }
 
     /**
@@ -296,5 +322,56 @@ public class GameCore {
         //Needs to add
 
         return null;
+    }
+
+
+    //==================================
+    //       assistant method
+    //==================================
+    /**
+     * Check if there's any chess in between the position (not including)
+     * Only check if in cross or in slash
+     */
+    public boolean hasChessInBetween(Position p1, Position p2) {
+        if (MoveRule.withinRow(p1, p2)) {
+            int colMin = Math.min(p1.getColumn(), p2.getColumn());
+            int colMax = Math.max(p1.getColumn(), p2.getColumn());
+            int row = p1.getRow();
+            for (int col = colMin + 1; col < colMax; col++) {
+                if (hasChess(new Position((short) row, (short) col)))
+                    return true;
+            }
+        } else if (MoveRule.withinColumn(p1, p2)) {
+            int rowMin = Math.min(p1.getRow(), p2.getRow());
+            int rowMax = Math.max(p1.getRow(), p2.getRow());
+            int col = p1.getColumn();
+            for (int row = rowMin + 1; row < rowMax; row++) {
+                if (hasChess(new Position((short) row, (short) col)))
+                    return true;
+            }
+        } else if (MoveRule.withinUpSlash(p1, p2)) {
+            int row = Math.min(p1.getRow(), p2.getRow()) + 1;
+            int col = Math.min(p1.getColumn(), p2.getColumn()) + 1;
+            int rowMax = Math.max(p1.getRow(), p2.getRow());
+            int colMax = Math.max(p1.getRow(), p2.getRow());
+            while (row < rowMax && col < colMax) {
+                if (hasChess((new Position((short) row, (short) col))))
+                    return true;
+                ++row;
+                ++col;
+            }
+        } else if (MoveRule.withinDownSlash(p1, p2)) {
+            int row = Math.max(p1.getRow(), p2.getRow()) - 1;
+            int col = Math.min(p1.getColumn(), p2.getColumn()) + 1;
+            int rowMin = Math.min(p1.getRow(), p2.getRow());
+            int colMax = Math.max(p1.getRow(), p2.getRow());
+            while (row > rowMin && col < colMax) {
+                if (hasChess((new Position((short) row, (short) col))))
+                    return true;
+                --row;
+                ++col;
+            }
+        }
+        return false;
     }
 }

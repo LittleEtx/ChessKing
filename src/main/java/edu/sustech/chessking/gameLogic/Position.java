@@ -2,6 +2,8 @@ package edu.sustech.chessking.gameLogic;
 
 import edu.sustech.chessking.gameLogic.exception.ConstructorException;
 
+import java.io.PipedOutputStream;
+
 /**
  * Immutable
  */
@@ -48,6 +50,58 @@ public class Position {
 
     public short getColumn() {
         return column;
+    }
+
+    /**
+     * Methods to get nearby positions
+     * if over boundary, will return false;
+     */
+    public Position getUpPosition() {
+        if (row >= 7)
+            return null;
+        return new Position((short)(row + 1), column);
+    }
+
+    public Position getDownPosition() {
+        if (row <= 0)
+            return null;
+        return new Position((short)(row - 1), column);
+    }
+
+    public Position getLeftPosition() {
+        if (column <= 0)
+            return null;
+        return new Position(row, (short)(column - 1));
+    }
+
+    public Position getRightPosition() {
+        if (column >= 7)
+            return null;
+        return new Position(row, (short)(column + 1));
+    }
+
+    public Position getLeftUpPosition() {
+        if (row >= 7 || column  <= 0)
+            return null;
+        return new Position((short)(row + 1), (short)(column - 1));
+    }
+
+    public Position getLeftDownPosition() {
+        if (row <= 0 || column  <= 0)
+            return null;
+        return new Position((short)(row - 1), (short)(column - 1));
+    }
+
+    public Position getRightUpPosition() {
+        if (row >= 7 || column >= 7)
+            return null;
+        return new Position((short)(row + 1), (short)(column + 1));
+    }
+
+    public Position getRightDownPosition() {
+        if (row <= 0 || column >= 7)
+            return null;
+        return new Position((short)(row - 1), (short)(column + 1));
     }
 
     /**
