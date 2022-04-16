@@ -21,6 +21,8 @@ public class GameCore {
      * This method will set all chess to the beginning position
      */
     public void initialGame() {
+        chessList.add(new Chess("white pawn A2"));
+
 
     }
 
@@ -201,7 +203,7 @@ public class GameCore {
      */
     public ArrayList<Position> getAvailablePosition(Chess chess) {
 
-        //Needs to add
+
 
         return null;
     }
