@@ -2,6 +2,9 @@ package edu.sustech.chessking.gameLogic;
 
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
+import edu.sustech.chessking.gameLogic.exception.ConstructorException;
+
+import java.util.ArrayList;
 
 public class MoveRule {
     /**
@@ -211,5 +214,21 @@ public class MoveRule {
      */
     public static int columnDistance(Position pos1, Position pos2) {
         return Math.abs(pos1.getColumn() - pos2.getColumn());
+    }
+
+    /**
+     * Get all possible positions for the knight
+     */
+    public static ArrayList<Position> getKnightPosition(Position pos) {
+        ArrayList<Position> posList = new ArrayList<>();
+        short[] distance = new short[]{-2, -1, 1, 2};
+        for (short row : distance) {
+            for (short col : distance) {
+                if (Math.abs(row) != Math.abs(col))
+                    if (Position.withinRange(pos.getRow() + row, pos.getColumn() + col))
+                        posList.add(new Position(pos.getRow() + row, pos.getColumn() + col));
+            }
+        }
+        return posList;
     }
 }

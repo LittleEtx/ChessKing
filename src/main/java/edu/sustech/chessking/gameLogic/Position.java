@@ -14,9 +14,17 @@ public class Position {
         UPPERCASE, LOWERCASE
     }
 
-    public Position(short row, short column) {
-        this.row = row;
-        this.column = column;
+    /**
+     * @param row from 0 to 7
+     * @param column from 0 to 7
+     * Incorrect value will throw out ConstructorException
+     */
+    public Position(int row, int column) {
+        if (!withinRange(row, column))
+            throw new ConstructorException("Invalid row or column");
+
+        this.row = (short) row;
+        this.column = (short) column;
     }
 
     /**
@@ -57,49 +65,49 @@ public class Position {
     public Position getUp() {
         if (row >= 7)
             return null;
-        return new Position((short)(row + 1), column);
+        return new Position(row + 1, column);
     }
 
     public Position getDown() {
         if (row <= 0)
             return null;
-        return new Position((short)(row - 1), column);
+        return new Position(row - 1, column);
     }
 
     public Position getLeft() {
         if (column <= 0)
             return null;
-        return new Position(row, (short)(column - 1));
+        return new Position(row, column - 1);
     }
 
     public Position getRight() {
         if (column >= 7)
             return null;
-        return new Position(row, (short)(column + 1));
+        return new Position(row, column + 1);
     }
 
     public Position getLeftUp() {
         if (row >= 7 || column  <= 0)
             return null;
-        return new Position((short)(row + 1), (short)(column - 1));
+        return new Position(row + 1, column - 1);
     }
 
     public Position getLeftDown() {
         if (row <= 0 || column  <= 0)
             return null;
-        return new Position((short)(row - 1), (short)(column - 1));
+        return new Position(row - 1, column - 1);
     }
 
     public Position getRightUp() {
         if (row >= 7 || column >= 7)
             return null;
-        return new Position((short)(row + 1), (short)(column + 1));
+        return new Position(row + 1, column + 1);
     }
 
     public Position getRightDown() {
         if (row <= 0 || column >= 7)
             return null;
-        return new Position((short)(row - 1), (short)(column + 1));
+        return new Position(row - 1, column + 1);
     }
 
     /**
@@ -126,6 +134,11 @@ public class Position {
         row += this.row;
         chessString.append(row);
         return chessString.toString();
+    }
+
+    public static boolean withinRange(int row, int column) {
+        return row >= 0 && row <= 7 &&
+                column >= 0 && column <= 7;
     }
 
     @Override

@@ -6,10 +6,10 @@ import edu.sustech.chessking.gameLogic.enumType.MoveType;
 
 import java.util.ArrayList;
 
-import static edu.sustech.chessking.gameLogic.Chess.isOpposite;
-import static edu.sustech.chessking.gameLogic.MoveRule.*;
-import static edu.sustech.chessking.gameLogic.enumType.ChessType.*;
 import static edu.sustech.chessking.gameLogic.enumType.ColorType.*;
+import static edu.sustech.chessking.gameLogic.enumType.ChessType.*;
+import static edu.sustech.chessking.gameLogic.MoveRule.*;
+import static edu.sustech.chessking.gameLogic.Chess.*;
 
 /**
  * Provide major methods to control chess in a game
@@ -353,36 +353,65 @@ public class GameCore {
         if (!isChessInGame(chess))
             return null;
 
-        ArrayList<Position> positions = new ArrayList<>();
+        class PosList {
+            private ArrayList<Position> posList = new ArrayList<>();
+            private Chess chess;
+            public PosList(Chess chess) {
+                this.chess = chess;
+            }
+
+            public ArrayList<Position> getPosList() {
+                return posList;
+            }
+            public boolean checkAndAdd(Position pos) {
+                if (isMoveAvailable(chess, pos)) {
+                    posList.add(pos);
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        PosList posList = new PosList(chess);
         Position pos = chess.getPosition();
-        Position testPos;
-        Chess testChess;
-        if (chess.getColorType() == WHITE) {
-            if (!hasChess(testPos = pos.getUp()))
-                positions.add(testPos);
-            if ((testChess = getChess((testPos = pos.getLeftUp()))) != null &&
-                    testChess.getColorType() == BLACK)
-                positions.add(testPos);
-            if ((testChess = getChess((testPos = pos.getRightUp()))) != null &&
-                    testChess.getColorType() == BLACK)
-                positions.add(testPos);
-            if (pos.getRow() == 1 &&
-                    !hasChess(testPos = pos.getUp().getUp()))
-                positions.add(testPos);
+
+        switch (chess.getChessType()) {
+            case PAWN -> {
+                if (chess.getColorType() == WHITE) {
+                    posList.checkAndAdd(pos.getUp());
+                    posList.checkAndAdd(pos.getLeftUp());
+                    posList.checkAndAdd(pos.getRightUp());
+                    if (chess.getPosition().getRow() == 1)
+                        posList.checkAndAdd(pos.getUp().getUp());
+                }
+                else {
+                    posList.checkAndAdd(pos.getDown());
+                    posList.checkAndAdd(pos.getLeftDown());
+                    posList.checkAndAdd(pos.getRightDown());
+                    if (chess.getPosition().getRow() == 6)
+                        posList.checkAndAdd(pos.getDown().getDown());
+                }
+            }
+
+            case KNIGHT -> {
+                for (Position p : getKnightPosition(pos)) {
+                    posList.checkAndAdd(p);
+                }
+            }
+
+            case BISHOP -> {
+
+
+            }
+            case ROOK -> {
+            }
+            case QUEEN -> {
+            }
+            case KING -> {
+            }
         }
-        else {
-            if (!hasChess(testPos = pos.getDown()))
-                positions.add(testPos);
-            if ((testChess = getChess((testPos = pos.getLeftDown()))) != null &&
-                    testChess.getColorType() == WHITE)
-                positions.add(testPos);
-            if ((testChess = getChess((testPos = pos.getRightDown()))) != null &&
-                    testChess.getColorType() == WHITE)
-                positions.add(testPos);
-            if (pos.getRow() == 1 &&
-                    !hasChess(testPos = pos.getDown().getDown()))
-                positions.add(testPos);
-        }
+
+
 
 
         return null;
@@ -449,7 +478,7 @@ public class GameCore {
             int colMax = Math.max(p1.getColumn(), p2.getColumn());
             int row = p1.getRow();
             for (int col = colMin + 1; col < colMax; col++) {
-                if (hasChess(new Position((short) row, (short) col)))
+                if (hasChess(new Position(row, col)))
                     return true;
             }
         } else if (withinColumn(p1, p2)) {
@@ -457,7 +486,7 @@ public class GameCore {
             int rowMax = Math.max(p1.getRow(), p2.getRow());
             int col = p1.getColumn();
             for (int row = rowMin + 1; row < rowMax; row++) {
-                if (hasChess(new Position((short) row, (short) col)))
+                if (hasChess(new Position(row, col)))
                     return true;
             }
         } else if (withinUpSlash(p1, p2)) {
@@ -466,7 +495,7 @@ public class GameCore {
             int rowMax = Math.max(p1.getRow(), p2.getRow());
             int colMax = Math.max(p1.getRow(), p2.getRow());
             while (row < rowMax && col < colMax) {
-                if (hasChess((new Position((short) row, (short) col))))
+                if (hasChess((new Position(row, col))))
                     return true;
                 ++row;
                 ++col;
@@ -477,7 +506,7 @@ public class GameCore {
             int rowMin = Math.min(p1.getRow(), p2.getRow());
             int colMax = Math.max(p1.getRow(), p2.getRow());
             while (row > rowMin && col < colMax) {
-                if (hasChess((new Position((short) row, (short) col))))
+                if (hasChess((new Position(row, col))))
                     return true;
                 --row;
                 ++col;
