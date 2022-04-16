@@ -2,11 +2,15 @@ package edu.sustech.chessking.gameLogic;
 
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
+import edu.sustech.chessking.gameLogic.enumType.MoveType;
+import javafx.scene.shape.VLineTo;
 
 import java.util.ArrayList;
 
 import static edu.sustech.chessking.gameLogic.enumType.ColorType.*;
 import static edu.sustech.chessking.gameLogic.enumType.ChessType.*;
+import static edu.sustech.chessking.gameLogic.MoveRule.*;
+import static edu.sustech.chessking.gameLogic.Chess.*;
 
 /**
  * Provide major methods to control chess in a game
@@ -15,6 +19,7 @@ import static edu.sustech.chessking.gameLogic.enumType.ChessType.*;
 public class GameCore {
     private final ArrayList<Chess> chessList = new ArrayList<>();
     private final MoveHistory moveHistory = new MoveHistory();
+    private boolean isWhiteTurn;
 
     //===============================
     //    ChessBoard Setting Method
@@ -50,7 +55,8 @@ public class GameCore {
         chessList.add(new Chess(Black, Queen, "D8"));
         chessList.add(new Chess(Black, King, "F8"));
 
-
+        moveHistory.clearHistory();
+        isWhiteTurn = true;
     }
 
     /**
@@ -156,7 +162,7 @@ public class GameCore {
     }
 
     /**
-     * Target a chess move from a position (if has any) to a new position, return false if not available
+     * Target a chess move from a position (if any) to a new position, return false if not available
      */
     public boolean moveChess(Position chessPos, Position targetPos) {
 
@@ -191,8 +197,62 @@ public class GameCore {
      * Return if the position is available for the chess
      */
     public boolean isMoveAvailable(Chess chess, Position targetPos) {
+        if (chess == null || targetPos == null || chess.getPosition().equals(targetPos))
+            return false;
 
-        //Needs to add
+        switch (chess.getChessType()) {
+            case PAWN -> {
+                if (isMoveValid(chess, targetPos)) {
+                    return !hasChess(targetPos);
+                }
+                if (isEatValid(chess, targetPos)) {
+                    //check if eat passant
+                    Move move = moveHistory.getLastMove();
+                    Chess lastChess = move.getChess();
+                    if (chess.getColorType() == WHITE &&
+                            isOpposite(lastChess, WHITE) &&
+                            lastChess.getChessType() == PAWN &&
+                            lastChess.getPosition().getRow() == 6 &&
+                            move.getMoveType() == MoveType.MOVE &&
+                            ((Position) move.getMoveTarget()[0]).getRow() == 4 &&
+                            lastChess.getPosition().getDown().equals(targetPos))
+                        return true;
+                    else if (chess.getColorType() == BLACK &&
+                            isOpposite(lastChess, BLACK) &&
+                            lastChess.getChessType() == PAWN &&
+                            lastChess.getPosition().getRow() == 1 &&
+                            move.getMoveType() == MoveType.MOVE &&
+                            ((Position) move.getMoveTarget()[0]).getRow() == 3 &&
+                            lastChess.getPosition().getUp().equals(targetPos))
+                        return true;
+                    //else: if there's a chess to eat
+                    return isOpposite(getChess(targetPos), chess.getColorType());
+                }
+            }
+
+            //For knight, bishop, rook or queen, eatable is movable
+            case KNIGHT -> {
+                if (isMoveValid(chess, targetPos))
+                    return !hasChess(targetPos) ||
+                            isOpposite(getChess(targetPos), chess.getColorType());
+            }
+
+            case BISHOP, ROOK, QUEEN -> {
+                if (isMoveValid(chess, targetPos) &&
+                        !hasChessInBetween(chess.getPosition(), targetPos))
+                    return !hasChess(targetPos) ||
+                            isOpposite(getChess(targetPos), chess.getColorType());
+            }
+
+            case KING -> {
+                if (isMoveValid(chess, targetPos)) {
+                    //must check if the move will lead the king in danger
+
+                }
+
+
+            }
+        }
 
         return false;
     }
@@ -201,6 +261,18 @@ public class GameCore {
 
         //Needs to add
 
+
+        return false;
+    }
+
+    /**
+     * If after a move, the king will be in danger, then return ture
+     * Note that the move will not actually be made
+     * If the move is not available, return false
+     */
+    public boolean isMoveCauseDanger(Move move) {
+
+        //Needs to write
 
         return false;
     }
@@ -268,28 +340,37 @@ public class GameCore {
         if (!isChessInGame(chess))
             return null;
 
-        ArrayList<Position> positions;
-        switch (chess.getChessType()) {
-            case PAWN -> {
-                if (chess.getColorType() == WHITE) {
-
-                }
-                else {
-
-                }
-
-            }
-            case KNIGHT -> {
-            }
-            case BISHOP -> {
-            }
-            case ROOK -> {
-            }
-            case QUEEN -> {
-            }
-            case KING -> {
-            }
+        ArrayList<Position> positions = new ArrayList<>();
+        Position pos = chess.getPosition();
+        Position testPos;
+        Chess testChess;
+        if (chess.getColorType() == WHITE) {
+            if (!hasChess(testPos = pos.getUp()))
+                positions.add(testPos);
+            if ((testChess = getChess((testPos = pos.getLeftUp()))) != null &&
+                    testChess.getColorType() == BLACK)
+                positions.add(testPos);
+            if ((testChess = getChess((testPos = pos.getRightUp()))) != null &&
+                    testChess.getColorType() == BLACK)
+                positions.add(testPos);
+            if (pos.getRow() == 1 &&
+                    !hasChess(testPos = pos.getUp().getUp()))
+                positions.add(testPos);
         }
+        else {
+            if (!hasChess(testPos = pos.getDown()))
+                positions.add(testPos);
+            if ((testChess = getChess((testPos = pos.getLeftDown()))) != null &&
+                    testChess.getColorType() == WHITE)
+                positions.add(testPos);
+            if ((testChess = getChess((testPos = pos.getRightDown()))) != null &&
+                    testChess.getColorType() == WHITE)
+                positions.add(testPos);
+            if (pos.getRow() == 1 &&
+                    !hasChess(testPos = pos.getDown().getDown()))
+                positions.add(testPos);
+        }
+
 
         return null;
     }
@@ -302,6 +383,23 @@ public class GameCore {
         //Needs to add
 
         return null;
+    }
+
+    /**
+     * Return a list of all the enemy chess (that are opposite the side)
+     * that can target the position.
+     * The difference of this from below is that this function won't test
+     * whether the king will target the position
+     */
+    public ArrayList<Chess> getTargetChess(Position position, ColorType side) {
+        ArrayList<Chess> list = new ArrayList<>();
+        for (Chess chess : chessList) {
+            if (chess.getColorType() != side &&
+                    chess.getChessType() != KING &&
+                    isMoveAvailable(chess, position))
+                list.add(chess);
+        }
+        return list;
     }
 
     /**
@@ -333,7 +431,7 @@ public class GameCore {
      * Only check if in cross or in slash
      */
     public boolean hasChessInBetween(Position p1, Position p2) {
-        if (MoveRule.withinRow(p1, p2)) {
+        if (withinRow(p1, p2)) {
             int colMin = Math.min(p1.getColumn(), p2.getColumn());
             int colMax = Math.max(p1.getColumn(), p2.getColumn());
             int row = p1.getRow();
@@ -341,7 +439,7 @@ public class GameCore {
                 if (hasChess(new Position((short) row, (short) col)))
                     return true;
             }
-        } else if (MoveRule.withinColumn(p1, p2)) {
+        } else if (withinColumn(p1, p2)) {
             int rowMin = Math.min(p1.getRow(), p2.getRow());
             int rowMax = Math.max(p1.getRow(), p2.getRow());
             int col = p1.getColumn();
@@ -349,7 +447,7 @@ public class GameCore {
                 if (hasChess(new Position((short) row, (short) col)))
                     return true;
             }
-        } else if (MoveRule.withinUpSlash(p1, p2)) {
+        } else if (withinUpSlash(p1, p2)) {
             int row = Math.min(p1.getRow(), p2.getRow()) + 1;
             int col = Math.min(p1.getColumn(), p2.getColumn()) + 1;
             int rowMax = Math.max(p1.getRow(), p2.getRow());
@@ -360,7 +458,7 @@ public class GameCore {
                 ++row;
                 ++col;
             }
-        } else if (MoveRule.withinDownSlash(p1, p2)) {
+        } else if (withinDownSlash(p1, p2)) {
             int row = Math.max(p1.getRow(), p2.getRow()) - 1;
             int col = Math.min(p1.getColumn(), p2.getColumn()) + 1;
             int rowMin = Math.min(p1.getRow(), p2.getRow());

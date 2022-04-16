@@ -97,7 +97,6 @@ public class MoveRule {
             return false;
 
         if (chess.getChessType() == ChessType.PAWN) {
-
             if (chess.getColorType() == ColorType.WHITE) {
                 return chessPos.getRow() + 1 == position.getRow() &&
                         columnDistance(chessPos, position) == 1;

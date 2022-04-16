@@ -154,6 +154,18 @@ public class Move {
         }
     }
 
+    public Chess getChess() {
+        return chess;
+    }
+
+    public MoveType getMoveType() {
+        return moveType;
+    }
+
+    public Object[] getMoveTarget() {
+        return moveTarget;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

@@ -52,6 +52,15 @@ public class Chess{
     public Position getPosition() {
         return position;
     }
+    
+    /**
+     * A method to check if chess is opposite to the colorType
+     */
+    public static boolean isOpposite(Chess chess, ColorType colorType) {
+        return chess != null && chess.getColorType() != colorType;
+    }
+
+
 
     /**
      * A quick method to clone a chess
