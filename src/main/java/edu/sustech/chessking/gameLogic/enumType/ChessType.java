@@ -48,6 +48,7 @@ public enum ChessType {
                 return Pawn;
             }
             case KNIGHT -> {
+                return Knight;
             }
             case BISHOP -> {
                 return Bishop;
