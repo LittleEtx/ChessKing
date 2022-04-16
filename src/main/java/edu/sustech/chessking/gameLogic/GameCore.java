@@ -267,6 +267,7 @@ public class GameCore {
                     //must check if the move will lead the king in danger
                     getEnemyChess(targetPos, chess.getColorType()).isEmpty())
                     return true;
+
                 //Castling checking
                 if (isKingCastleValid(chess) &&
                         chess.getPosition().getRow() == targetPos.getRow() &&
@@ -274,7 +275,6 @@ public class GameCore {
                     int row = chess.getPosition().getRow();
 
                     Chess rook;
-                    Position pos;
                     Move move;
                     //if short castling
                     if (chess.getPosition().getColumn() < targetPos.getColumn()) {
@@ -283,12 +283,15 @@ public class GameCore {
                         if (rook == null || rook.getChessType() != ROOK ||
                                 rook.getColorType() != chess.getColorType())
                             return false;
-                        //if there has chess in between or is targeted
-                        for (int col = 4; col <= 7; ++col) {
-                            if (hasChess(pos = new Position(row, col)) ||
-                                    !getEnemyChess(pos, chess.getColorType()).isEmpty())
+                        //if there has chess in between
+                        for (int col = 5; col <= 6; ++col)
+                            if (hasChess(new Position(row, col)))
                                 return false;
-                        }
+                        //if any chess can target the position
+                        for (int col = 4; col <= 6; ++col)
+                            if (!getEnemyChess(new Position(row, col),
+                                    chess.getColorType()).isEmpty())
+                                return false;
                     }
                     //if long castling
                     else {
@@ -296,9 +299,14 @@ public class GameCore {
                         if (rook == null || rook.getChessType() != ROOK ||
                                 rook.getColorType() != chess.getColorType())
                             return false;
-                        for (int col = 4; col >= 0; --col)
-                            if (hasChess(pos = new Position(row, col)) ||
-                                    !getEnemyChess(pos, chess.getColorType()).isEmpty())
+                        //if there has chess in between
+                        for (int col = 3; col >= 1; --col)
+                            if (hasChess(new Position(row, col)))
+                                return false;
+                        //if any chess can target the position
+                        for (int col = 4; col >= 2; --col)
+                            if (!getEnemyChess(new Position(row, col),
+                                    chess.getColorType()).isEmpty())
                                 return false;
                     }
 
@@ -311,6 +319,9 @@ public class GameCore {
                         if (hisChess.equals(chess) || hisChess.equals(rook))
                             return false;
                     }
+
+                    //after all the checking
+                    return true;
                 }
             }
         }
