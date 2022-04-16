@@ -41,12 +41,19 @@ public class ChessKingApp extends GameApplication {
         //System.out.println();
     }
 
+    public Point2D toPoint2D(Chess chess){
+        Point2D point = new Point2D(
+                80+chess.getPosition().getColumn()*80,640 - chess.getPosition().getRow()*80
+        );
+        return point;
+    }
+
     public void initChess() {
         gameCore.initialGame();
         for(Chess chess: gameCore.getChessList()){
             String pic = skin + " " + chess.getChessType().toString() + "-" + chess.getColorType().toString() + ".png";
             FXGL.entityBuilder()
-                    .at(chess.getPosition().toPoint2D())
+                    .at(toPoint2D(chess))
                     .viewWithBBox(texture(pic.toLowerCase(),80,80))
                     .buildAndAttach();
         }
