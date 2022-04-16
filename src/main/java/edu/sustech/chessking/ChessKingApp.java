@@ -24,6 +24,7 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void initGame() {
         initChess();
+        //System.out.println();
     }
 
     public void initChess() {

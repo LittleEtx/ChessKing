@@ -50,9 +50,9 @@ public class GameCore {
         chessList.add(new Chess(Black, Bishop, "F8"));
 
         chessList.add(new Chess(White, Queen, "D1"));
-        chessList.add(new Chess(White, King, "F1"));
+        chessList.add(new Chess(White, King, "E1"));
         chessList.add(new Chess(Black, Queen, "D8"));
-        chessList.add(new Chess(Black, King, "F8"));
+        chessList.add(new Chess(Black, King, "E8"));
 
         moveHistory.clearHistory();
         isWhiteTurn = true;

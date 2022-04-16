@@ -131,7 +131,7 @@ public class Position {
 
     public Point2D toPoint2D(){
         Point2D point = new Point2D(
-                80+column*80,80+row*80
+                80+column*80,640 - row*80
         );
         return point;
     }
