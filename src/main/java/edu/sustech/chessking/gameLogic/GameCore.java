@@ -165,8 +165,16 @@ public class GameCore {
      * Target a chess move to the position, return false if not available
      */
     public boolean moveChess(Chess chess, Position targetPos) {
+        if (!isChessInGame(chess) || chess.getColorType() != turn ||
+                !getAvailablePosition(chess).contains(targetPos))
+            return false;
 
-        //Needs to add
+        Chess targetChess;
+        Move move;
+        if ((targetChess = getChess(targetPos)) != null) {
+        }
+
+        //needs to add
 
         return false;
     }
@@ -257,9 +265,53 @@ public class GameCore {
             case KING -> {
                 if (isMoveValid(chess, targetPos) &&
                     //must check if the move will lead the king in danger
-                    getEnemyChess(targetPos, chess.getColorType()) == null &&
-                            !isEatValid(getChess(chess.getColorType().reverse(), KING).get(0), targetPos))
+                    getEnemyChess(targetPos, chess.getColorType()).isEmpty())
                     return true;
+                //Castling checking
+                if (isKingCastleValid(chess) &&
+                        chess.getPosition().getRow() == targetPos.getRow() &&
+                        columnDistance(chess.getPosition(), targetPos) == 2) {
+                    int row = chess.getPosition().getRow();
+
+                    Chess rook;
+                    Position pos;
+                    Move move;
+                    //if short castling
+                    if (chess.getPosition().getColumn() < targetPos.getColumn()) {
+                        rook = getChess(new Position(row, 7));
+                        //if rook is correct
+                        if (rook == null || rook.getChessType() != ROOK ||
+                                rook.getColorType() != chess.getColorType())
+                            return false;
+                        //if there has chess in between or is targeted
+                        for (int col = 4; col <= 7; ++col) {
+                            if (hasChess(pos = new Position(row, col)) ||
+                                    !getEnemyChess(pos, chess.getColorType()).isEmpty())
+                                return false;
+                        }
+                    }
+                    //if long castling
+                    else {
+                        rook = getChess(new Position(row, 0));
+                        if (rook == null || rook.getChessType() != ROOK ||
+                                rook.getColorType() != chess.getColorType())
+                            return false;
+                        for (int col = 4; col >= 0; --col)
+                            if (hasChess(pos = new Position(row, col)) ||
+                                    !getEnemyChess(pos, chess.getColorType()).isEmpty())
+                                return false;
+                    }
+
+                    //Never moved before
+                    Chess hisChess;
+                    for (int i = 0; i < moveHistory.getMoveNum(); ++i) {
+                        move = moveHistory.getMove(i);
+                        //if is king or rook
+                        hisChess = move.getChess();
+                        if (hisChess.equals(chess) || hisChess.equals(rook))
+                            return false;
+                    }
+                }
             }
         }
         return false;
@@ -470,15 +522,20 @@ public class GameCore {
      * Return a list of all the enemy chess (that are OPPOSITE the given side)
      * that can target the position.
      * The difference of this from below is that this function won't test
-     * whether the king will target the position, i.e. King is not included
+     * whether the enemy king eat the chess will lead it to danger, i.e.
+     * the function only checks if any enemy can eat the position
      */
     public ArrayList<Chess> getEnemyChess(Position position, ColorType side) {
         ArrayList<Chess> list = new ArrayList<>();
         for (Chess chess : chessList) {
-            if (chess.getColorType() != side &&
-                    chess.getChessType() != KING &&
-                    isMoveAvailable(chess, position))
-                list.add(chess);
+            if (chess.getColorType() != side) {
+                if (chess.getChessType() != KING &&
+                        isMoveAvailable(chess, position))
+                    list.add(chess);
+                else if (chess.getChessType() == KING &&
+                        isEatValid(chess, position))
+                    list.add(chess);
+            }
         }
         return list;
     }
