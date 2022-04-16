@@ -3,14 +3,13 @@ package edu.sustech.chessking.gameLogic;
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
-import javafx.scene.shape.VLineTo;
 
 import java.util.ArrayList;
 
-import static edu.sustech.chessking.gameLogic.enumType.ColorType.*;
-import static edu.sustech.chessking.gameLogic.enumType.ChessType.*;
+import static edu.sustech.chessking.gameLogic.Chess.isOpposite;
 import static edu.sustech.chessking.gameLogic.MoveRule.*;
-import static edu.sustech.chessking.gameLogic.Chess.*;
+import static edu.sustech.chessking.gameLogic.enumType.ChessType.*;
+import static edu.sustech.chessking.gameLogic.enumType.ColorType.*;
 
 /**
  * Provide major methods to control chess in a game
@@ -245,18 +244,19 @@ public class GameCore {
             }
 
             case KING -> {
-                if (isMoveValid(chess, targetPos)) {
+                if (isMoveValid(chess, targetPos) &&
                     //must check if the move will lead the king in danger
-
-                }
-
-
+                    getTargetChess(targetPos, chess.getColorType()) == null &&
+                            !isEatValid(getChess(chess.getColorType().reverse(), KING).get(0), targetPos))
+                    return true;
             }
         }
-
         return false;
     }
 
+    /**
+     * Return if the move is available
+     */
     public boolean isMoveAvailable(Move move) {
 
         //Needs to add
@@ -326,6 +326,19 @@ public class GameCore {
     }
 
     /**
+     * Get the list of chess of a certain color and type
+     * May be empty if no such chess exists
+     */
+    public ArrayList<Chess> getChess(ColorType side, ChessType chessType) {
+        ArrayList<Chess> list =  new ArrayList<>();
+        for (Chess chess : chessList) {
+            if (chess.getColorType() == side && chess.getChessType() == chessType)
+                list.add(chess);
+        }
+        return list;
+    }
+
+    /**
      * Get a list of all the chess copy in game
      */
     public ArrayList<Chess> getChessList() {
@@ -389,7 +402,7 @@ public class GameCore {
      * Return a list of all the enemy chess (that are opposite the side)
      * that can target the position.
      * The difference of this from below is that this function won't test
-     * whether the king will target the position
+     * whether the king will target the position, i.e. King is not included
      */
     public ArrayList<Chess> getTargetChess(Position position, ColorType side) {
         ArrayList<Chess> list = new ArrayList<>();

@@ -1,6 +1,7 @@
 package edu.sustech.chessking.gameLogic;
 
 import edu.sustech.chessking.gameLogic.exception.ConstructorException;
+import javafx.geometry.Point2D;
 
 /**
  * Immutable
@@ -126,6 +127,13 @@ public class Position {
         row += this.row;
         chessString.append(row);
         return chessString.toString();
+    }
+
+    public Point2D toPoint2D(){
+        Point2D point = new Point2D(
+                80+column*80,80+row*80
+        );
+        return point;
     }
 
     @Override

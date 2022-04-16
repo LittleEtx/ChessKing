@@ -24,6 +24,22 @@ public enum ColorType {
         }
     }
 
+    /**
+     * get the reverse color
+     */
+    public ColorType reverse() {
+        switch (this) {
+            case BLACK -> {
+                return WHITE;
+            }
+            case WHITE -> {
+                return BLACK;
+            }
+        }
+        return WHITE;
+    }
+
+
     @Override
     public String toString() {
         switch (this) {
