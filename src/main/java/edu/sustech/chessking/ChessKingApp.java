@@ -9,6 +9,7 @@ import com.almasb.fxgl.entity.SpawnData;
 import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.Factories.BoardFactory;
 import edu.sustech.chessking.gameLogic.GameCore;
+import edu.sustech.chessking.gameLogic.enumType.EntityType;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -25,14 +26,20 @@ public class ChessKingApp extends GameApplication {
     private GameCore gameCore = new GameCore();
     public final ArrayList<Entity> board = new ArrayList<>();
 
+
+    // ===============================
+    //initialize game settings
     @Override
-    protected void initSettings(GameSettings gameSettings) {
+    public void initSettings(GameSettings gameSettings) {
         gameSettings.setTitle("Chess King");
         gameSettings.setVersion("0.1");
         gameSettings.setHeight(800);
         gameSettings.setWidth(1200);
     }
 
+
+    // ===============================
+    //initialize the game
     @Override
     protected void initGame() {
         getGameWorld().addEntityFactory(new BoardFactory());
@@ -58,37 +65,6 @@ public class ChessKingApp extends GameApplication {
                     .buildAndAttach();
         }
     }
-
-    public void compareMouse(){
-        Point2D mouse = getInput().getMousePositionWorld();
-        for(Entity b : board) {
-            if (Math.abs(mouse.getX() - b.getCenter().getX())<40&&
-                    Math.abs(mouse.getY() - b.getCenter().getY())<40/*&& !spawnCircle*/){
-//                Entity circle = spawn("circle",new SpawnData(b.getX()+40,b.getY()+40)
-//                        .put("color",Color.YELLOW));
-//                spawnCircle = true;
-//                if(mouse.getX() - b.getX()>40){
-//                    circle.removeFromWorld();
-//                    spawnCircle = false;
-//                }
-                Rectangle rect = new Rectangle(40,40,Color.BROWN);
-                Entity blink = entityBuilder(new SpawnData(b.getCenter()))
-                        .at(b.getX()+20,b.getY()+20)
-                        .view(rect)
-                        .with(new ExpireCleanComponent(Duration.seconds(0.01)))
-                        .buildAndAttach();
-            }
-        }
-    }
-
-    @Override
-    protected void onUpdate(double tpf) {
-        //System.out.println(getInput().getMousePositionWorld());
-        //System.out.println(getGameWorld());
-        compareMouse();
-    }
-
-
     public void initBoard(){
         for(int i = 1; i < 9; i++) {
             for (int f = 1; f < 9; f++) {
@@ -116,6 +92,42 @@ public class ChessKingApp extends GameApplication {
 
     }
 
+
+    // ===============================
+    //methods used every frame
+    public void compareMouse(){
+        Point2D mouse = getInput().getMousePositionWorld();
+        for(Entity b : board) {
+            if (Math.abs(mouse.getX() - b.getCenter().getX())<40&&
+                    Math.abs(mouse.getY() - b.getCenter().getY())<40/*&& !spawnCircle*/){
+//                Entity circle = spawn("circle",new SpawnData(b.getX()+40,b.getY()+40)
+//                        .put("color",Color.YELLOW));
+//                spawnCircle = true;
+//                if(mouse.getX() - b.getX()>40){
+//                    circle.removeFromWorld();
+//                    spawnCircle = false;
+//                }
+                Rectangle rect = new Rectangle(40,40,Color.BROWN);
+                Entity blink = entityBuilder(new SpawnData(b.getCenter()))
+                        .type(EntityType.BOX)
+                        .at(b.getX()+20,b.getY()+20)
+                        .view(rect)
+                        .with(new ExpireCleanComponent(Duration.seconds(0.01)))
+                        .buildAndAttach();
+            }
+        }
+    }
+
+    @Override
+    protected void onUpdate(double tpf) {
+        //System.out.println(getInput().getMousePositionWorld());
+        //System.out.println(getGameWorld());
+        compareMouse();
+    }
+
+
+    // ===============================
+    //finally launching the game
     public static void main(String[] args) {
         launch(args);
     }
