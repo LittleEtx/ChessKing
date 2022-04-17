@@ -11,35 +11,31 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 
 public class ChessComponent extends Component {
     private String skin = "default";
-    private static Chess chess;
-    private static Texture img;
+    private Chess chess;
 
-
-    public static void setChess(Chess chessie) {
-        chess = chessie;
+    public ChessComponent(Chess chess) {
+        this.chess = chess;
     }
 
     @Override
     public void onAdded() {
         String pic = skin + " " + chess.getChessType().toString()
                 + "-" + chess.getColorType().toString() + ".png";
-        img = texture(pic,80,80);
+        Texture img = texture(pic, 80, 80);
+        entity.getViewComponent().addChild(img);
+        entity.setPosition(getPoint());
     }
 
     @Override
     public void onUpdate(double tpf) {
-        onBtnDown(MouseButton.PRIMARY,()->{
-            Point2D mouse = getInput().getMousePositionWorld();
-            entity.setX(mouse.getX());
-            entity.setY(mouse.getY());
-            return null;
-        });
+//        onBtnDown(MouseButton.PRIMARY,()->{
+//            Point2D mouse = getInput().getMousePositionWorld();
+//            entity.setX(mouse.getX());
+//            entity.setY(mouse.getY());
+//            return null;
+//        });
     }
 
-
-    public static Texture getImg(){
-        return img;
-    }
 
 //    public void withMouse(){
 //        Point2D mouse = getInput().getMousePositionWorld();
@@ -59,7 +55,7 @@ public class ChessComponent extends Component {
 //    }
 //
 
-    public static Point2D getPoint(){
+    private Point2D getPoint(){
         Point2D point = new Point2D(
                 80+chess.getPosition().getColumn()*80,640 - chess.getPosition().getRow()*80
         );

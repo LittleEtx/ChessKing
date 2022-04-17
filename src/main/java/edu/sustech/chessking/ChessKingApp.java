@@ -59,8 +59,7 @@ public class ChessKingApp extends GameApplication {
     public void initChess() {
         gameCore.initialGame();
         for(Chess chess: gameCore.getChessList()){
-            ChessComponent.setChess(chess);
-            spawn("chess");
+            spawn("chess", new SpawnData().put("chess", chess));
         }
     }
     public void initBoard(){

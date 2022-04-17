@@ -26,13 +26,10 @@ public class BoardFactory implements EntityFactory {
 
     @Spawns("chess")
     public Entity newChess(SpawnData data){
-        Entity chessie = FXGL.entityBuilder(data)
-                .with(new ChessComponent())
-                .viewWithBBox(ChessComponent.getImg())
+        return FXGL.entityBuilder(data)
+                .with(new ChessComponent(data.get("chess")))
                 .type(EntityType.CHESS)
-                .at(ChessComponent.getPoint())
                 .build();
-        return chessie;
     }
 
     @Spawns("circle")
@@ -41,7 +38,5 @@ public class BoardFactory implements EntityFactory {
                 .viewWithBBox(new Circle(20,data.get("color")))
                 .build();
     }
-
-
 
 }
