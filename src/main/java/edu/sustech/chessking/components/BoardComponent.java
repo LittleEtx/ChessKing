@@ -49,8 +49,8 @@ public class BoardComponent extends Component {
         Point2D mouse = getInput().getMousePositionWorld();
 
 
-        if (Math.abs(mouse.getX() - entity.getCenter().getX())<40&&
-                    Math.abs(mouse.getY() - entity.getCenter().getY())<40){
+        if (Math.abs(mouse.getX() - entity.getX()-40)<40&&
+                    Math.abs(mouse.getY() - entity.getY()-40)<40){
             entity.setOpacity(0.2);
         }else{
             entity.setOpacity(1);

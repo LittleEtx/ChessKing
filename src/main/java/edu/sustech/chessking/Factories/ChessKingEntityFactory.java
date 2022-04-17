@@ -24,7 +24,6 @@ public class ChessKingEntityFactory implements EntityFactory {
                 .type(EntityType.BOARD)
 //                .viewWithBBox(new Rectangle
 //                        (80.0,80.0,data.get("color")))
-
                 .build();
     }
 

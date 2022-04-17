@@ -15,6 +15,7 @@ public class ChessComponent extends Component {
     private Chess chess;
     private boolean isNotMove = true;
     private boolean isClicked = false;
+    private boolean isToString = false;
 
     public ChessComponent(Chess chess) {
         this.chess = chess;
@@ -33,7 +34,6 @@ public class ChessComponent extends Component {
         viewComponent.addOnClickHandler(event -> {
             isClicked = !isClicked;
             isNotMove = false;
-            System.out.println("Point at " + chess.toString());
         });
     }
 
@@ -41,17 +41,38 @@ public class ChessComponent extends Component {
     public void onUpdate(double tpf) {
         Point2D mouse = getInput().getMousePositionWorld();
         if(isClicked){
-
             entity.setX(mouse.getX()-40);
             entity.setY(mouse.getY()-40);
+            if(!isToString) {
+                System.out.println(chess.getChessType().toString()+ " "
+                        + chess.getColorType().toString()
+                        + " removed from " + chess.getPosition().toString());
+                isToString = true;
+            }
         }else{
             if(!isNotMove) {
-                entity.setX(mouse.getX() - mouse.getX() % 80);
-                entity.setY(mouse.getY() - mouse.getY() % 80);
-                isNotMove = true;
+                Position positionMouse = toPosition(mouse);
+                Chess chessIntegral = new Chess(chess.getColorType(),
+                        chess.getChessType(),positionMouse);
+//                if(GameCore.moveChess(chess,positionMouse)) {
+                    this.chess = chessIntegral;
+                    entity.setX(mouse.getX() - mouse.getX() % 80);
+                    entity.setY(mouse.getY() - mouse.getY() % 80);
+                    System.out.println(chess.getChessType().toString() + " "
+                            + chess.getColorType().toString()
+                            + " put at " + chess.getPosition().toString());
+                    isNotMove = true;
+                    isToString = false;
+//                }
             }
         }
 
+    }
+
+    public Position toPosition(Point2D pt){
+        int y = (int)((pt.getX()-pt.getX()%80)/80-1);
+        int x = (int) (8-(pt.getY()-pt.getY()%80)/80);
+        return new Position(x,y);
     }
 
 
