@@ -8,6 +8,7 @@ import com.almasb.fxgl.entity.SpawnData;
 import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.Factories.ChessKingEntityFactory;
 import edu.sustech.chessking.gameLogic.GameCore;
+import edu.sustech.chessking.gameLogic.Position;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -62,26 +63,10 @@ public class ChessKingApp extends GameApplication {
         }
     }
     public void initBoard(){
-        for(int i = 1; i < 9; i++) {
-            for (int f = 1; f < 9; f++) {
-                String name = "b" + i + f;
-                if (i % 2 == 0) {
-                    if(f%2 == 0){
-                        board.add(getGameWorld().spawn("board", new SpawnData(80 * i, 80 * f)
-                                .put("color", Color.GREEN)));
-                    }else {
-                        board.add(getGameWorld().spawn("board", new SpawnData(80 * i, 80 * f)
-                                .put("color", Color.LIGHTGOLDENRODYELLOW)));
-                    }
-                }else{
-                    if(f%2 == 1){
-                        board.add(getGameWorld().spawn("board", new SpawnData(80 * i, 80 * f)
-                                .put("color", Color.GREEN)));
-                    }else {
-                        board.add(getGameWorld().spawn("board", new SpawnData(80 * i, 80 * f)
-                                .put("color", Color.LIGHTGOLDENRODYELLOW)));
-                    }
-                }
+        for(int i = 0; i < 8; i++) {
+            for (int f = 0; f < 8; f++) {
+                Position position = new Position(i,f);
+                spawn("board",new SpawnData().put("position",position));
             }
         }
 

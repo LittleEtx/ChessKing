@@ -20,10 +20,11 @@ public class ChessKingEntityFactory implements EntityFactory {
     @Spawns("board")
     public Entity newBoard(SpawnData data){
         return FXGL.entityBuilder(data)
+                .with(new BoardComponent(data.get("position")))
                 .type(EntityType.BOARD)
-                .viewWithBBox(new Rectangle
-                        (80.0,80.0,data.get("color")))
-                .with(new BoardComponent())
+//                .viewWithBBox(new Rectangle
+//                        (80.0,80.0,data.get("color")))
+
                 .build();
     }
 
