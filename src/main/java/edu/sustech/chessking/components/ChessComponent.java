@@ -7,6 +7,7 @@ import com.almasb.fxgl.entity.components.ViewComponent;
 import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.gameLogic.Chess;
 import javafx.geometry.Point2D;
+import javafx.util.Duration;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 import static edu.sustech.chessking.ChessKingApp.gameCore;
@@ -57,6 +58,7 @@ public class ChessComponent extends Component {
                         chess.getChessType(),positionMouse);
 //                if(gameCore.moveChess(chess,positionMouse)) {
                     this.chess = chessIntegral;
+                    play("put.wav");
                     entity.setX(mouse.getX() - mouse.getX() % 80);
                     entity.setY(mouse.getY() - mouse.getY() % 80);
                     System.out.println(chess.getChessType().toString() + " "

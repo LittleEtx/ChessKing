@@ -25,6 +25,17 @@ public class ChessKingApp extends GameApplication {
     public final ArrayList<Entity> board = new ArrayList<>();
 
     // ===============================
+    //initialize before game starts with entity
+
+
+    @Override
+    protected void onPreInit() {
+        getSettings().setGlobalSoundVolume(30);
+        getSettings().setGlobalMusicVolume(70);
+
+    }
+
+    // ===============================
     //initialize game settings
     @Override
     public void initSettings(GameSettings gameSettings) {
