@@ -18,15 +18,14 @@ public class Move {
     private final Object[] moveTarget;
 
     /**
-     * Constructor for a move step
-     * throw ConstructorException when moveTarget do not match the Object
-     * Details:
-     * (MoveType) (AcceptObjectType)
-     *  MOVE        Position
-     *  EAT         Chess
-     *  CASTLE      CastleType
-     *  PROMOTION   ChessType
-     *  EATPEOMOTE  Chess ChessType
+     * Constructor for a move step <BR/>
+     * MoveType should match MoveTarget: <BR/>
+     * MOVE        Position     <BR/>
+     * EAT         Chess        <BR/>
+     * CASTLE      CastleType   <BR/>
+     * PROMOTION   ChessType    <BR/>
+     * EATPEOMOTE  Chess ChessType
+     * @exception ConstructorException when moveTarget do not match the Object
      */
     public Move(Chess chess, MoveType moveType, Object ... moveTarget) {
         this.chess = chess;
