@@ -1,5 +1,6 @@
 package edu.sustech.chessking.gameLogic;
 
+import edu.sustech.chessking.gameLogic.enumType.CastleType;
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
@@ -11,6 +12,7 @@ import static edu.sustech.chessking.gameLogic.enumType.ColorType.*;
 import static edu.sustech.chessking.gameLogic.enumType.ChessType.*;
 import static edu.sustech.chessking.gameLogic.MoveRule.*;
 import static edu.sustech.chessking.gameLogic.Chess.*;
+import static edu.sustech.chessking.gameLogic.enumType.MoveType.*;
 
 /**
  * Provide major methods to control chess in a game
@@ -166,17 +168,54 @@ public class GameCore {
      */
     public boolean moveChess(Chess chess, Position targetPos) {
         if (!isChessInGame(chess) || chess.getColorType() != turn ||
-                !getAvailablePosition(chess).contains(targetPos))
+                !isMoveAvailable(chess, targetPos))
             return false;
 
+        Move move = null;
         Chess targetChess;
-        Move move;
-        if ((targetChess = getChess(targetPos)) != null) {
+        switch (chess.getChessType()) {
+            case PAWN -> {
+                //if is to promote, must use another method
+                if (isPawnPromoteValid(chess))
+                    return false;
+
+                if (isMoveValid(chess, targetPos))
+                    move = new Move(chess, MOVE, targetPos);
+                else if (isEatValid(chess, targetPos)) {
+                    if ((targetChess = getChess(targetPos)) != null)
+                        move = new Move(chess, EAT, targetChess);
+                        //eat passant
+                    else if (chess.getColorType() == WHITE)
+                        move = new Move(chess, EAT, getChess(targetPos.getDown()));
+                    else
+                        move = new Move(chess, EAT, getChess(targetPos.getUp()));
+                }
+            }
+            case KING -> {
+                CastleType castleType;
+                if (withinSide(chess.getPosition(), targetPos)) {
+                    if ((targetChess = getChess(targetPos)) != null)
+                        move = new Move(chess, EAT, targetChess);
+                    else
+                        move = new Move(chess, MOVE, targetPos);
+                }
+                //castling
+                else if ((castleType = getCastleType(chess, targetPos)) != null) {
+                    move = new Move(chess, CASTLE, castleType);
+                }
+            }
+            default -> {
+                if ((targetChess = getChess(targetPos)) != null)
+                    move = new Move(chess, EAT, targetChess);
+                else
+                    move = new Move(chess, MOVE, targetPos);
+            }
         }
-
-        //needs to add
-
-        return false;
+        
+        if (move == null)
+            return false;
+        executeMove(move);
+        return true;
     }
 
     /**
@@ -200,6 +239,16 @@ public class GameCore {
         return false;
     }
 
+    /**
+     * try to execute a move
+     * @return false when the move is not available
+     */
+    public boolean moveChess(Move move) {
+
+        //Needs to add
+
+        return false;
+    }
 
     /**
      * reverseMove, return the reversed move
@@ -269,15 +318,13 @@ public class GameCore {
                     return true;
 
                 //Castling checking
-                if (isKingCastleValid(chess) &&
-                        chess.getPosition().getRow() == targetPos.getRow() &&
-                        columnDistance(chess.getPosition(), targetPos) == 2) {
+                CastleType castleType;
+                if ((castleType = getCastleType(chess, targetPos)) != null) {
                     int row = chess.getPosition().getRow();
-
                     Chess rook;
                     Move move;
                     //if short castling
-                    if (chess.getPosition().getColumn() < targetPos.getColumn()) {
+                    if (castleType == CastleType.SHORT) {
                         rook = getChess(new Position(row, 7));
                         //if rook is correct
                         if (rook == null || rook.getChessType() != ROOK ||
@@ -438,43 +485,56 @@ public class GameCore {
                 return posList;
             }
 
-            public boolean checkAndAdd(Position pos) {
+            public void checkAndAdd(Position pos) {
                 if (isMoveAvailable(chess, pos)) {
                     posList.add(pos);
-                    return true;
                 }
-                return false;
+            }
+
+            private boolean hasChessAndAdd(Position pos) {
+                if (pos == null)
+                    return true;
+                Chess ch;
+                //if no chess
+                if ((ch = getChess(pos)) == null) {
+                    posList.add(pos);
+                    return false;
+                }
+                if (isOpposite(ch, chess.getColorType()))
+                    posList.add(pos);
+
+                return true;
             }
 
             public void checkCross() {
                 Position pos = chess.getPosition();
                 Position p = pos;
-                while (checkAndAdd(p.getLeft()))
+                while (!hasChessAndAdd(p.getLeft()))
                     p = p.getLeft();
                 p = pos;
-                while (checkAndAdd(p.getDown()))
+                while (!hasChessAndAdd(p.getDown()))
                     p = p.getDown();
                 p = pos;
-                while (checkAndAdd(p.getRight()))
+                while (!hasChessAndAdd(p.getRight()))
                     p = p.getRight();
                 p = pos;
-                while (checkAndAdd(p.getUp()))
+                while (!hasChessAndAdd(p.getUp()))
                     p = p.getUp();
             }
 
             public void checkSlash() {
                 Position pos = chess.getPosition();
                 Position p = pos;
-                while (checkAndAdd(p.getLeftUp()))
+                while (!hasChessAndAdd(p.getLeftUp()))
                     p = p.getLeftUp();
                 p = pos;
-                while (checkAndAdd(p.getLeftDown()))
+                while (!hasChessAndAdd(p.getLeftDown()))
                     p = p.getLeftDown();
                 p = pos;
-                while (checkAndAdd(p.getRightUp()))
+                while (!hasChessAndAdd(p.getRightUp()))
                     p = p.getRightUp();
                 p = pos;
-                while (checkAndAdd(p.getRightDown()))
+                while (!hasChessAndAdd(p.getRightDown()))
                     p = p.getRightDown();
             }
         }
@@ -489,14 +549,14 @@ public class GameCore {
                     posList.checkAndAdd(pos.getLeftUp());
                     posList.checkAndAdd(pos.getRightUp());
                     if (chess.getPosition().getRow() == 1)
-                        posList.checkAndAdd(pos.getUp().getUp());
+                        posList.checkAndAdd(pos.getUp(2));
                 }
                 else {
                     posList.checkAndAdd(pos.getDown());
                     posList.checkAndAdd(pos.getLeftDown());
                     posList.checkAndAdd(pos.getRightDown());
                     if (chess.getPosition().getRow() == 6)
-                        posList.checkAndAdd(pos.getDown().getDown());
+                        posList.checkAndAdd(pos.getDown(2));
                 }
             }
             case KNIGHT -> {
@@ -514,6 +574,8 @@ public class GameCore {
                 for (Position p : getSidePosition(pos)) {
                     posList.checkAndAdd(p);
                 }
+                posList.checkAndAdd(pos.getLeft(2));
+                posList.checkAndAdd(pos.getRight(2));
             }
         }
         return posList.getPosList();
@@ -540,12 +602,21 @@ public class GameCore {
         ArrayList<Chess> list = new ArrayList<>();
         for (Chess chess : chessList) {
             if (chess.getColorType() != side) {
-                if (chess.getChessType() != KING &&
-                        isMoveAvailable(chess, position))
-                    list.add(chess);
-                else if (chess.getChessType() == KING &&
-                        isEatValid(chess, position))
-                    list.add(chess);
+                switch (chess.getChessType()) {
+                    case PAWN -> {
+                        if (isEatValid(chess, position) &&
+                                isMoveAvailable(chess, position))
+                            list.add(chess);
+                    }
+                    case KING -> {
+                        if (isEatValid(chess, position))
+                            list.add(chess);
+                    }
+                    default -> {
+                        if (isMoveAvailable(chess, position))
+                            list.add(chess);
+                    }
+                }
             }
         }
         return list;
@@ -620,5 +691,68 @@ public class GameCore {
             }
         }
         return false;
+    }
+
+    /**
+     * Get the index of a certain chess
+     * @return -1 when not found or chess is null
+     */
+    private int getChessIndex(Chess chess) {
+        if (chess == null)
+            return -1;
+
+        for (int i = 0; i < chessList.size(); ++i) {
+            if (chessList.get(i).equals(chess))
+                return i;
+        }
+        return -1;
+    }
+
+    //Please check if the move is available before using this
+    //will cause turn to switch and record the move
+    private void executeMove(Move move) {
+        Chess chess = move.getChess();
+        switch (move.getMoveType()) {
+            case MOVE -> moveListChess(chess, (Position) move.getMoveTarget()[0]);
+            case EAT -> {
+                Chess eatChess = (Chess) move.getMoveTarget()[0];
+                chessList.remove(eatChess);
+                moveListChess(chess, eatChess.getPosition());
+            }
+            case CASTLE -> {
+                CastleType castleType = (CastleType) move.getMoveTarget()[0];
+                if (castleType == CastleType.LONG) {
+                    Chess rook = getChess(
+                            new Position(chess.getPosition().getRow(), 0));
+                    moveListChess(chess, chess.getPosition().getLeft(2));
+                    moveListChess(rook, rook.getPosition().getRight(3));
+                }
+            }
+            case PROMOTE -> {
+                ChessType promoteType = (ChessType) move.getMoveTarget()[0];
+                ColorType color = chess.getColorType();
+                chessList.remove(chess);
+                if (color == WHITE)
+                    chessList.add(new Chess(color, promoteType, chess.getPosition().getUp()));
+                else
+                    chessList.add(new Chess(color, promoteType, chess.getPosition().getDown()));
+            }
+            case EATPROMOTE -> {
+                Chess eatChess = (Chess) move.getMoveTarget()[0];
+                ChessType promoteType = (ChessType) move.getMoveTarget()[1];
+                chessList.remove(chess);
+                chessList.remove(eatChess);
+                chessList.add(
+                        new Chess(chess.getColorType(), promoteType, eatChess.getPosition()));
+            }
+        }
+        //switch turn and record
+        moveHistory.addMove(move);
+        turn = turn.reverse();
+    }
+
+    private void moveListChess(Chess chess, Position position) {
+        chessList.set(getChessIndex(chess),
+                new Chess(chess.getColorType(), chess.getChessType(), position));
     }
 }

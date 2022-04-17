@@ -5,6 +5,7 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.EntityFactory;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.Spawns;
+import edu.sustech.chessking.components.BoardComponent;
 import edu.sustech.chessking.components.ChessComponent;
 import edu.sustech.chessking.EntityType;
 import javafx.scene.shape.Circle;
@@ -12,7 +13,7 @@ import javafx.scene.shape.Rectangle;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
 
-public class BoardFactory implements EntityFactory {
+public class ChessKingEntityFactory implements EntityFactory {
 
 
     @Spawns("board")
@@ -21,18 +22,16 @@ public class BoardFactory implements EntityFactory {
                 .type(EntityType.BOARD)
                 .viewWithBBox(new Rectangle
                         (80.0,80.0,data.get("color")))
+                .with(new BoardComponent())
                 .build();
     }
 
     @Spawns("chess")
     public Entity newChess(SpawnData data){
-        Entity chessie = FXGL.entityBuilder(data)
-                .with(new ChessComponent())
-                .viewWithBBox(ChessComponent.getImg())
+        return FXGL.entityBuilder(data)
+                .with(new ChessComponent(data.get("chess")))
                 .type(EntityType.CHESS)
-                .at(ChessComponent.getPoint())
                 .build();
-        return chessie;
     }
 
     @Spawns("circle")
@@ -41,7 +40,5 @@ public class BoardFactory implements EntityFactory {
                 .viewWithBBox(new Circle(20,data.get("color")))
                 .build();
     }
-
-
 
 }

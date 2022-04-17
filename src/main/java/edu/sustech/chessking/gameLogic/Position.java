@@ -63,51 +63,83 @@ public class Position {
      * if over boundary, will return false;
      */
     public Position getUp() {
-        if (row >= 7)
-            return null;
-        return new Position(row + 1, column);
+        return getUp(1);
     }
 
     public Position getDown() {
-        if (row <= 0)
-            return null;
-        return new Position(row - 1, column);
+        return getDown(1);
     }
 
     public Position getLeft() {
-        if (column <= 0)
-            return null;
-        return new Position(row, column - 1);
+        return getLeft(1);
     }
 
     public Position getRight() {
-        if (column >= 7)
-            return null;
-        return new Position(row, column + 1);
+        return getRight(1);
     }
 
     public Position getLeftUp() {
-        if (row >= 7 || column  <= 0)
-            return null;
-        return new Position(row + 1, column - 1);
+        return getLeftUp(1);
     }
 
     public Position getLeftDown() {
-        if (row <= 0 || column  <= 0)
-            return null;
-        return new Position(row - 1, column - 1);
+        return getLeftDown(1);
     }
 
     public Position getRightUp() {
-        if (row >= 7 || column >= 7)
-            return null;
-        return new Position(row + 1, column + 1);
+        return getRightUp(1);
     }
 
     public Position getRightDown() {
-        if (row <= 0 || column >= 7)
+        return getRightDown(1);
+    }
+
+    public Position getUp(int n) {
+        if (row + n > 7)
             return null;
-        return new Position(row - 1, column + 1);
+        return new Position(row + n, column);
+    }
+
+    public Position getDown(int n) {
+        if (row - n < 0)
+            return null;
+        return new Position(row - n, column);
+    }
+
+    public Position getLeft(int n) {
+        if (column - n < 0)
+            return null;
+        return new Position(row, column - n);
+    }
+
+    public Position getRight(int n) {
+        if (column + n > 7)
+            return null;
+        return new Position(row, column + n);
+    }
+
+    public Position getLeftUp(int n) {
+        if (row + n > 7 || column - n < 0)
+            return null;
+        return new Position(row + n, column - n);
+    }
+
+    public Position getLeftDown(int n) {
+        if (row - n < 0 || column- n < 0)
+            return null;
+        return new Position(row - n, column - n);
+    }
+
+    public Position getRightUp(int n) {
+        if (row + n > 7 || column + n > 7)
+            return null;
+        return new Position(row + n, column + n);
+    }
+
+    public Position getRightDown(int n) {
+        if (row - n < 0 || column + n > 7)
+            return null;
+        return new Position(row - n, column + n);
     }
 
     /**
@@ -130,12 +162,15 @@ public class Position {
         }
         col += this.column;
         chessString.append(col);
-        row = '0';
+        row = '1';
         row += this.row;
         chessString.append(row);
         return chessString.toString();
     }
 
+    /**
+     * A method to check if the row and column is in range
+     */
     public static boolean withinRange(int row, int column) {
         return row >= 0 && row <= 7 &&
                 column >= 0 && column <= 7;

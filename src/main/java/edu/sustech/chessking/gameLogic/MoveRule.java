@@ -1,8 +1,8 @@
 package edu.sustech.chessking.gameLogic;
 
+import edu.sustech.chessking.gameLogic.enumType.CastleType;
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
-import edu.sustech.chessking.gameLogic.exception.ConstructorException;
 
 import java.util.ArrayList;
 
@@ -14,12 +14,21 @@ public class MoveRule {
         if (pawn == null)
             return false;
 
-        short row = pawn.getPosition().getRow();
         return  pawn.getChessType() == ChessType.PAWN &&
                 promotionType != ChessType.PAWN &&
                 promotionType != ChessType.KING &&
-                ((pawn.getColorType() == ColorType.WHITE && row == 6) ||
-                (pawn.getColorType() == ColorType.BLACK && row == 1));
+                isPawnPromoteValid(pawn);
+    }
+
+    /**
+     * To check if the pawn is able to promote
+     */
+    public static boolean isPawnPromoteValid(Chess pawn) {
+        if (pawn == null || pawn.getChessType() != ChessType.PAWN)
+            return false;
+        int row = pawn.getPosition().getRow();
+        return (pawn.getColorType() == ColorType.WHITE && row == 6) ||
+                (pawn.getColorType() == ColorType.BLACK && row == 1);
     }
 
     /**
@@ -36,7 +45,26 @@ public class MoveRule {
     }
 
     /**
+     * give the castle type
+     * return null if the pos is not valid
+     * @param pos be the left 2 or right 2 position of the king
+     */
+    public static CastleType getCastleType(Chess king, Position pos) {
+        if (!isKingCastleValid(king) ||
+                king.getPosition().getRow() != pos.getRow() &&
+                columnDistance(king.getPosition(), pos) != 2)
+            return null;
+
+        if (king.getPosition().getColumn() < pos.getColumn())
+            return CastleType.SHORT;
+        else
+            return CastleType.LONG;
+    }
+
+
+    /**
      * To check if the chess can move to the position
+     * note that castling is not included
      */
     public static boolean isMoveValid(Chess chess, Position position) {
         if (chess == null || position == null)

@@ -2,17 +2,12 @@ package edu.sustech.chessking;
 
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
-import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import edu.sustech.chessking.gameLogic.Chess;
-import edu.sustech.chessking.Factories.BoardFactory;
+import edu.sustech.chessking.Factories.ChessKingEntityFactory;
 import edu.sustech.chessking.gameLogic.GameCore;
-import edu.sustech.chessking.components.ChessComponent;
-import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.util.Duration;
 
 import java.util.ArrayList;
 
@@ -49,7 +44,7 @@ public class ChessKingApp extends GameApplication {
     //initialize the game
     @Override
     protected void initGame() {
-        getGameWorld().addEntityFactory(new BoardFactory());
+        getGameWorld().addEntityFactory(new ChessKingEntityFactory());
         initBoard();
         initChess();
         //System.out.println();
@@ -59,8 +54,7 @@ public class ChessKingApp extends GameApplication {
     public void initChess() {
         gameCore.initialGame();
         for(Chess chess: gameCore.getChessList()){
-            ChessComponent.setChess(chess);
-            spawn("chess");
+            spawn("chess", new SpawnData().put("chess", chess));
         }
     }
     public void initBoard(){
@@ -83,7 +77,6 @@ public class ChessKingApp extends GameApplication {
                         board.add(getGameWorld().spawn("board", new SpawnData(80 * i, 80 * f)
                                 .put("color", Color.LIGHTGOLDENRODYELLOW)));
                     }
-
                 }
             }
         }
@@ -94,26 +87,26 @@ public class ChessKingApp extends GameApplication {
     // ===============================
     //methods used every frame
     public void compareMouse(){
-        Point2D mouse = getInput().getMousePositionWorld();
-        for(Entity b : board) {
-            if (Math.abs(mouse.getX() - b.getCenter().getX())<40&&
-                    Math.abs(mouse.getY() - b.getCenter().getY())<40/*&& !spawnCircle*/){
-//                Entity circle = spawn("circle",new SpawnData(b.getX()+40,b.getY()+40)
-//                        .put("color",Color.YELLOW));
-//                spawnCircle = true;
-//                if(mouse.getX() - b.getX()>40){
-//                    circle.removeFromWorld();
-//                    spawnCircle = false;
-//                }
-                Rectangle rect = new Rectangle(40,40,Color.BROWN);
-                Entity blink = entityBuilder(new SpawnData(b.getCenter()))
-                        .type(EntityType.BOX)
-                        .at(b.getX()+20,b.getY()+20)
-                        .view(rect)
-                        .with(new ExpireCleanComponent(Duration.seconds(0.01)))
-                        .buildAndAttach();
-            }
-        }
+//        Point2D mouse = getInput().getMousePositionWorld();
+//        for(Entity b : board) {
+//            if (Math.abs(mouse.getX() - b.getCenter().getX())<40&&
+//                    Math.abs(mouse.getY() - b.getCenter().getY())<40/*&& !spawnCircle*/){
+////                Entity circle = spawn("circle",new SpawnData(b.getX()+40,b.getY()+40)
+////                        .put("color",Color.YELLOW));
+////                spawnCircle = true;
+////                if(mouse.getX() - b.getX()>40){
+////                    circle.removeFromWorld();
+////                    spawnCircle = false;
+////                }
+//                Rectangle rect = new Rectangle(40,40,Color.BROWN);
+//                Entity blink = entityBuilder(new SpawnData(b.getCenter()))
+//                        .type(EntityType.BOX)
+//                        .at(b.getX()+20,b.getY()+20)
+//                        .view(rect)
+//                        .with(new ExpireCleanComponent(Duration.seconds(0.01)))
+//                        .buildAndAttach();
+//            }
+//        }
     }
 
     @Override
