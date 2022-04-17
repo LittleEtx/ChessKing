@@ -2,12 +2,16 @@ package edu.sustech.chessking;
 
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
+import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.Factories.ChessKingEntityFactory;
 import edu.sustech.chessking.gameLogic.GameCore;
+import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 
@@ -86,7 +90,7 @@ public class ChessKingApp extends GameApplication {
 
     // ===============================
     //methods used every frame
-    public void compareMouse(){
+//    public void compareMouse(){
 //        Point2D mouse = getInput().getMousePositionWorld();
 //        for(Entity b : board) {
 //            if (Math.abs(mouse.getX() - b.getCenter().getX())<40&&
@@ -107,13 +111,13 @@ public class ChessKingApp extends GameApplication {
 //                        .buildAndAttach();
 //            }
 //        }
-    }
+//    }
 
     @Override
     protected void onUpdate(double tpf) {
         //System.out.println(getInput().getMousePositionWorld());
         //System.out.println(getGameWorld());
-        compareMouse();
+        //compareMouse();
     }
 
 

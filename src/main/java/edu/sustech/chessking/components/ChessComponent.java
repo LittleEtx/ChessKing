@@ -23,6 +23,7 @@ public class ChessComponent extends Component {
         String pic = skin + " " + chess.getChessType().toString()
                 + "-" + chess.getColorType().toString() + ".png";
         Texture img = texture(pic, 80, 80);
+
         ViewComponent viewComponent = entity.getViewComponent();
         viewComponent.addChild(img);
         entity.setPosition(getPoint());

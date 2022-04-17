@@ -8,6 +8,7 @@ import com.almasb.fxgl.entity.Spawns;
 import edu.sustech.chessking.components.BoardComponent;
 import edu.sustech.chessking.components.ChessComponent;
 import edu.sustech.chessking.EntityType;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 
