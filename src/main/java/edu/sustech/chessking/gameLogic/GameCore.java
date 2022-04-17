@@ -62,6 +62,7 @@ public class GameCore {
     }
 
     /**
+     * ## NOT DONE
      * This method will set all chess to a given state by game history
      */
     public boolean setGame(MoveHistory history) {
@@ -104,6 +105,7 @@ public class GameCore {
     //==================================
 
     /**
+     *  ## NOT DONE
      * see if one side has lost, including:
      * 1. No king on the chessboard
      * 2. Is being checked but no way to prevent this
@@ -118,7 +120,7 @@ public class GameCore {
     /**
      * see if one side has wined
      */
-    public boolean hasWined(ColorType side) {
+    public boolean hasWin(ColorType side) {
         if (side == ColorType.BLACK)
             return hasLost(ColorType.WHITE);
         else
@@ -126,6 +128,7 @@ public class GameCore {
     }
 
     /**
+     * ## NOT DONE
      * see if it has drawn at the time, including:
      * 1. One side has no move to go
      * 2. The same situation appears for the third time
@@ -140,6 +143,7 @@ public class GameCore {
     }
 
     /**
+     * ## NOT DONE
      * see if one side has be checked
      */
     public boolean isChecked(ColorType side) {
@@ -157,6 +161,13 @@ public class GameCore {
             return isChecked(ColorType.BLACK);
         else
             return isChecked(ColorType.WHITE);
+    }
+
+    /**
+     * get current turn
+     */
+    public ColorType getTurn() {
+        return turn;
     }
 
     //==================================
@@ -219,6 +230,7 @@ public class GameCore {
     }
 
     /**
+     * ## NOT DONE
      * Target a chess move from a position (if any) to a new position, return false if not available
      */
     public boolean moveChess(Position chessPos, Position targetPos) {
@@ -232,14 +244,26 @@ public class GameCore {
      * Target a pawn to move forward and update to a certain chess type
      * Note that if the pawn is to promote, then moveChess method will return false
      */
-    public boolean movePawnPromotion(Chess pawn, ChessType updateType) {
+    public boolean movePawnPromotion(Chess pawn, Position targetPosition, ChessType promoteType) {
+        if (pawn == null || pawn.getChessType() != PAWN || pawn.getColorType() != turn ||
+                !isPromotionValid(pawn, promoteType) ||
+                !isMoveAvailable(pawn, targetPosition))
+            return false;
 
-        //Needs to add
+        Move move;
+        Chess targetChess;
+        //Check if eat
+        if ((targetChess = getChess(targetPosition)) != null)
+            move = new Move(pawn, EATPROMOTE, targetChess, promoteType);
+        else
+            move = new Move(pawn, PROMOTE, promoteType);
 
-        return false;
+        executeMove(move);
+        return true;
     }
 
     /**
+     * ## NOT DONE
      * try to execute a move
      * @return false when the move is not available
      */
@@ -251,6 +275,7 @@ public class GameCore {
     }
 
     /**
+     * ## NOT DONE
      * reverseMove, return the reversed move
      */
     public Move reverseMove() {
@@ -376,6 +401,7 @@ public class GameCore {
     }
 
     /**
+     * ## NOT DONE
      * Return if the move is available
      */
     public boolean isMoveAvailable(Move move) {
@@ -387,6 +413,7 @@ public class GameCore {
     }
 
     /**
+     * ## NOT DONE
      * If after a move, the king will be in danger, then return ture
      * Note that the move will not actually be made
      * If the move is not available, return false
@@ -491,50 +518,50 @@ public class GameCore {
                 }
             }
 
-            private boolean hasChessAndAdd(Position pos) {
+            private boolean checkIfNoChess(Position pos) {
                 if (pos == null)
-                    return true;
+                    return false;
                 Chess ch;
                 //if no chess
                 if ((ch = getChess(pos)) == null) {
                     posList.add(pos);
-                    return false;
+                    return true;
                 }
                 if (isOpposite(ch, chess.getColorType()))
                     posList.add(pos);
 
-                return true;
+                return false;
             }
 
             public void checkCross() {
                 Position pos = chess.getPosition();
                 Position p = pos;
-                while (!hasChessAndAdd(p.getLeft()))
+                while (checkIfNoChess(p.getLeft()))
                     p = p.getLeft();
                 p = pos;
-                while (!hasChessAndAdd(p.getDown()))
+                while (checkIfNoChess(p.getDown()))
                     p = p.getDown();
                 p = pos;
-                while (!hasChessAndAdd(p.getRight()))
+                while (checkIfNoChess(p.getRight()))
                     p = p.getRight();
                 p = pos;
-                while (!hasChessAndAdd(p.getUp()))
+                while (checkIfNoChess(p.getUp()))
                     p = p.getUp();
             }
 
             public void checkSlash() {
                 Position pos = chess.getPosition();
                 Position p = pos;
-                while (!hasChessAndAdd(p.getLeftUp()))
+                while (checkIfNoChess(p.getLeftUp()))
                     p = p.getLeftUp();
                 p = pos;
-                while (!hasChessAndAdd(p.getLeftDown()))
+                while (checkIfNoChess(p.getLeftDown()))
                     p = p.getLeftDown();
                 p = pos;
-                while (!hasChessAndAdd(p.getRightUp()))
+                while (checkIfNoChess(p.getRightUp()))
                     p = p.getRightUp();
                 p = pos;
-                while (!hasChessAndAdd(p.getRightDown()))
+                while (checkIfNoChess(p.getRightDown()))
                     p = p.getRightDown();
             }
         }
@@ -582,6 +609,7 @@ public class GameCore {
     }
 
     /**
+     * ## NOT DONE
      * Return a list of all available moves of a chess
      */
     public ArrayList<Move> getAvailableMove(Chess chess) {
@@ -623,6 +651,7 @@ public class GameCore {
     }
 
     /**
+     * ## NOT DONE
      * Return a list of different color chess that will target the position
      */
     public ArrayList<Chess> getEnemy(Position position) {
@@ -633,6 +662,7 @@ public class GameCore {
     }
 
     /**
+     * ## NOT DONE
      * Return a list of the same color chess that will protect the position
      */
     public ArrayList<Chess> getAlly(Position position) {
