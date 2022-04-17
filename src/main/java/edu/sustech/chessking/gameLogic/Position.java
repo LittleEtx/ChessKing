@@ -162,7 +162,7 @@ public class Position {
         }
         col += this.column;
         chessString.append(col);
-        row = '0';
+        row = '1';
         row += this.row;
         chessString.append(row);
         return chessString.toString();

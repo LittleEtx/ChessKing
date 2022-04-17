@@ -5,8 +5,6 @@ import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
 import edu.sustech.chessking.gameLogic.exception.ChessLeapingException;
-import javafx.beans.WeakInvalidationListener;
-import javafx.geometry.Pos;
 
 import java.util.ArrayList;
 
@@ -494,7 +492,10 @@ public class GameCore {
             }
 
             private boolean hasChessAndAdd(Position pos) {
+                if (pos == null)
+                    return true;
                 Chess ch;
+                //if no chess
                 if ((ch = getChess(pos)) == null) {
                     posList.add(pos);
                     return false;
@@ -508,32 +509,32 @@ public class GameCore {
             public void checkCross() {
                 Position pos = chess.getPosition();
                 Position p = pos;
-                while (hasChessAndAdd(p.getLeft()))
+                while (!hasChessAndAdd(p.getLeft()))
                     p = p.getLeft();
                 p = pos;
-                while (hasChessAndAdd(p.getDown()))
+                while (!hasChessAndAdd(p.getDown()))
                     p = p.getDown();
                 p = pos;
-                while (hasChessAndAdd(p.getRight()))
+                while (!hasChessAndAdd(p.getRight()))
                     p = p.getRight();
                 p = pos;
-                while (hasChessAndAdd(p.getUp()))
+                while (!hasChessAndAdd(p.getUp()))
                     p = p.getUp();
             }
 
             public void checkSlash() {
                 Position pos = chess.getPosition();
                 Position p = pos;
-                while (hasChessAndAdd(p.getLeftUp()))
+                while (!hasChessAndAdd(p.getLeftUp()))
                     p = p.getLeftUp();
                 p = pos;
-                while (hasChessAndAdd(p.getLeftDown()))
+                while (!hasChessAndAdd(p.getLeftDown()))
                     p = p.getLeftDown();
                 p = pos;
-                while (hasChessAndAdd(p.getRightUp()))
+                while (!hasChessAndAdd(p.getRightUp()))
                     p = p.getRightUp();
                 p = pos;
-                while (hasChessAndAdd(p.getRightDown()))
+                while (!hasChessAndAdd(p.getRightDown()))
                     p = p.getRightDown();
             }
         }
