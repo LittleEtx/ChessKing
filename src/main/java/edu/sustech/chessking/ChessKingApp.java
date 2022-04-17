@@ -9,7 +9,6 @@ import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.Factories.BoardFactory;
 import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.components.ChessComponent;
-import edu.sustech.chessking.gameLogic.enumType.EntityType;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
