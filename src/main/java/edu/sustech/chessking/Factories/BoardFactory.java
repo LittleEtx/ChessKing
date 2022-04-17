@@ -1,18 +1,14 @@
-package edu.sustech.chessking.gameLogic.Factories;
+package edu.sustech.chessking.Factories;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.EntityFactory;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.Spawns;
-import edu.sustech.chessking.gameLogic.Chess;
-import edu.sustech.chessking.gameLogic.components.ChessComponent;
+import edu.sustech.chessking.components.ChessComponent;
 import edu.sustech.chessking.gameLogic.enumType.EntityType;
-import javafx.geometry.Point2D;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-
-import java.nio.channels.SelectableChannel;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
 

@@ -1,16 +1,19 @@
-package edu.sustech.chessking.gameLogic.components;
+package edu.sustech.chessking.components;
 
 
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.gameLogic.Chess;
 import javafx.geometry.Point2D;
-import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
+import javafx.scene.input.MouseButton;
+
+import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 
 public class ChessComponent extends Component {
     private String skin = "default";
     private static Chess chess;
     private static Texture img;
+
 
     public static void setChess(Chess chessie) {
         chess = chessie;
@@ -25,7 +28,14 @@ public class ChessComponent extends Component {
 
     @Override
     public void onUpdate(double tpf) {
+        onBtnDown(MouseButton.PRIMARY,()->{
+            Point2D mouse = getInput().getMousePositionWorld();
+            entity.setX(mouse.getX());
+            entity.setY(mouse.getY());
+            return null;
+        });
     }
+
 
     public static Texture getImg(){
         return img;
@@ -48,6 +58,7 @@ public class ChessComponent extends Component {
 //        }
 //    }
 //
+
     public static Point2D getPoint(){
         Point2D point = new Point2D(
                 80+chess.getPosition().getColumn()*80,640 - chess.getPosition().getRow()*80

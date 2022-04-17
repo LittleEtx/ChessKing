@@ -2,19 +2,15 @@ package edu.sustech.chessking;
 
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
-import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
-import com.almasb.fxgl.input.UserAction;
 import edu.sustech.chessking.gameLogic.Chess;
-import edu.sustech.chessking.gameLogic.Factories.BoardFactory;
+import edu.sustech.chessking.Factories.BoardFactory;
 import edu.sustech.chessking.gameLogic.GameCore;
-import edu.sustech.chessking.gameLogic.components.ChessComponent;
+import edu.sustech.chessking.components.ChessComponent;
 import edu.sustech.chessking.gameLogic.enumType.EntityType;
 import javafx.geometry.Point2D;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
@@ -29,7 +25,6 @@ public class ChessKingApp extends GameApplication {
     private GameCore gameCore = new GameCore();
     public final ArrayList<Entity> board = new ArrayList<>();
     private boolean isClicked = false;
-
 
     // ===============================
     //initialize game settings
@@ -48,12 +43,6 @@ public class ChessKingApp extends GameApplication {
 
     @Override
     protected void initPhysics() {
-        FXGL.getInput().addAction(new UserAction("Move"){
-            @Override
-            protected void onAction() {
-
-            }
-        }, MouseButton.PRIMARY);
 
     }
 
@@ -135,6 +124,14 @@ public class ChessKingApp extends GameApplication {
         compareMouse();
     }
 
+
+    // ===============================
+    //initialize the inputs
+
+
+    @Override
+    protected void initInput() {
+    }
 
     // ===============================
     //finally launching the game
