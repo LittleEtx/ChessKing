@@ -2,6 +2,7 @@ package edu.sustech.chessking;
 
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
+import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
@@ -25,14 +26,13 @@ public class ChessKingApp extends GameApplication {
     public final ArrayList<Entity> board = new ArrayList<>();
 
     // ===============================
-    //initialize before game starts with entity
-
-
+    //initialize before game starts and get some resources
     @Override
     protected void onPreInit() {
-        getSettings().setGlobalSoundVolume(30);
-        getSettings().setGlobalMusicVolume(70);
+        getSettings().setGlobalSoundVolume(1);
+        getSettings().setGlobalMusicVolume(0.01);
 
+        FXGL.loopBGM("BGM1.mp3");
     }
 
     // ===============================
