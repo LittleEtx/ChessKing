@@ -9,6 +9,7 @@ import edu.sustech.chessking.gameLogic.Chess;
 import javafx.geometry.Point2D;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
+import static edu.sustech.chessking.ChessKingApp.gameCore;
 
 public class ChessComponent extends Component {
     private String skin = "default";
@@ -54,7 +55,7 @@ public class ChessComponent extends Component {
                 Position positionMouse = toPosition(mouse);
                 Chess chessIntegral = new Chess(chess.getColorType(),
                         chess.getChessType(),positionMouse);
-//                if(GameCore.moveChess(chess,positionMouse)) {
+//                if(gameCore.moveChess(chess,positionMouse)) {
                     this.chess = chessIntegral;
                     entity.setX(mouse.getX() - mouse.getX() % 80);
                     entity.setY(mouse.getY() - mouse.getY() % 80);
@@ -63,6 +64,8 @@ public class ChessComponent extends Component {
                             + " put at " + chess.getPosition().toString());
                     isNotMove = true;
                     isToString = false;
+//                }else{
+//                    getNotificationService().pushNotification("invalid position");
 //                }
             }
         }

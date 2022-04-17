@@ -21,9 +21,8 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
 
 public class ChessKingApp extends GameApplication {
 
-    private GameCore gameCore = new GameCore();
+    public static GameCore gameCore = new GameCore();
     public final ArrayList<Entity> board = new ArrayList<>();
-    private boolean isClicked = false;
 
     // ===============================
     //initialize game settings
