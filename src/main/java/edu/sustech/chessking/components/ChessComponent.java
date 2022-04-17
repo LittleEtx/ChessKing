@@ -2,6 +2,7 @@ package edu.sustech.chessking.components;
 
 
 import com.almasb.fxgl.entity.component.Component;
+import com.almasb.fxgl.entity.components.ViewComponent;
 import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.gameLogic.Chess;
 import javafx.geometry.Point2D;
@@ -22,8 +23,13 @@ public class ChessComponent extends Component {
         String pic = skin + " " + chess.getChessType().toString()
                 + "-" + chess.getColorType().toString() + ".png";
         Texture img = texture(pic, 80, 80);
-        entity.getViewComponent().addChild(img);
+        ViewComponent viewComponent = entity.getViewComponent();
+        viewComponent.addChild(img);
         entity.setPosition(getPoint());
+
+        viewComponent.addOnClickHandler(event -> {
+            System.out.println("Point at " + chess.toString());
+        });
     }
 
     @Override
@@ -56,9 +62,9 @@ public class ChessComponent extends Component {
 //
 
     private Point2D getPoint(){
-        Point2D point = new Point2D(
-                80+chess.getPosition().getColumn()*80,640 - chess.getPosition().getRow()*80
+        return new Point2D(
+                80 + chess.getPosition().getColumn() * 80,
+                640 - chess.getPosition().getRow() * 80
         );
-        return point;
     }
 }
