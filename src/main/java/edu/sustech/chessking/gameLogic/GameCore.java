@@ -337,78 +337,60 @@ public class GameCore {
             }
 
             case KING -> {
+                //Castling checking
                 if (isMoveValid(chess, targetPos) &&
                     //must check if the move will lead the king in danger
-                    getEnemyChess(targetPos, chess.getColorType()).isEmpty())
+                        getEnemyChess(targetPos, chess.getColorType()).isEmpty())
                     return true;
 
-                //Castling checking
                 CastleType castleType;
-                if ((castleType = getCastleType(chess, targetPos)) != null) {
-                    int row = chess.getPosition().getRow();
-                    Chess rook;
-                    Move move;
-                    //if short castling
-                    if (castleType == CastleType.SHORT) {
-                        rook = getChess(new Position(row, 7));
-                        //if rook is correct
-                        if (rook == null || rook.getChessType() != ROOK ||
-                                rook.getColorType() != chess.getColorType())
-                            return false;
-                        //if there has chess in between
-                        for (int col = 5; col <= 6; ++col)
-                            if (hasChess(new Position(row, col)))
-                                return false;
-                        //if any chess can target the position
-                        for (int col = 4; col <= 6; ++col)
-                            if (!getEnemyChess(new Position(row, col),
-                                    chess.getColorType()).isEmpty())
-                                return false;
-                    }
-                    //if long castling
-                    else {
-                        rook = getChess(new Position(row, 0));
-                        if (rook == null || rook.getChessType() != ROOK ||
-                                rook.getColorType() != chess.getColorType())
-                            return false;
-                        //if there has chess in between
-                        for (int col = 3; col >= 1; --col)
-                            if (hasChess(new Position(row, col)))
-                                return false;
-                        //if any chess can target the position
-                        for (int col = 4; col >= 2; --col)
-                            if (!getEnemyChess(new Position(row, col),
-                                    chess.getColorType()).isEmpty())
-                                return false;
-                    }
-
-                    //Never moved before
-                    Chess hisChess;
-                    for (int i = 0; i < moveHistory.getMoveNum(); ++i) {
-                        move = moveHistory.getMove(i);
-                        //if is king or rook
-                        hisChess = move.getChess();
-                        if (hisChess.equals(chess) || hisChess.equals(rook))
-                            return false;
-                    }
-
-                    //after all the checking
-                    return true;
-                }
+                if ((castleType = getCastleType(chess, targetPos)) != null &&
+                        isCastleAvailable(chess, castleType))
+                        return true;
             }
         }
         return false;
     }
 
     /**
-     * ## NOT DONE
      * Return if the move is available
      */
     public boolean isMoveAvailable(Move move) {
+        if (move == null)
+            return false;
+        Chess chess = move.getChess();
+        if (chess.getColorType() != turn)
+            return false;
 
-        //Needs to add
-
-
+        switch (move.getMoveType()) {
+            case MOVE -> {
+                Position pos = (Position) move.getMoveTarget()[0];
+                if (!hasChess(pos) && !hasChessInBetween(chess.getPosition(), pos))
+                    return true;
+            }
+            case EAT -> {
+                Chess targetChess = (Chess) move.getMoveTarget()[0];
+                Position pos = targetChess.getPosition();
+                //if there has chess
+                if (targetChess.equals(getChess(pos)) &&
+                        !hasChessInBetween(chess.getPosition(), pos))
+                    return true;
+            }
+            case CASTLE -> {
+                CastleType castleType = (CastleType) move.getMoveTarget()[0];
+                return isCastleAvailable(chess, castleType);
+            }
+            case PROMOTE -> {
+                if (chess.getColorType() == WHITE)
+                    return !hasChess(chess.getPosition().getUp());
+                else
+                    return !hasChess(chess.getPosition().getDown());
+            }
+            case EATPROMOTE -> {
+                Chess target = (Chess) move.getMoveTarget()[0];
+                return target.equals(getChess(target.getPosition()));
+            }
+        }
         return false;
     }
 
@@ -784,5 +766,56 @@ public class GameCore {
     private void moveListChess(Chess chess, Position position) {
         chessList.set(getChessIndex(chess),
                 new Chess(chess.getColorType(), chess.getChessType(), position));
+    }
+
+    //must test if the king is king, and in position
+    private boolean isCastleAvailable(Chess king, CastleType castleType) {
+        int row = king.getPosition().getRow();
+        Chess rook;
+        Move move;
+        //if short castling
+        if (castleType == CastleType.SHORT) {
+            rook = getChess(new Position(row, 7));
+            //if rook is correct
+            if (rook == null || rook.getChessType() != ROOK ||
+                    rook.getColorType() != king.getColorType())
+                return false;
+            //if there has chess in between
+            for (int col = 5; col <= 6; ++col)
+                if (hasChess(new Position(row, col)))
+                    return false;
+            //if any chess can target the position
+            for (int col = 4; col <= 6; ++col)
+                if (!getEnemyChess(new Position(row, col),
+                        king.getColorType()).isEmpty())
+                    return false;
+        }
+        //if long castling
+        else {
+            rook = getChess(new Position(row, 0));
+            if (rook == null || rook.getChessType() != ROOK ||
+                    rook.getColorType() != king.getColorType())
+                return false;
+            //if there has chess in between
+            for (int col = 3; col >= 1; --col)
+                if (hasChess(new Position(row, col)))
+                    return false;
+            //if any chess can target the position
+            for (int col = 4; col >= 2; --col)
+                if (!getEnemyChess(new Position(row, col),
+                        king.getColorType()).isEmpty())
+                    return false;
+        }
+
+        //Never moved before
+        Chess hisChess;
+        for (int i = 0; i < moveHistory.getMoveNum(); ++i) {
+            move = moveHistory.getMove(i);
+            //if is king or rook
+            hisChess = move.getChess();
+            if (hisChess.equals(king) || hisChess.equals(rook))
+                return false;
+        }
+        return true;
     }
 }

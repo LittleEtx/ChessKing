@@ -6,6 +6,9 @@ import edu.sustech.chessking.gameLogic.enumType.ColorType;
 
 import java.util.ArrayList;
 
+import static edu.sustech.chessking.gameLogic.enumType.ChessType.*;
+import static edu.sustech.chessking.gameLogic.enumType.ColorType.*;
+
 public class MoveRule {
     /**
     * To check if the Pawn Promotion is valid
@@ -14,9 +17,9 @@ public class MoveRule {
         if (pawn == null)
             return false;
 
-        return  pawn.getChessType() == ChessType.PAWN &&
-                promotionType != ChessType.PAWN &&
-                promotionType != ChessType.KING &&
+        return  pawn.getChessType() == PAWN &&
+                promotionType != PAWN &&
+                promotionType != KING &&
                 isPawnPromoteValid(pawn);
     }
 
@@ -24,11 +27,11 @@ public class MoveRule {
      * To check if the pawn is able to promote
      */
     public static boolean isPawnPromoteValid(Chess pawn) {
-        if (pawn == null || pawn.getChessType() != ChessType.PAWN)
+        if (pawn == null || pawn.getChessType() != PAWN)
             return false;
         int row = pawn.getPosition().getRow();
-        return (pawn.getColorType() == ColorType.WHITE && row == 6) ||
-                (pawn.getColorType() == ColorType.BLACK && row == 1);
+        return (pawn.getColorType() == WHITE && row == 6) ||
+                (pawn.getColorType() == BLACK && row == 1);
     }
 
     /**
@@ -39,9 +42,9 @@ public class MoveRule {
             return false;
         Position position = king.getPosition();
         ColorType color = king.getColorType();
-        return king.getChessType() == ChessType.KING &&
-                (color == ColorType.WHITE && position.equals(new Position("E1")) ||
-                color == ColorType.BLACK && position.equals(new Position("E8")));
+        return king.getChessType() == KING &&
+                (color == WHITE && position.equals(new Position("E1")) ||
+                color == BLACK && position.equals(new Position("E8")));
     }
 
     /**
@@ -96,7 +99,7 @@ public class MoveRule {
                 if (chessPos.getColumn() != position.getColumn())
                     return false;
 
-                if (chess.getColorType() == ColorType.WHITE) {
+                if (chess.getColorType() == WHITE) {
                     //Not moved, can move two block
                     if (chessPos.getRow() == 1)
                         return chessPos.getRow() + 2 == position.getRow() ||
@@ -127,8 +130,8 @@ public class MoveRule {
         if (chessPos.equals(position))
             return false;
 
-        if (chess.getChessType() == ChessType.PAWN) {
-            if (chess.getColorType() == ColorType.WHITE) {
+        if (chess.getChessType() == PAWN) {
+            if (chess.getColorType() == WHITE) {
                 return chessPos.getRow() + 1 == position.getRow() &&
                         columnDistance(chessPos, position) == 1;
             } else {
@@ -142,10 +145,25 @@ public class MoveRule {
 
     /**
      * To check if the chess can eat the other chess
+     * For eat passant, target should be the pawn been eaten
      */
     public static boolean isEatValid(Chess chess, Chess target) {
-        if (chess.getColorType() == target.getColorType())
+        if (chess == null || target == null ||
+                chess.getColorType() == target.getColorType())
             return false;
+
+        //check if eat passant
+        if (chess.getChessType() == PAWN && target.getChessType() == PAWN) {
+            if (target.getColorType() == WHITE &&
+                    chess.getPosition().getRow() == 5 && target.getPosition().getRow() == 5 &&
+                    columnDistance(chess.getPosition(), target.getPosition()) == 1)
+                return true;
+
+            if (target.getColorType() == BLACK &&
+                    chess.getPosition().getRow() == 2 && target.getPosition().getRow() == 2 &&
+                    columnDistance(chess.getPosition(), target.getPosition()) == 1)
+                return true;
+        }
         return isEatValid(chess, target.getPosition());
     }
 
@@ -153,10 +171,10 @@ public class MoveRule {
      * To check if the pawn is at the origin position
      */
     public static boolean isPawnNotMove(Chess pawn) {
-        if (pawn == null || pawn.getChessType() != ChessType.PAWN)
+        if (pawn == null || pawn.getChessType() != PAWN)
             return false;
 
-        if (pawn.getColorType() == ColorType.WHITE)
+        if (pawn.getColorType() == WHITE)
             return pawn.getPosition().getRow() == 1;
         else
             return pawn.getPosition().getRow() == 6;
