@@ -2,17 +2,19 @@ package edu.sustech.chessking.components;
 
 
 import com.almasb.fxgl.entity.component.Component;
+import edu.sustech.chessking.gameLogic.*;
 import com.almasb.fxgl.entity.components.ViewComponent;
 import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.gameLogic.Chess;
 import javafx.geometry.Point2D;
-import javafx.scene.input.MouseButton;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 
 public class ChessComponent extends Component {
     private String skin = "default";
     private Chess chess;
+    private boolean isNotMove = true;
+    private boolean isClicked = false;
 
     public ChessComponent(Chess chess) {
         this.chess = chess;
@@ -29,18 +31,27 @@ public class ChessComponent extends Component {
         entity.setPosition(getPoint());
 
         viewComponent.addOnClickHandler(event -> {
+            isClicked = !isClicked;
+            isNotMove = false;
             System.out.println("Point at " + chess.toString());
         });
     }
 
     @Override
     public void onUpdate(double tpf) {
-//        onBtnDown(MouseButton.PRIMARY,()->{
-//            Point2D mouse = getInput().getMousePositionWorld();
-//            entity.setX(mouse.getX());
-//            entity.setY(mouse.getY());
-//            return null;
-//        });
+        Point2D mouse = getInput().getMousePositionWorld();
+        if(isClicked){
+
+            entity.setX(mouse.getX()-40);
+            entity.setY(mouse.getY()-40);
+        }else{
+            if(!isNotMove) {
+                entity.setX(mouse.getX() - mouse.getX() % 80);
+                entity.setY(mouse.getY() - mouse.getY() % 80);
+                isNotMove = true;
+            }
+        }
+
     }
 
 
