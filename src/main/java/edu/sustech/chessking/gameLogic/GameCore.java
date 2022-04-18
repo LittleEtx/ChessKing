@@ -204,7 +204,7 @@ public class GameCore {
      * Note that if the pawn is to promote, then moveChess method will return false
      */
     public boolean movePawnPromotion(Chess pawn, Position targetPosition, ChessType promoteType) {
-        if (pawn == null || pawn.getChessType() != PAWN || pawn.getColorType() != turn ||
+        if (!isChessInGame(pawn) || pawn.getColorType() != turn ||
                 !isPromotionValid(pawn, promoteType) ||
                 !isMoveAvailable(pawn, targetPosition))
             return false;
@@ -346,6 +346,31 @@ public class GameCore {
         }
         return false;
     }
+
+    /**
+     * Cast the chess and target position to Move,
+     * Not guarantee that the move is available (but valid of course)
+     */
+    public Move castToMove(Chess chess, Position targetPos) {
+        if (isMoveValid(chess, targetPos))
+            return getMove(chess, targetPos);
+        else
+            return  null;
+    }
+
+    /**
+     * Cast the chess and target position to Move, specifically for promotion.
+     * If is to eat, no chess in the targetPos will cause return false.
+     * Not guarantee that the move is available
+     */
+    public Move castToMove(Chess chess, Position targetPos, ChessType promoteType) {
+        if (isPromotionValid(chess, promoteType) && isMoveAvailable(chess, targetPos))
+            return getMove(chess, targetPos, promoteType);
+        else
+            return null;
+    }
+
+
 
     /**
      * ## NOT DONE
@@ -544,14 +569,17 @@ public class GameCore {
     }
 
     /**
-     * ## NOT DONE
      * Return a list of all available moves of a chess
+     * Note that promotion is not included
      */
     public ArrayList<Move> getAvailableMove(Chess chess) {
-
-        //Needs to add
-
-        return null;
+        ArrayList<Position> posList = getAvailablePosition(chess);
+        ArrayList<Move> moveList = new ArrayList<>();
+        Move move;
+        for (Position pos : posList)
+            if ((move = getMove(chess, pos)) != null)
+                moveList.add(move);
+        return moveList;
     }
 
     /**
@@ -771,9 +799,11 @@ public class GameCore {
         return true;
     }
 
-    //get move from chess and position
-    //must check in advance that chess and targetPos are available
-    //can't get promote move
+    /**
+    /* get move from chess and position.
+    /* must check in advance that chess and targetPos are available.
+    /* can't get promote move, which will return null
+     */
     private Move getMove(Chess chess, Position targetPos) {
         Chess targetChess;
         if (chess.getChessType() == PAWN) {
@@ -816,13 +846,12 @@ public class GameCore {
     }
 
     //get promotion move
-    //must check in advance
+    //must check available in advance
     private Move getMove(Chess pawn, Position pos, ChessType promoteType) {
         Chess targetChess;
         if ((targetChess = getChess(pos)) == null)
             return new Move(pawn, PROMOTE, promoteType);
         else
             return new Move(pawn, EATPROMOTE, targetChess, promoteType);
-
     }
 }
