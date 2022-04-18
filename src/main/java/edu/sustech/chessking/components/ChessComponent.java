@@ -1,24 +1,24 @@
 package edu.sustech.chessking.components;
 
 
+import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
 import edu.sustech.chessking.gameLogic.*;
 import com.almasb.fxgl.entity.components.ViewComponent;
 import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.gameLogic.Chess;
 import javafx.geometry.Point2D;
-import javafx.util.Duration;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
-import static edu.sustech.chessking.ChessKingApp.gameCore;
 
 public class ChessComponent extends Component {
     private String skin = "default";
     private Chess chess;
-    private boolean isNotMove = true;
+    private boolean isMove = false;
     private boolean isClicked = false;
     private boolean isToString = false;
-
+    private GameCore gameCore = (GameCore) geto("core");
+    private Point2D mouse = getInput().getMousePositionWorld();
     public ChessComponent(Chess chess) {
         this.chess = chess;
     }
@@ -34,44 +34,91 @@ public class ChessComponent extends Component {
         entity.setPosition(getPoint());
 
         viewComponent.addOnClickHandler(event -> {
-            isClicked = !isClicked;
-            isNotMove = false;
+            Position positionMouse = toPosition(mouse);
+            isClicked = true;
+            isMove = !isMove;
+//            if(!isMove){
+//                isMove = !isMove;
+//            }else {
+//                if (gameCore.isMoveAvailable(chess, positionMouse)) {
+//                    isClicked = !isClicked;
+//                    isMove = false;
+//                } else {
+//                    getNotificationService().pushNotification("invalid position");
+//                }
+//            }
         });
     }
 
     @Override
     public void onUpdate(double tpf) {
-        Point2D mouse = getInput().getMousePositionWorld();
-        if(isClicked){
-            entity.setX(mouse.getX()-40);
-            entity.setY(mouse.getY()-40);
-            if(!isToString) {
-                System.out.println(chess.getChessType().toString()+ " "
-                        + chess.getColorType().toString()
-                        + " removed from " + chess.getPosition().toString());
+        mouse = getInput().getMousePositionWorld();
+
+        checkMouseClick();
+
+//        if(isClicked){
+//            moveWithMouse(entity);
+//            if(!isToString) {
+//                printString(chess);
+//                isToString = true;
+//            }
+//        }
+//
+//        if(!isMove) {
+//
+//            Chess chessIntegral = new Chess(chess.getColorType(),
+//                    chess.getChessType(),toPosition(mouse));
+//
+//            this.chess = chessIntegral;
+//            if(!isMove) {
+//                play("put.wav");
+//                moveEntity(entity);
+//                printString(chess);
+//                isMove = true;
+//                isToString = false;
+//            }
+//        }
+    }
+
+public void checkMouseClick(){
+    if(isClicked) {
+        if (isMove) {
+            moveWithMouse(entity);
+            if(!isToString){
+                printString(chess);
                 isToString = true;
             }
-        }else{
-            if(!isNotMove) {
-                Position positionMouse = toPosition(mouse);
-                Chess chessIntegral = new Chess(chess.getColorType(),
-                        chess.getChessType(),positionMouse);
-//                if(gameCore.moveChess(chess,positionMouse)) {
-                    this.chess = chessIntegral;
-                    play("put.wav");
-                    entity.setX(mouse.getX() - mouse.getX() % 80);
-                    entity.setY(mouse.getY() - mouse.getY() % 80);
-                    System.out.println(chess.getChessType().toString() + " "
-                            + chess.getColorType().toString()
-                            + " put at " + chess.getPosition().toString());
-                    isNotMove = true;
-                    isToString = false;
-//                }else{
-//                    getNotificationService().pushNotification("invalid position");
-//                }
+        }
+        if (!isMove) {
+            //reset the chess's position
+            Chess chessIntegral = new Chess(chess.getColorType(),
+                    chess.getChessType(),toPosition(mouse));
+            this.chess = chessIntegral;
+
+            putEntity(entity);
+            isClicked = false;
+            if(isToString){
+                printString(chess);
+                isToString = false;
             }
         }
+    }
+}
 
+    public void moveWithMouse(Entity entity){
+        entity.setX(mouse.getX()-40);
+        entity.setY(mouse.getY()-40);
+    }
+
+    public void putEntity(Entity entity){
+        entity.setX(mouse.getX() - mouse.getX() % 80);
+        entity.setY(mouse.getY() - mouse.getY() % 80);
+    }
+
+    public void printString(Chess chess){
+        System.out.println(chess.getChessType().toString()+ " "
+                + chess.getColorType().toString()+" "
+                + chess.getPosition().toString());
     }
 
     public Position toPosition(Point2D pt){

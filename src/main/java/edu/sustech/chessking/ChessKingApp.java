@@ -16,14 +16,25 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
 
 public class ChessKingApp extends GameApplication {
 
-    public static GameCore gameCore = new GameCore();
+    private final GameCore gameCore = new GameCore();
     public final ArrayList<Entity> board = new ArrayList<>();
+
+
+    // ===============================
+    //initialize variables
+
+
+    @Override
+    protected void initGameVars(Map<String, Object> vars) {
+        vars.put("core",gameCore);
+    }
 
     // ===============================
     //initialize before game starts and get some resources
@@ -34,6 +45,7 @@ public class ChessKingApp extends GameApplication {
 
         FXGL.loopBGM("BGM1.mp3");
     }
+
 
     // ===============================
     //initialize game settings
@@ -48,12 +60,11 @@ public class ChessKingApp extends GameApplication {
 
     // ===============================
     //initialize the physical properties of the game
-
-
     @Override
     protected void initPhysics() {
 
     }
+
 
     // ===============================
     //initialize the game
@@ -64,7 +75,6 @@ public class ChessKingApp extends GameApplication {
         initChess();
         //System.out.println();
     }
-
 
     public void initChess() {
         gameCore.initialGame();
@@ -85,29 +95,6 @@ public class ChessKingApp extends GameApplication {
 
     // ===============================
     //methods used every frame
-//    public void compareMouse(){
-//        Point2D mouse = getInput().getMousePositionWorld();
-//        for(Entity b : board) {
-//            if (Math.abs(mouse.getX() - b.getCenter().getX())<40&&
-//                    Math.abs(mouse.getY() - b.getCenter().getY())<40/*&& !spawnCircle*/){
-////                Entity circle = spawn("circle",new SpawnData(b.getX()+40,b.getY()+40)
-////                        .put("color",Color.YELLOW));
-////                spawnCircle = true;
-////                if(mouse.getX() - b.getX()>40){
-////                    circle.removeFromWorld();
-////                    spawnCircle = false;
-////                }
-//                Rectangle rect = new Rectangle(40,40,Color.BROWN);
-//                Entity blink = entityBuilder(new SpawnData(b.getCenter()))
-//                        .type(EntityType.BOX)
-//                        .at(b.getX()+20,b.getY()+20)
-//                        .view(rect)
-//                        .with(new ExpireCleanComponent(Duration.seconds(0.01)))
-//                        .buildAndAttach();
-//            }
-//        }
-//    }
-
     @Override
     protected void onUpdate(double tpf) {
         //System.out.println(getInput().getMousePositionWorld());
@@ -118,11 +105,10 @@ public class ChessKingApp extends GameApplication {
 
     // ===============================
     //initialize the inputs
-
-
     @Override
     protected void initInput() {
     }
+
 
     // ===============================
     //finally launching the game
