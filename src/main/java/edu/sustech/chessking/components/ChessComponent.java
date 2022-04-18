@@ -54,8 +54,9 @@ public class ChessComponent extends Component {
     public void onUpdate(double tpf) {
         mouse = getInput().getMousePositionWorld();
 
-        checkMouseClick();
-
+        if (isMouseOnBoard()){
+            checkMouseClick();
+        }
 //        if(isClicked){
 //            moveWithMouse(entity);
 //            if(!isToString) {
@@ -80,30 +81,42 @@ public class ChessComponent extends Component {
 //        }
     }
 
-public void checkMouseClick(){
-    if(isClicked) {
-        if (isMove) {
-            moveWithMouse(entity);
-            if(!isToString){
-                printString(chess);
-                isToString = true;
-            }
+    public boolean isMouseOnBoard(){
+        if(mouse.getX()<720&&mouse.getX()>80&&mouse.getY()>80&&mouse.getY()<720){
+            return true;
+        }else{
+            return false;
         }
-        if (!isMove) {
-            //reset the chess's position
-            Chess chessIntegral = new Chess(chess.getColorType(),
-                    chess.getChessType(),toPosition(mouse));
-            this.chess = chessIntegral;
+    }
 
-            putEntity(entity);
-            isClicked = false;
-            if(isToString){
-                printString(chess);
-                isToString = false;
+    public void checkMouseClick(){
+        if(isClicked) {
+            if (isMove) {
+                moveWithMouse(entity);
+                if(!isToString){
+                    printString(chess);
+                    isToString = true;
+                }
+            }
+            if (!isMove) {
+            //reset the chess's position
+                Chess chessIntegral = new Chess(chess.getColorType(), chess.getChessType(),toPosition(mouse));
+                this.chess = chessIntegral;
+
+                if(gameCore.isMoveAvailable(chess,toPosition(mouse))) {
+                    putEntity(entity);
+                    isClicked = false;
+                    if (isToString) {
+                        printString(chess);
+                        isToString = false;
+                    }
+                }else{
+                    getNotificationService().pushNotification("invalid position");
+                    isMove = true;
+                }
             }
         }
     }
-}
 
     public void moveWithMouse(Entity entity){
         entity.setX(mouse.getX()-40);
