@@ -242,13 +242,15 @@ public class GameCore {
     public boolean isMoveAvailable(Chess chess, Position targetPos) {
         if (chess == null || targetPos == null || chess.getPosition().equals(targetPos))
             return false;
-
         switch (chess.getChessType()) {
             case PAWN -> {
                 if (isMoveValid(chess, targetPos)) {
                     return !hasChess(targetPos);
                 }
                 if (isEatValid(chess, targetPos)) {
+                    //if the first step
+                    if (moveHistory.getMoveNum() == 0)
+                        return isOpposite(getChess(targetPos), chess.getColorType());
                     //check if eat passant
                     Move move = moveHistory.getLastMove();
                     Chess lastChess = move.getChess();
@@ -715,8 +717,7 @@ public class GameCore {
     }
 
     private void moveListChess(Chess chess, Position position) {
-        chessList.set(getChessIndex(chess),
-                new Chess(chess.getColorType(), chess.getChessType(), position));
+        chessList.set(getChessIndex(chess), chess.moveTo(position));
     }
 
     //must test if the king is king, and in position

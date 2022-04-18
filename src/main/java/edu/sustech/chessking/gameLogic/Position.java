@@ -182,7 +182,7 @@ public class Position {
         if (o == null || getClass() != o.getClass()) return false;
 
         Position position = (Position) o;
-        return column == position.column && row != position.row;
+        return column == position.column && row == position.row;
     }
 
     @Override

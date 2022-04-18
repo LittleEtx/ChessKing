@@ -60,7 +60,15 @@ public class Chess{
         return chess != null && chess.getColorType() != colorType;
     }
 
-
+    /**
+     * @return a new chess of a new position,
+     * the origin chess won't change
+     */
+    public Chess moveTo(Position pos) {
+        if (pos == null)
+            return null;
+        return new Chess(colorType, chessType, pos);
+    }
 
     /**
      * A quick method to clone a chess

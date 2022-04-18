@@ -17,7 +17,7 @@ public class ChessComponent extends Component {
     private boolean isMove = false;
     private boolean isClicked = false;
     private boolean isToString = false;
-    private GameCore gameCore = (GameCore) geto("core");
+    private static final GameCore gameCore = (GameCore) geto("core");
     private Point2D mouse = getInput().getMousePositionWorld();
     public ChessComponent(Chess chess) {
         this.chess = chess;
@@ -35,18 +35,29 @@ public class ChessComponent extends Component {
 
         viewComponent.addOnClickHandler(event -> {
             Position positionMouse = toPosition(mouse);
-            isClicked = true;
             isMove = !isMove;
-//            if(!isMove){
-//                isMove = !isMove;
-//            }else {
-//                if (gameCore.isMoveAvailable(chess, positionMouse)) {
-//                    isClicked = !isClicked;
-//                    isMove = false;
-//                } else {
-//                    getNotificationService().pushNotification("invalid position");
-//                }
-//            }
+            if (isMove) {
+                System.out.print(chess.toString() + " can move to:");
+                for (Position pos : gameCore.getAvailablePosition(chess))
+                    System.out.print(" " + pos.toString());
+                System.out.println();
+            }
+            if (!isMove) {
+                //reset the chess's position
+                Position pos = toPosition(mouse);
+                if(gameCore.moveChess(chess, pos)) {
+                    this.chess = chess.moveTo(pos);
+                    putEntity();
+                    isClicked = false;
+                    if (isToString) {
+                        printString(chess);
+                        isToString = false;
+                    }
+                }else{
+                    entity.setPosition(getPoint());
+                    getNotificationService().pushNotification("invalid position");
+                }
+            }
         });
     }
 
@@ -54,8 +65,8 @@ public class ChessComponent extends Component {
     public void onUpdate(double tpf) {
         mouse = getInput().getMousePositionWorld();
 
-        if (isMouseOnBoard()){
-            checkMouseClick();
+        if (isMouseOnBoard() && isMove){
+            moveWithMouse();
         }
 //        if(isClicked){
 //            moveWithMouse(entity);
@@ -82,48 +93,16 @@ public class ChessComponent extends Component {
     }
 
     public boolean isMouseOnBoard(){
-        if(mouse.getX()<720&&mouse.getX()>80&&mouse.getY()>80&&mouse.getY()<720){
-            return true;
-        }else{
-            return false;
-        }
+        return mouse.getX() < 720 && mouse.getX() > 80 &&
+                mouse.getY() > 80 && mouse.getY() < 720;
     }
 
-    public void checkMouseClick(){
-        if(isClicked) {
-            if (isMove) {
-                moveWithMouse(entity);
-                if(!isToString){
-                    printString(chess);
-                    isToString = true;
-                }
-            }
-            if (!isMove) {
-            //reset the chess's position
-                Chess chessIntegral = new Chess(chess.getColorType(), chess.getChessType(),toPosition(mouse));
-                this.chess = chessIntegral;
-
-                if(gameCore.isMoveAvailable(chess,toPosition(mouse))) {
-                    putEntity(entity);
-                    isClicked = false;
-                    if (isToString) {
-                        printString(chess);
-                        isToString = false;
-                    }
-                }else{
-                    getNotificationService().pushNotification("invalid position");
-                    isMove = true;
-                }
-            }
-        }
-    }
-
-    public void moveWithMouse(Entity entity){
+    public void moveWithMouse(){
         entity.setX(mouse.getX()-40);
         entity.setY(mouse.getY()-40);
     }
 
-    public void putEntity(Entity entity){
+    public void putEntity(){
         entity.setX(mouse.getX() - mouse.getX() % 80);
         entity.setY(mouse.getY() - mouse.getY() % 80);
     }

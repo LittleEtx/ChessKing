@@ -98,7 +98,6 @@ public class MoveRule {
             case PAWN -> {
                 if (chessPos.getColumn() != position.getColumn())
                     return false;
-
                 if (chess.getColorType() == WHITE) {
                     //Not moved, can move two block
                     if (chessPos.getRow() == 1)
