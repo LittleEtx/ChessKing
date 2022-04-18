@@ -70,7 +70,7 @@ public class GameCore {
 
         //Need to add
 
-        return true;
+        return false;
     }
 
     /**
@@ -170,59 +170,21 @@ public class GameCore {
         return turn;
     }
 
+
     //==================================
     //        Chess Moving Method
     //==================================
 
     /**
-     * Target a chess move to the position, return false if not available
+     * Target a chess move to the position
+     * @return false if not available
      */
     public boolean moveChess(Chess chess, Position targetPos) {
         if (!isChessInGame(chess) || chess.getColorType() != turn ||
                 !isMoveAvailable(chess, targetPos))
             return false;
 
-        Move move = null;
-        Chess targetChess;
-        switch (chess.getChessType()) {
-            case PAWN -> {
-                //if is to promote, must use another method
-                if (isPawnPromoteValid(chess))
-                    return false;
-
-                if (isMoveValid(chess, targetPos))
-                    move = new Move(chess, MOVE, targetPos);
-                else if (isEatValid(chess, targetPos)) {
-                    if ((targetChess = getChess(targetPos)) != null)
-                        move = new Move(chess, EAT, targetChess);
-                        //eat passant
-                    else if (chess.getColorType() == WHITE)
-                        move = new Move(chess, EAT, getChess(targetPos.getDown()));
-                    else
-                        move = new Move(chess, EAT, getChess(targetPos.getUp()));
-                }
-            }
-            case KING -> {
-                CastleType castleType;
-                if (withinSide(chess.getPosition(), targetPos)) {
-                    if ((targetChess = getChess(targetPos)) != null)
-                        move = new Move(chess, EAT, targetChess);
-                    else
-                        move = new Move(chess, MOVE, targetPos);
-                }
-                //castling
-                else if ((castleType = getCastleType(chess, targetPos)) != null) {
-                    move = new Move(chess, CASTLE, castleType);
-                }
-            }
-            default -> {
-                if ((targetChess = getChess(targetPos)) != null)
-                    move = new Move(chess, EAT, targetChess);
-                else
-                    move = new Move(chess, MOVE, targetPos);
-            }
-        }
-        
+        Move move = getMove(chess, targetPos);
         if (move == null)
             return false;
         executeMove(move);
@@ -230,14 +192,11 @@ public class GameCore {
     }
 
     /**
-     * ## NOT DONE
-     * Target a chess move from a position (if any) to a new position, return false if not available
+     * Target a chess move from a position (if any) to a new position,
+     * @return false if not available
      */
     public boolean moveChess(Position chessPos, Position targetPos) {
-
-        //Needs to add
-
-        return false;
+        return moveChess(getChess(chessPos), targetPos);
     }
 
     /**
@@ -249,29 +208,21 @@ public class GameCore {
                 !isPromotionValid(pawn, promoteType) ||
                 !isMoveAvailable(pawn, targetPosition))
             return false;
-
-        Move move;
-        Chess targetChess;
-        //Check if eat
-        if ((targetChess = getChess(targetPosition)) != null)
-            move = new Move(pawn, EATPROMOTE, targetChess, promoteType);
-        else
-            move = new Move(pawn, PROMOTE, promoteType);
-
-        executeMove(move);
+        executeMove(getMove(pawn, targetPosition, promoteType));
         return true;
     }
 
     /**
-     * ## NOT DONE
      * try to execute a move
      * @return false when the move is not available
      */
     public boolean moveChess(Move move) {
-
-        //Needs to add
-
-        return false;
+        if (isMoveAvailable(move)) {
+            executeMove(move);
+            return true;
+        }
+        else
+            return false;
     }
 
     /**
@@ -817,5 +768,60 @@ public class GameCore {
                 return false;
         }
         return true;
+    }
+
+    //get move from chess and position
+    //must check in advance that chess and targetPos are available
+    //can't get promote move
+    private Move getMove(Chess chess, Position targetPos) {
+        Chess targetChess;
+        if (chess.getChessType() == PAWN) {
+            //if is to promote, must use another method
+            if (isPawnPromoteValid(chess))
+                return null;
+
+            if (isMoveValid(chess, targetPos))
+                return new Move(chess, MOVE, targetPos);
+            else if (isEatValid(chess, targetPos)) {
+                if ((targetChess = getChess(targetPos)) != null)
+                    return new Move(chess, EAT, targetChess);
+                //eat passant
+                if (chess.getColorType() == WHITE)
+                    return new Move(chess, EAT, getChess(targetPos.getDown()));
+                else
+                    return new Move(chess, EAT, getChess(targetPos.getUp()));
+            }
+        }
+        else if (chess.getChessType() == KING) {
+            CastleType castleType;
+            if (withinSide(chess.getPosition(), targetPos)) {
+                if ((targetChess = getChess(targetPos)) != null)
+                    return new Move(chess, EAT, targetChess);
+                else
+                    return new Move(chess, MOVE, targetPos);
+            }
+            //castling
+            if ((castleType = getCastleType(chess, targetPos)) != null) {
+                return new Move(chess, CASTLE, castleType);
+            }
+        }
+        else {
+            if ((targetChess = getChess(targetPos)) != null)
+                return new Move(chess, EAT, targetChess);
+            else
+                return new Move(chess, MOVE, targetPos);
+        }
+        return null;
+    }
+
+    //get promotion move
+    //must check in advance
+    private Move getMove(Chess pawn, Position pos, ChessType promoteType) {
+        Chess targetChess;
+        if ((targetChess = getChess(pos)) == null)
+            return new Move(pawn, PROMOTE, promoteType);
+        else
+            return new Move(pawn, EATPROMOTE, targetChess, promoteType);
+
     }
 }
