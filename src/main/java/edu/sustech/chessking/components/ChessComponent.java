@@ -1,7 +1,6 @@
 package edu.sustech.chessking.components;
 
 
-import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
 import edu.sustech.chessking.EntityType;
@@ -14,13 +13,12 @@ import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
 import javafx.geometry.Point2D;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 
 public class ChessComponent extends Component {
-    private String skin = gets("skin");
+    private static final String skin = gets("skin");
     private Chess chess;
 
     private boolean isMove = false;
