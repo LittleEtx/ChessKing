@@ -19,8 +19,8 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 public class ChessComponent extends Component {
     private String[] skin = geto("skin");
     private Chess chess;
-    private boolean isMove = false;
 
+    private boolean isMove = false;
     private boolean isToString = false;
     private boolean canEat = false;
     private static final GameCore gameCore = geto("core");
@@ -33,7 +33,7 @@ public class ChessComponent extends Component {
 
     @Override
     public void onAdded() {
-        String pic = skin[0] + " " + chess.getChessType().toString()
+        String pic = skin[1] + " " + chess.getChessType().toString()
                 + "-" + chess.getColorType().toString() + ".png";
         Texture img = texture(pic, 80, 80);
 
@@ -42,39 +42,17 @@ public class ChessComponent extends Component {
         entity.setPosition(getPoint());
 
         viewComponent.addOnClickHandler(event -> {
-            isMove = !isMove;
+            if(!getb("entityMoving")) {
+                isMove = true;
+            }else{
+                isMove = false;
+            }
             if (isMove) {
                 printAvailablePos();
-
+                set("entityMoving",true);
             }
             if (!isMove) {
-                //reset the chess's position
-                Position pos = toPosition(mouse);
-                if(gameCore.moveChess(chess, pos)) {
-                    this.chess = chess.moveTo(pos);
-                    putEntity();
-
-                    if(canEat) {
-                        Point2D entityPos = new Point2D(mouse.getX() - mouse.getX() % 80
-                                , mouse.getY() - mouse.getY() % 80);
-                        List<Entity> eaten = getGameWorld().getEntitiesAt(entityPos);
-                        for (Entity e : eaten) {
-                            if(!e.equals(entity)) {
-                                if(e.getType()!= EntityType.BOARD) {
-                                    getGameWorld().removeEntity(e);
-                                }
-                            }
-                        }
-                    }
-
-                    if (isToString) {
-                        printString(chess);
-                        isToString = false;
-                    }
-                }else{
-                    entity.setPosition(getPoint());
-                    getNotificationService().pushNotification("invalid position");
-                }
+                putChess();
             }
         });
     }
@@ -88,11 +66,44 @@ public class ChessComponent extends Component {
         }
     }
 
+    public void putChess(){
+        //reset the chess's position
+        Position pos = toPosition(mouse);
+        if (gameCore.moveChess(chess, pos)) {
+            this.chess = chess.moveTo(pos);
+            putEntity();
+            set("entityMoving",false);
+
+            if (canEat) {
+                Point2D entityPos = new Point2D(mouse.getX() - mouse.getX() % 80
+                        , mouse.getY() - mouse.getY() % 80);
+                List<Entity> eaten = getGameWorld().getEntitiesAt(entityPos);
+                for (Entity e : eaten) {
+                    if (!e.equals(entity)) {
+                        if (e.getType() != EntityType.BOARD) {
+                            getGameWorld().removeEntity(e);
+                        }
+                    }
+                }
+            }
+
+            if (isToString) {
+                printString(chess);
+                isToString = false;
+            }
+        } else {
+            isMove = false;
+            set("entityMoving",false);
+            entity.setPosition(getPoint());
+            getNotificationService().pushNotification("invalid position");
+        }
+    }
+
     public void printAvailablePos(){
         StringBuilder str = new StringBuilder();
         ArrayList<Chess> enemies = new ArrayList<>();
         for (Position pos : gameCore.getAvailablePosition(chess)) {
-            str.append(" "+pos.toString());
+            str.append(" ").append(pos.toString());
             if (gameCore.hasChess(pos)) {
                 enemies.add(gameCore.getChess(pos));
                 canEat = true;

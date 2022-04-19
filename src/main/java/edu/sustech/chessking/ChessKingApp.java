@@ -6,11 +6,13 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
+import com.almasb.fxgl.input.UserAction;
 import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.Factories.ChessKingEntityFactory;
 import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.gameLogic.Position;
 import javafx.geometry.Point2D;
+import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
@@ -26,6 +28,7 @@ public class ChessKingApp extends GameApplication {
     private final GameCore gameCore = new GameCore();
     public final ArrayList<Entity> board = new ArrayList<>();
     public final String[] skin = {"default","pixel"};
+    public boolean isEntityMoving = false;
 
     // ===============================
     //initialize variables
@@ -35,6 +38,7 @@ public class ChessKingApp extends GameApplication {
     protected void initGameVars(Map<String, Object> vars) {
         vars.put("core",gameCore);
         vars.put("skin",skin);
+        vars.put("entityMoving",isEntityMoving);
     }
 
     // ===============================
