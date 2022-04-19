@@ -817,8 +817,9 @@ public class GameCore {
                 if ((targetChess = getChess(targetPos)) != null)
                     return new Move(chess, EAT, targetChess);
                 //eat passant
-                if (chess.getColorType() == WHITE)
+                if (chess.getColorType() == WHITE) {
                     return new Move(chess, EAT, getChess(targetPos.getDown()));
+                }
                 else
                     return new Move(chess, EAT, getChess(targetPos.getUp()));
             }
