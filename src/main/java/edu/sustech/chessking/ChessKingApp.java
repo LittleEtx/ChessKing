@@ -34,7 +34,7 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void initGameVars(Map<String, Object> vars) {
         vars.put("core",gameCore);
-        vars.put("skin",skin);
+        vars.put("skin",skin[1]);
     }
 
     // ===============================
