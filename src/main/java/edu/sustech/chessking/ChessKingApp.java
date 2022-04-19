@@ -25,7 +25,7 @@ public class ChessKingApp extends GameApplication {
 
     private final GameCore gameCore = new GameCore();
     public final ArrayList<Entity> board = new ArrayList<>();
-
+    public final String[] skin = {"default","pixel"};
 
     // ===============================
     //initialize variables
@@ -34,6 +34,7 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void initGameVars(Map<String, Object> vars) {
         vars.put("core",gameCore);
+        vars.put("skin",skin);
     }
 
     // ===============================

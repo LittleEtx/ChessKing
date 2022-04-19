@@ -12,12 +12,12 @@ import javafx.geometry.Point2D;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 
 public class ChessComponent extends Component {
-    private String skin = "default";
+    private String[] skin = geto("skin");
     private Chess chess;
     private boolean isMove = false;
     private boolean isClicked = false;
     private boolean isToString = false;
-    private static final GameCore gameCore = (GameCore) geto("core");
+    private static final GameCore gameCore = geto("core");
     private Point2D mouse = getInput().getMousePositionWorld();
     public ChessComponent(Chess chess) {
         this.chess = chess;
@@ -25,7 +25,7 @@ public class ChessComponent extends Component {
 
     @Override
     public void onAdded() {
-        String pic = skin + " " + chess.getChessType().toString()
+        String pic = skin[1] + " " + chess.getChessType().toString()
                 + "-" + chess.getColorType().toString() + ".png";
         Texture img = texture(pic, 80, 80);
 
@@ -34,13 +34,13 @@ public class ChessComponent extends Component {
         entity.setPosition(getPoint());
 
         viewComponent.addOnClickHandler(event -> {
-            Position positionMouse = toPosition(mouse);
             isMove = !isMove;
             if (isMove) {
                 System.out.print(chess.toString() + " can move to:");
                 for (Position pos : gameCore.getAvailablePosition(chess))
                     System.out.print(" " + pos.toString());
                 System.out.println();
+                isToString = true;
             }
             if (!isMove) {
                 //reset the chess's position
@@ -68,28 +68,6 @@ public class ChessComponent extends Component {
         if (isMouseOnBoard() && isMove){
             moveWithMouse();
         }
-//        if(isClicked){
-//            moveWithMouse(entity);
-//            if(!isToString) {
-//                printString(chess);
-//                isToString = true;
-//            }
-//        }
-//
-//        if(!isMove) {
-//
-//            Chess chessIntegral = new Chess(chess.getColorType(),
-//                    chess.getChessType(),toPosition(mouse));
-//
-//            this.chess = chessIntegral;
-//            if(!isMove) {
-//                play("put.wav");
-//                moveEntity(entity);
-//                printString(chess);
-//                isMove = true;
-//                isToString = false;
-//            }
-//        }
     }
 
     public boolean isMouseOnBoard(){
@@ -108,8 +86,8 @@ public class ChessComponent extends Component {
     }
 
     public void printString(Chess chess){
-        System.out.println(chess.getChessType().toString()+ " "
-                + chess.getColorType().toString()+" "
+        System.out.println(chess.getColorType().toString()+ " "
+                + chess.getChessType().toString()+" "
                 + chess.getPosition().toString());
     }
 
@@ -118,25 +96,6 @@ public class ChessComponent extends Component {
         int x = (int) (8-(pt.getY()-pt.getY()%80)/80);
         return new Position(x,y);
     }
-
-
-//    public void withMouse(){
-//        Point2D mouse = getInput().getMousePositionWorld();
-//        for(int i = 0; i < 8; i++) {
-//            if (Math.abs(mouse.getX() - )<40&&
-//                    Math.abs(mouse.getY() - <40){
-//
-//                Rectangle rect = new Rectangle(40,40, Color.BROWN);
-//                Entity blink = entityBuilder(new SpawnData(b.getCenter()))
-//                        .type(EntityType.BOX)
-//                        .at(b.getX()+20,b.getY()+20)
-//                        .view(rect)
-//                        .with(new ExpireCleanComponent(Duration.seconds(0.01)))
-//                        .buildAndAttach();
-//            }
-//        }
-//    }
-//
 
     private Point2D getPoint(){
         return new Point2D(
