@@ -1,13 +1,18 @@
 package edu.sustech.chessking.components;
 
 
+import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
+import edu.sustech.chessking.EntityType;
 import edu.sustech.chessking.gameLogic.*;
 import com.almasb.fxgl.entity.components.ViewComponent;
 import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.gameLogic.Chess;
 import javafx.geometry.Point2D;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 
@@ -15,17 +20,20 @@ public class ChessComponent extends Component {
     private String[] skin = geto("skin");
     private Chess chess;
     private boolean isMove = false;
-    private boolean isClicked = false;
+
     private boolean isToString = false;
+    private boolean canEat = false;
     private static final GameCore gameCore = geto("core");
     private Point2D mouse = getInput().getMousePositionWorld();
+
+
     public ChessComponent(Chess chess) {
         this.chess = chess;
     }
 
     @Override
     public void onAdded() {
-        String pic = skin[1] + " " + chess.getChessType().toString()
+        String pic = skin[0] + " " + chess.getChessType().toString()
                 + "-" + chess.getColorType().toString() + ".png";
         Texture img = texture(pic, 80, 80);
 
@@ -36,11 +44,8 @@ public class ChessComponent extends Component {
         viewComponent.addOnClickHandler(event -> {
             isMove = !isMove;
             if (isMove) {
-                System.out.print(chess.toString() + " can move to:");
-                for (Position pos : gameCore.getAvailablePosition(chess))
-                    System.out.print(" " + pos.toString());
-                System.out.println();
-                isToString = true;
+                printAvailablePos();
+
             }
             if (!isMove) {
                 //reset the chess's position
@@ -48,7 +53,20 @@ public class ChessComponent extends Component {
                 if(gameCore.moveChess(chess, pos)) {
                     this.chess = chess.moveTo(pos);
                     putEntity();
-                    isClicked = false;
+
+                    if(canEat) {
+                        Point2D entityPos = new Point2D(mouse.getX() - mouse.getX() % 80
+                                , mouse.getY() - mouse.getY() % 80);
+                        List<Entity> eaten = getGameWorld().getEntitiesAt(entityPos);
+                        for (Entity e : eaten) {
+                            if(!e.equals(entity)) {
+                                if(e.getType()!= EntityType.BOARD) {
+                                    getGameWorld().removeEntity(e);
+                                }
+                            }
+                        }
+                    }
+
                     if (isToString) {
                         printString(chess);
                         isToString = false;
@@ -68,6 +86,25 @@ public class ChessComponent extends Component {
         if (isMouseOnBoard() && isMove){
             moveWithMouse();
         }
+    }
+
+    public void printAvailablePos(){
+        StringBuilder str = new StringBuilder();
+        ArrayList<Chess> enemies = new ArrayList<>();
+        for (Position pos : gameCore.getAvailablePosition(chess)) {
+            str.append(" "+pos.toString());
+            if (gameCore.hasChess(pos)) {
+                enemies.add(gameCore.getChess(pos));
+                canEat = true;
+            }else{
+                canEat = false;
+            }
+        }
+        System.out.print(chess.toString() + " can move to:" + str + "\n");
+        for(Chess enemy:enemies){
+            System.out.println("can eat "+enemy.toString());
+        }
+        isToString = true;
     }
 
     public boolean isMouseOnBoard(){
