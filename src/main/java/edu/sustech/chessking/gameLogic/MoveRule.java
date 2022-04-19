@@ -147,23 +147,25 @@ public class MoveRule {
      * For eat passant, target should be the pawn been eaten
      */
     public static boolean isEatValid(Chess chess, Chess target) {
-        if (chess == null || target == null ||
-                chess.getColorType() == target.getColorType())
+        if (target == null || !Chess.isOpposite(chess, target.getColorType()))
             return false;
 
-        //check if eat passant
-        if (chess.getChessType() == PAWN && target.getChessType() == PAWN) {
-            if (target.getColorType() == WHITE &&
-                    chess.getPosition().getRow() == 5 && target.getPosition().getRow() == 5 &&
-                    columnDistance(chess.getPosition(), target.getPosition()) == 1)
-                return true;
-
-            if (target.getColorType() == BLACK &&
-                    chess.getPosition().getRow() == 2 && target.getPosition().getRow() == 2 &&
-                    columnDistance(chess.getPosition(), target.getPosition()) == 1)
-                return true;
-        }
+        if (isEatPassant(chess, target))
+            return true;
         return isEatValid(chess, target.getPosition());
+    }
+
+    public static boolean isEatPassant(Chess chess, Chess target) {
+        if (target == null || !Chess.isOpposite(chess, target.getColorType()) ||
+                chess.getChessType() != PAWN || target.getChessType() != PAWN)
+            return false;
+        //check if eat passant
+        if (chess.getColorType() == WHITE)
+            return chess.getPosition().getRow() == 4 && target.getPosition().getRow() == 4 &&
+                    columnDistance(chess.getPosition(), target.getPosition()) == 1;
+        else
+            return    chess.getPosition().getRow() == 3 && target.getPosition().getRow() == 3 &&
+                    columnDistance(chess.getPosition(), target.getPosition()) == 1;
     }
 
     /**

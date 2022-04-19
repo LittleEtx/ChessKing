@@ -9,6 +9,9 @@ import edu.sustech.chessking.gameLogic.*;
 import com.almasb.fxgl.entity.components.ViewComponent;
 import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.gameLogic.Chess;
+import edu.sustech.chessking.gameLogic.enumType.CastleType;
+import edu.sustech.chessking.gameLogic.enumType.ChessType;
+import edu.sustech.chessking.gameLogic.enumType.MoveType;
 import javafx.geometry.Point2D;
 
 import java.util.ArrayList;
@@ -21,8 +24,6 @@ public class ChessComponent extends Component {
     private Chess chess;
 
     private boolean isMove = false;
-    private boolean isToString = false;
-    private boolean canEat = false;
     private static final GameCore gameCore = geto("core");
     private Point2D mouse = getInput().getMousePositionWorld();
 
@@ -39,20 +40,29 @@ public class ChessComponent extends Component {
 
         ViewComponent viewComponent = entity.getViewComponent();
         viewComponent.addChild(img);
-        entity.setPosition(getPoint());
+        entity.setPosition(toPoint(chess.getPosition()));
 
         viewComponent.addOnClickHandler(event -> {
-            if(!getb("entityMoving")) {
+            boolean isChessMoving = getb("entityMoving");
+            //When the moving chess is not this one
+            if (isChessMoving && !isMove)
+                return;
+
+            if (!isMove) {
+                //if is not the turn
+                if (!gameCore.isInTurn(chess)) {
+                    getNotificationService().pushNotification(
+                            "Not " + chess.getColorType().toString() + "'s turn!");
+                    return;
+                }
+
                 isMove = true;
-            }else{
-                isMove = false;
-            }
-            if (isMove) {
                 printAvailablePos();
                 set("entityMoving",true);
-            }
-            if (!isMove) {
+            } else {
+                isMove = false;
                 putChess();
+                set("entityMoving",false);
             }
         });
     }
@@ -67,55 +77,81 @@ public class ChessComponent extends Component {
     }
 
     public void putChess(){
-        //reset the chess's position
         Position pos = toPosition(mouse);
-        if (gameCore.moveChess(chess, pos)) {
-            this.chess = chess.moveTo(pos);
-            putEntity();
-            set("entityMoving",false);
+        if (gameCore.isMoveAvailable(chess, pos)) {
+            //if promotion
+            if (MoveRule.isPawnPromoteValid(chess)) {
+                //Now just assume the chess promote to queen
+                //you need to a panel for player to choose later
+                ChessType chessType = ChessType.QUEEN;
+                //if eat chess
+                if (gameCore.hasChess(pos))
+                    eatChess(pos);
+                gameCore.movePawnPromotion(chess, pos, chessType);
+                chess = chess.promoteTo(chessType);
+            }
+            else {
+                Move move = gameCore.castToMove(chess, pos);
+                gameCore.moveChess(move);
+                //if eat chess
+                if (move.getMoveType() == MoveType.EAT) {
+                    Chess targetChess = (Chess) move.getMoveTarget()[0];
 
-            if (canEat) {
-                Point2D entityPos = new Point2D(mouse.getX() - mouse.getX() % 80
-                        , mouse.getY() - mouse.getY() % 80);
-                List<Entity> eaten = getGameWorld().getEntitiesAt(entityPos);
-                for (Entity e : eaten) {
-                    if (!e.equals(entity)) {
-                        if (e.getType() != EntityType.BOARD) {
-                            getGameWorld().removeEntity(e);
-                        }
+                    System.out.println("Eat " + targetChess.toString());
+
+                    eatChess(targetChess.getPosition());
+                }
+                //if castling
+                else if (move.getMoveType() == MoveType.CASTLE){
+                    CastleType castleType = MoveRule.getCastleType(chess, pos);
+                    int row = chess.getPosition().getRow();
+                    if (castleType == CastleType.LONG) {
+                        Entity rook = getChessEntity(toPoint(new Position(row, 0)));
+                        if (rook == null)
+                            throw new RuntimeException("Can't find rook entity");
+                        rook.setPosition(toPoint(new Position(row, 3)));
+                    }
+                    else {
+                        Entity rook = getChessEntity(toPoint(new Position(row, 7)));
+                        if (rook == null)
+                            throw new RuntimeException("Can't find rook entity");
+                        rook.setPosition(toPoint(new Position(row, 5)));
                     }
                 }
             }
-
-            if (isToString) {
-                printString(chess);
-                isToString = false;
-            }
-        } else {
-            isMove = false;
-            set("entityMoving",false);
-            entity.setPosition(getPoint());
+            System.out.print("Move " + chess.toString());
+            entity.setPosition(getEntityPt());
+            this.chess = chess.moveTo(pos);
+            System.out.println(" to " + chess.getPosition().toString());
+        }
+        else {
+            //reset the chess's position
+            entity.setPosition(toPoint(chess.getPosition()));
             getNotificationService().pushNotification("invalid position");
         }
     }
 
+    private void eatChess(Position pos) {
+        Entity chess =  getChessEntity(toPoint(pos));
+        if (chess != null)
+            getGameWorld().removeEntity(chess);
+    }
+
+    private Entity getChessEntity(Point2D pt) {
+        List<Entity> eaten = getGameWorld().getEntitiesAt(pt);
+        for (Entity e : eaten) {
+            if (!e.equals(entity) && e.getType() != EntityType.BOARD)
+                return e;
+        }
+        return null;
+    }
+
     public void printAvailablePos(){
         StringBuilder str = new StringBuilder();
-        ArrayList<Chess> enemies = new ArrayList<>();
         for (Position pos : gameCore.getAvailablePosition(chess)) {
             str.append(" ").append(pos.toString());
-            if (gameCore.hasChess(pos)) {
-                enemies.add(gameCore.getChess(pos));
-                canEat = true;
-            }else{
-                canEat = false;
-            }
         }
         System.out.print(chess.toString() + " can move to:" + str + "\n");
-        for(Chess enemy:enemies){
-            System.out.println("can eat "+enemy.toString());
-        }
-        isToString = true;
     }
 
     public boolean isMouseOnBoard(){
@@ -128,15 +164,9 @@ public class ChessComponent extends Component {
         entity.setY(mouse.getY()-40);
     }
 
-    public void putEntity(){
-        entity.setX(mouse.getX() - mouse.getX() % 80);
-        entity.setY(mouse.getY() - mouse.getY() % 80);
-    }
-
-    public void printString(Chess chess){
-        System.out.println(chess.getColorType().toString()+ " "
-                + chess.getChessType().toString()+" "
-                + chess.getPosition().toString());
+    public Point2D getEntityPt() {
+         return new Point2D(mouse.getX() - mouse.getX() % 80,
+                 mouse.getY() - mouse.getY() % 80);
     }
 
     public Position toPosition(Point2D pt){
@@ -145,10 +175,10 @@ public class ChessComponent extends Component {
         return new Position(x,y);
     }
 
-    private Point2D getPoint(){
+    private Point2D toPoint(Position pos){
         return new Point2D(
-                80 + chess.getPosition().getColumn() * 80,
-                640 - chess.getPosition().getRow() * 80
+                80 + pos.getColumn() * 80,
+                640 - pos.getRow() * 80
         );
     }
 }

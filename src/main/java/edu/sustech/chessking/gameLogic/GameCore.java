@@ -170,6 +170,10 @@ public class GameCore {
         return turn;
     }
 
+    public boolean isInTurn(Chess chess) {
+        return chess.getColorType() == turn;
+    }
+
 
     //==================================
     //        Chess Moving Method
@@ -180,7 +184,7 @@ public class GameCore {
      * @return false if not available
      */
     public boolean moveChess(Chess chess, Position targetPos) {
-        if (!isChessInGame(chess) || chess.getColorType() != turn ||
+        if (!isChessInGame(chess) || !isInTurn(chess) ||
                 !isMoveAvailable(chess, targetPos))
             return false;
 
@@ -204,7 +208,7 @@ public class GameCore {
      * Note that if the pawn is to promote, then moveChess method will return false
      */
     public boolean movePawnPromotion(Chess pawn, Position targetPosition, ChessType promoteType) {
-        if (!isChessInGame(pawn) || pawn.getColorType() != turn ||
+        if (!isChessInGame(pawn) || !isInTurn(pawn) ||
                 !isPromotionValid(pawn, promoteType) ||
                 !isMoveAvailable(pawn, targetPosition))
             return false;
@@ -237,7 +241,8 @@ public class GameCore {
     }
 
     /**
-     * Return if the position is available for the chess
+     * Return if the position is available for the chess.
+     * Note that this method won't check if the turn is right
      */
     public boolean isMoveAvailable(Chess chess, Position targetPos) {
         if (chess == null || targetPos == null || chess.getPosition().equals(targetPos))
@@ -306,13 +311,14 @@ public class GameCore {
     }
 
     /**
-     * Return if the move is available
+     * Return if the move is available.
+     * This method will check the turn.
      */
     public boolean isMoveAvailable(Move move) {
         if (move == null)
             return false;
         Chess chess = move.getChess();
-        if (chess.getColorType() != turn)
+        if (!isInTurn(chess))
             return false;
 
         switch (move.getMoveType()) {
@@ -352,10 +358,9 @@ public class GameCore {
      * Not guarantee that the move is available (but valid of course)
      */
     public Move castToMove(Chess chess, Position targetPos) {
-        if (isMoveValid(chess, targetPos))
-            return getMove(chess, targetPos);
-        else
-            return  null;
+        if (chess == null || targetPos == null)
+            return null;
+        return getMove(chess, targetPos);
     }
 
     /**
@@ -710,7 +715,16 @@ public class GameCore {
             case EAT -> {
                 Chess eatChess = (Chess) move.getMoveTarget()[0];
                 chessList.remove(eatChess);
-                moveListChess(chess, eatChess.getPosition());
+                //if eat passant
+                Position pos = eatChess.getPosition();
+                if (isEatPassant(chess, eatChess)) {
+                    if (chess.getColorType() == WHITE)
+                        moveListChess(chess, pos.getUp());
+                    else
+                        moveListChess(chess, pos.getDown());
+                }
+                else
+                    moveListChess(chess, pos);
             }
             case CASTLE -> {
                 CastleType castleType = (CastleType) move.getMoveTarget()[0];

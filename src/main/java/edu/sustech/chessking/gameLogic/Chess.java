@@ -70,6 +70,10 @@ public class Chess{
         return new Chess(colorType, chessType, pos);
     }
 
+    public Chess promoteTo(ChessType chessType) {
+        return new Chess(colorType, chessType, position);
+    }
+
     /**
      * A quick method to clone a chess
      */
