@@ -21,6 +21,7 @@ public class ChessComponent extends Component {
     private Chess chess;
 
     private boolean isMove = false;
+
     private boolean isToString = false;
     private boolean canEat = false;
     private static final GameCore gameCore = geto("core");
@@ -103,7 +104,7 @@ public class ChessComponent extends Component {
         StringBuilder str = new StringBuilder();
         ArrayList<Chess> enemies = new ArrayList<>();
         for (Position pos : gameCore.getAvailablePosition(chess)) {
-            str.append(" ").append(pos.toString());
+            str.append(" "+pos.toString());
             if (gameCore.hasChess(pos)) {
                 enemies.add(gameCore.getChess(pos));
                 canEat = true;

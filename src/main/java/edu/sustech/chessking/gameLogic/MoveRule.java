@@ -153,13 +153,13 @@ public class MoveRule {
 
         //check if eat passant
         if (chess.getChessType() == PAWN && target.getChessType() == PAWN) {
-            if (target.getColorType() == WHITE &&
-                    chess.getPosition().getRow() == 5 && target.getPosition().getRow() == 5 &&
+            if (chess.getColorType() == WHITE &&
+                    chess.getPosition().getRow() == 4 && target.getPosition().getRow() == 4 &&
                     columnDistance(chess.getPosition(), target.getPosition()) == 1)
                 return true;
 
-            if (target.getColorType() == BLACK &&
-                    chess.getPosition().getRow() == 2 && target.getPosition().getRow() == 2 &&
+            if (chess.getColorType() == BLACK &&
+                    chess.getPosition().getRow() == 3 && target.getPosition().getRow() == 3 &&
                     columnDistance(chess.getPosition(), target.getPosition()) == 1)
                 return true;
         }
