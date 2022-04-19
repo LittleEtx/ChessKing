@@ -17,7 +17,7 @@ import java.util.List;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 
 public class ChessComponent extends Component {
-    private String[] skin = geto("skin");
+    private String skin = gets("skin");
     private Chess chess;
 
     private boolean isMove = false;
@@ -34,7 +34,7 @@ public class ChessComponent extends Component {
 
     @Override
     public void onAdded() {
-        String pic = skin[1] + " " + chess.getChessType().toString()
+        String pic = skin + " " + chess.getChessType().toString()
                 + "-" + chess.getColorType().toString() + ".png";
         Texture img = texture(pic, 80, 80);
 
