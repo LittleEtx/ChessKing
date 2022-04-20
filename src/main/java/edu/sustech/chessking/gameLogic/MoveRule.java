@@ -64,7 +64,6 @@ public class MoveRule {
             return CastleType.LONG;
     }
 
-
     /**
      * To check if the chess can move to the position
      * note that castling is not included
@@ -286,8 +285,9 @@ public class MoveRule {
         ArrayList<Position> posList = new ArrayList<>();
         for (int row = -1; row <= 1; ++row) {
             for (int col = -1; col <= 1; ++col) {
-                if (row != 0 && col != 0 &&
-                        Position.withinRange(pos.getRow() + row, pos.getColumn() + col))
+                if (row == 0 && col == 0)
+                    continue;
+                if (Position.withinRange(pos.getRow() + row, pos.getColumn() + col))
                     posList.add(new Position(pos.getRow() + row, pos.getColumn() + col));
             }
         }

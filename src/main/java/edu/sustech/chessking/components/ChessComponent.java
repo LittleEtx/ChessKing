@@ -73,51 +73,21 @@ public class ChessComponent extends Component {
         isMove = false;
         Position pos = getMousePos();
         if (gameCore.isMoveAvailable(chess, pos)) {
-            //if promotion
-            if (MoveRule.isPawnPromoteValid(chess)) {
-                //Now just assume the chess promote to queen
-                //you need to a panel for player to choose later
-                ChessType chessType = ChessType.QUEEN;
-                //if eat chess
-                if (gameCore.hasChess(pos))
-                    eatChess(pos);
-                gameCore.movePawnPromotion(chess, pos, chessType);
-                chess = chess.promoteTo(chessType);
-                setPic();
+            Move move = gameCore.castToMove(chess, pos);
+            //if case danger
+            if (gameCore.isMoveCauseDanger(move)) {
+                getDialogService().showConfirmationBox(
+                        "This move will cause you lose the game, are you sure?", aBoolean -> {
+                            if (aBoolean) {
+                                System.out.println(pos);
+                                executeMove(move, pos);
+                            }
+                            else
+                                entity.setPosition(toPoint(chess.getPosition()));
+                        });
             }
-            else {
-                Move move = gameCore.castToMove(chess, pos);
-                gameCore.moveChess(move);
-                //if eat chess
-                if (move.getMoveType() == MoveType.EAT) {
-                    Chess targetChess = (Chess) move.getMoveTarget()[0];
-
-                    System.out.println("Eat " + targetChess.toString());
-
-                    eatChess(targetChess.getPosition());
-                }
-                //if castling
-                else if (move.getMoveType() == MoveType.CASTLE){
-                    CastleType castleType = MoveRule.getCastleType(chess, pos);
-                    int row = chess.getPosition().getRow();
-                    if (castleType == CastleType.LONG) {
-                        Entity rook = getChessEntity(toPoint(new Position(row, 0)));
-                        if (rook == null)
-                            throw new RuntimeException("Can't find rook entity");
-                        rook.setPosition(toPoint(new Position(row, 3)));
-                    }
-                    else {
-                        Entity rook = getChessEntity(toPoint(new Position(row, 7)));
-                        if (rook == null)
-                            throw new RuntimeException("Can't find rook entity");
-                        rook.setPosition(toPoint(new Position(row, 5)));
-                    }
-                }
-            }
-            System.out.print("Move " + chess.toString());
-            entity.setPosition(getMousePt());
-            this.chess = chess.moveTo(pos);
-            System.out.println(" to " + chess.getPosition().toString());
+            else
+                executeMove(move, pos);
         }
         else {
             //reset the chess's position
@@ -126,10 +96,64 @@ public class ChessComponent extends Component {
         }
     }
 
+    private void executeMove(Move move, Position pos) {
+        //if promotion
+        if (MoveRule.isPawnPromoteValid(chess)) {
+            //Now just assume the chess promote to queen
+            //you need to show a panel for player to choose later
+            ChessType chessType = ChessType.QUEEN;
+            //if eat chess
+            if (gameCore.hasChess(pos))
+                eatChess(pos);
+            gameCore.movePawnPromotion(chess, pos, chessType);
+            chess = chess.promoteTo(chessType);
+            setPic();
+        }
+        else {
+            gameCore.moveChess(move);
+            //if eat chess
+            if (move.getMoveType() == MoveType.EAT) {
+                Chess targetChess = (Chess) move.getMoveTarget()[0];
+
+                System.out.println("Eat " + targetChess.toString());
+
+                eatChess(targetChess.getPosition());
+            }
+            //if castling
+            else if (move.getMoveType() == MoveType.CASTLE) {
+                CastleType castleType = MoveRule.getCastleType(chess, pos);
+                int row = chess.getPosition().getRow();
+                if (castleType == CastleType.LONG) {
+                    Entity rook = getChessEntity(toPoint(new Position(row, 0)));
+                    if (rook == null)
+                        throw new RuntimeException("Can't find rook entity");
+                    Position toPos = new Position(row, 3);
+                    rook.setPosition(toPoint(toPos));
+                    rook.getComponent(ChessComponent.class).moveTo(toPos);
+                } else {
+                    Entity rook = getChessEntity(toPoint(new Position(row, 7)));
+                    if (rook == null)
+                        throw new RuntimeException("Can't find rook entity");
+                    Position toPos = new Position(row, 5);
+                    rook.setPosition(toPoint(toPos));
+                    rook.getComponent(ChessComponent.class).moveTo(toPos);
+                }
+            }
+        }
+        System.out.print("Move " + chess.toString());
+        entity.setPosition(toPoint(pos));
+        moveTo(pos);
+        System.out.println(" to " + chess.getPosition().toString());
+    }
+
     private void eatChess(Position pos) {
         Entity chess =  getChessEntity(toPoint(pos));
         if (chess != null)
             getGameWorld().removeEntity(chess);
+    }
+
+    private void moveTo(Position pos) {
+        this.chess = chess.moveTo(pos);
     }
 
     private Entity getChessEntity(Point2D pt) {

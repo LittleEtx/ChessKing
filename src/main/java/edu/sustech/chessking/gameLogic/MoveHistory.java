@@ -15,8 +15,11 @@ public class MoveHistory {
 
     /**
      * get the last added move step
+     * @return null when no history step
      */
     public Move getLastMove() {
+        if (moveHistory.isEmpty())
+            return null;
         return moveHistory.get(moveHistory.size() - 1);
     }
 
@@ -67,4 +70,5 @@ public class MoveHistory {
         }
         return sb.toString();
     }
+
 }
