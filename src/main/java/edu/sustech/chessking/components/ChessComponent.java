@@ -16,6 +16,7 @@ import javafx.geometry.Point2D;
 import java.util.List;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
+import static edu.sustech.chessking.VisualLogic.*;
 
 public class ChessComponent extends Component {
     private static final String skin = gets("skin");
@@ -23,7 +24,6 @@ public class ChessComponent extends Component {
 
     private boolean isMove = false;
     private static final GameCore gameCore = geto("core");
-    private Point2D mouse = getInput().getMousePositionWorld();
 
 
     public ChessComponent(Chess chess) {
@@ -32,50 +32,46 @@ public class ChessComponent extends Component {
 
     @Override
     public void onAdded() {
+        setPic();
+        entity.setPosition(toPoint(chess.getPosition()));
+    }
+
+    private void setPic() {
         String pic = skin + " " + chess.getChessType().toString()
                 + "-" + chess.getColorType().toString() + ".png";
         Texture img = texture(pic, 80, 80);
 
         ViewComponent viewComponent = entity.getViewComponent();
+        viewComponent.clearChildren();
         viewComponent.addChild(img);
-        entity.setPosition(toPoint(chess.getPosition()));
-
-        viewComponent.addOnClickHandler(event -> {
-            boolean isChessMoving = getb("entityMoving");
-            //When the moving chess is not this one
-            if (isChessMoving && !isMove)
-                return;
-
-            if (!isMove) {
-                //if is not the turn
-                if (!gameCore.isInTurn(chess)) {
-                    getNotificationService().pushNotification(
-                            "Not " + chess.getColorType().toString() + "'s turn!");
-                    return;
-                }
-
-                isMove = true;
-                printAvailablePos();
-                set("entityMoving",true);
-            } else {
-                isMove = false;
-                putChess();
-                set("entityMoving",false);
-            }
-        });
     }
 
     @Override
     public void onUpdate(double tpf) {
-        mouse = getInput().getMousePositionWorld();
-
         if (isMouseOnBoard() && isMove){
             moveWithMouse();
         }
     }
 
+    public boolean moveChess() {
+        //if is not the turn
+        if (!gameCore.isInTurn(chess)) {
+            getNotificationService().pushNotification(
+                    "Not " + chess.getColorType().toString() + "'s turn!");
+            return false;
+        }
+        isMove = true;
+        printAvailablePos();
+        set("entityMoving",true);
+        //set to the top
+        entity.removeFromWorld();
+        getGameWorld().addEntity(entity);
+        return true;
+    }
+
     public void putChess(){
-        Position pos = toPosition(mouse);
+        isMove = false;
+        Position pos = getMousePos();
         if (gameCore.isMoveAvailable(chess, pos)) {
             //if promotion
             if (MoveRule.isPawnPromoteValid(chess)) {
@@ -87,6 +83,7 @@ public class ChessComponent extends Component {
                     eatChess(pos);
                 gameCore.movePawnPromotion(chess, pos, chessType);
                 chess = chess.promoteTo(chessType);
+                setPic();
             }
             else {
                 Move move = gameCore.castToMove(chess, pos);
@@ -118,7 +115,7 @@ public class ChessComponent extends Component {
                 }
             }
             System.out.print("Move " + chess.toString());
-            entity.setPosition(getEntityPt());
+            entity.setPosition(getMousePt());
             this.chess = chess.moveTo(pos);
             System.out.println(" to " + chess.getPosition().toString());
         }
@@ -152,31 +149,10 @@ public class ChessComponent extends Component {
         System.out.print(chess.toString() + " can move to:" + str + "\n");
     }
 
-    public boolean isMouseOnBoard(){
-        return mouse.getX() < 720 && mouse.getX() > 80 &&
-                mouse.getY() > 80 && mouse.getY() < 720;
-    }
-
-    public void moveWithMouse(){
+    private void moveWithMouse(){
+        Point2D mouse = getInput().getMousePositionWorld();
         entity.setX(mouse.getX()-40);
         entity.setY(mouse.getY()-40);
     }
 
-    public Point2D getEntityPt() {
-         return new Point2D(mouse.getX() - mouse.getX() % 80,
-                 mouse.getY() - mouse.getY() % 80);
-    }
-
-    public Position toPosition(Point2D pt){
-        int y = (int)((pt.getX()-pt.getX()%80)/80-1);
-        int x = (int) (8-(pt.getY()-pt.getY()%80)/80);
-        return new Position(x,y);
-    }
-
-    private Point2D toPoint(Position pos){
-        return new Point2D(
-                80 + pos.getColumn() * 80,
-                640 - pos.getRow() * 80
-        );
-    }
 }

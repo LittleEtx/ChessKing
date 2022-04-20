@@ -3,32 +3,30 @@ package edu.sustech.chessking;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.dsl.FXGL;
-import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.input.UserAction;
-import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.Factories.ChessKingEntityFactory;
+import edu.sustech.chessking.components.ChessComponent;
+import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.gameLogic.Position;
-import javafx.geometry.Point2D;
+import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.scene.input.MouseButton;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.Map;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
-import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
+import static edu.sustech.chessking.VisualLogic.*;
 
 public class ChessKingApp extends GameApplication {
 
     private final GameCore gameCore = new GameCore();
     public final ArrayList<Entity> board = new ArrayList<>();
     public final String[] skin = {"default","pixel"};
-    public boolean isEntityMoving = false;
+    public final ColorType downSide = ColorType.WHITE;
+    private Entity movingChess;
 
     // ===============================
     //initialize variables
@@ -36,9 +34,10 @@ public class ChessKingApp extends GameApplication {
 
     @Override
     protected void initGameVars(Map<String, Object> vars) {
-        vars.put("core",gameCore);
-        vars.put("skin",skin[1]);
-        vars.put("entityMoving",isEntityMoving);
+        vars.put("core", gameCore);
+        vars.put("skin", skin[1]);
+        vars.put("isMovingChess", false);
+        vars.put("downSideColor", downSide);
     }
 
     // ===============================
@@ -47,8 +46,6 @@ public class ChessKingApp extends GameApplication {
     protected void onPreInit() {
         getSettings().setGlobalSoundVolume(1);
         getSettings().setGlobalMusicVolume(0.01);
-
-        FXGL.loopBGM("BGM1.mp3");
     }
 
 
@@ -78,6 +75,7 @@ public class ChessKingApp extends GameApplication {
         getGameWorld().addEntityFactory(new ChessKingEntityFactory());
         initBoard();
         initChess();
+        FXGL.loopBGM("BGM1.mp3");
         //System.out.println();
     }
 
@@ -112,6 +110,27 @@ public class ChessKingApp extends GameApplication {
     //initialize the inputs
     @Override
     protected void initInput() {
+        getInput().addAction(new UserAction("LeftClick") {
+            @Override
+            protected void onActionBegin() {
+                if (!getb("isMovingChess")) {
+                    movingChess = getChessEntity(getMousePt());
+                    if (movingChess == null) {
+                        System.out.println(getMousePt());
+                        System.out.println("Can't find chess!");
+                        return;
+                    }
+                    if (movingChess.getComponent(ChessComponent.class).moveChess())
+                        set("isMovingChess", true);
+                }
+                else {
+                    if (movingChess == null)
+                        return;
+                    movingChess.getComponent(ChessComponent.class).putChess();
+                    set("isMovingChess", false);
+                }
+            }
+        }, MouseButton.PRIMARY);
     }
 
 
