@@ -116,8 +116,6 @@ public class ChessKingApp extends GameApplication {
                 if (!getb("isMovingChess")) {
                     movingChess = getChessEntity(getMousePt());
                     if (movingChess == null) {
-                        System.out.println(getMousePt());
-                        System.out.println("Can't find chess!");
                         return;
                     }
                     if (movingChess.getComponent(ChessComponent.class).moveChess())
