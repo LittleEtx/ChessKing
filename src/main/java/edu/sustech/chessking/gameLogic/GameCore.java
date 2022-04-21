@@ -315,30 +315,10 @@ public class GameCore {
                 if (isMoveValid(chess, targetPos)) {
                     return !hasChess(targetPos);
                 }
+                //Should test eat passant first
+                if (isEatPassantAvailable(chess, targetPos))
+                    return true;
                 if (isEatValid(chess, targetPos)) {
-                    //if the first step
-                    if (moveHistory.getMoveNum() == 0)
-                        return isOpposite(getChess(targetPos), chess.getColorType());
-                    //check if eat passant
-                    Move move = moveHistory.getLastMove();
-                    Chess lastChess = move.getChess();
-                    if (chess.getColorType() == WHITE &&
-                            isOpposite(lastChess, WHITE) &&
-                            lastChess.getChessType() == PAWN &&
-                            lastChess.getPosition().getRow() == 6 &&
-                            move.getMoveType() == MoveType.MOVE &&
-                            ((Position) move.getMoveTarget()[0]).getRow() == 4 &&
-                            lastChess.getPosition().getDown().equals(targetPos))
-                        return true;
-                    else if (chess.getColorType() == BLACK &&
-                            isOpposite(lastChess, BLACK) &&
-                            lastChess.getChessType() == PAWN &&
-                            lastChess.getPosition().getRow() == 1 &&
-                            move.getMoveType() == MoveType.MOVE &&
-                            ((Position) move.getMoveTarget()[0]).getRow() == 3 &&
-                            lastChess.getPosition().getUp().equals(targetPos))
-                        return true;
-                    //else: if there's a chess to eat
                     return isOpposite(getChess(targetPos), chess.getColorType());
                 }
             }
@@ -372,6 +352,35 @@ public class GameCore {
             }
         }
         return false;
+    }
+
+
+    /** A method to check if eat passant is valid.
+     */
+    private boolean isEatPassantAvailable(Chess pawn, Position targetPos) {
+        if (!isEatValid(pawn, targetPos) || pawn.getChessType() != PAWN)
+            return false;
+
+        Move lastMove = moveHistory.getLastMove();
+        if (lastMove == null)
+            return false;
+        Chess lastChess = lastMove.getChess();
+        if (pawn.getColorType() == WHITE &&
+                isOpposite(lastChess, WHITE) &&
+                lastChess.getChessType() == PAWN &&
+                lastChess.getPosition().getRow() == 6 &&
+                lastMove.getMoveType() == MoveType.MOVE &&
+                ((Position) lastMove.getMoveTarget()[0]).getRow() == 4 &&
+                lastChess.getPosition().getDown().equals(targetPos))
+            return true;
+        else
+            return pawn.getColorType() == BLACK &&
+                    isOpposite(lastChess, BLACK) &&
+                    lastChess.getChessType() == PAWN &&
+                    lastChess.getPosition().getRow() == 1 &&
+                    lastMove.getMoveType() == MoveType.MOVE &&
+                    ((Position) lastMove.getMoveTarget()[0]).getRow() == 3 &&
+                    lastChess.getPosition().getUp().equals(targetPos);
     }
 
     /**
@@ -657,18 +666,60 @@ public class GameCore {
     public ArrayList<Move> getSafeMove() {
         ArrayList<Move> safeMove = new ArrayList<>();
         //try each move for each chess
-        for (Chess chess : chessList) {
+        ArrayList<Chess> copyList = new ArrayList<>(chessList);
+        for (Chess chess : copyList) {
             if (chess.getColorType() != turn)
                 continue;
-            System.out.println("Get move for " + chess);
             for (Move move : getAvailableMove(chess)) {
                 //if any move will save the king
                 if (!isMoveCauseDanger(move))
                     safeMove.add(move);
             }
-            System.out.println("Finish finding move for " + chess);
         }
         return safeMove;
+    }
+
+    /**
+     * @return A list of safe moves that can eat the chess.
+     * Could be empty if not moves can eat the chess.
+     * Null when it is the targetChess's turn.
+     */
+    public ArrayList<Move> getSafeEatMove(Chess targetChess) {
+        System.out.println();
+        System.out.println("get safe eat move for " + targetChess);
+        if (!isOpposite(targetChess, turn))
+            return null;
+
+        ArrayList<Move> safeEatMove = new ArrayList<>();
+        Position pos = targetChess.getPosition();
+        Move move;
+        ArrayList<Chess> copyList = new ArrayList<>(chessList);
+        for (Chess chess : copyList) {
+            if (!isInTurn(chess))
+                continue;
+            System.out.println("Test move " + chess + " to " + pos );
+
+            //if eat passant, not included in isMoveAvailable
+            if (chess.getColorType() == WHITE &&
+                    isEatPassantAvailable(chess, pos.getUp()))
+                move = castToMove(chess, pos.getUp());
+            else if (chess.getColorType() == BLACK &&
+                        isEatPassantAvailable(chess, pos.getDown())) {
+                System.out.println("Eat passant available");
+                move = castToMove(chess, pos.getDown());
+            }
+            else if (isMoveAvailable(chess, pos))
+                move = castToMove(chess, pos);
+            else
+                continue;
+
+            if (move == null)
+                System.out.println("Move is not valid!");
+
+            if (!isMoveCauseDanger(move))
+                safeEatMove.add(move);
+        }
+        return safeEatMove;
     }
 
     /**
@@ -716,18 +767,22 @@ public class GameCore {
             return null;
         }
 
-        ArrayList<Chess> enemyChessList;
+        ArrayList<Chess> enemyChessList = new ArrayList<>();
         //Note that it is the turn of enemy now
-        ArrayList<Move> safeMove = getSafeMove();
-        enemyChessList = new ArrayList<>();
-        Chess enemyChess;
-        for (Move enemyMove : safeMove) {
-            if (enemyMove.getMoveType() != MOVE ||
-                    !nowChess.equals(enemyMove.getMoveTarget()[0]))
-                continue;
-            enemyChess = enemyMove.getChess();
-            if (!enemyChessList.contains(enemyChess))
-                enemyChessList.add(enemyChess);
+//        ArrayList<Move> safeMove = getSafeMove();
+//        Chess enemyChess;
+//        for (Move enemyMove : safeMove) {
+//            if ((enemyMove.getMoveType() != EAT &&
+//                    enemyMove.getMoveType() != EATPROMOTE) ||
+//                    !nowChess.equals(enemyMove.getMoveTarget()[0]))
+//                continue;
+//            enemyChess = enemyMove.getChess();
+//            if (!enemyChessList.contains(enemyChess))
+//                enemyChessList.add(enemyChess);
+//        }
+        ArrayList<Move> safeEatMove = getSafeEatMove(nowChess);
+        for (Move enemyMove : safeEatMove) {
+            enemyChessList.add(enemyMove.getChess());
         }
         reverseMove();
         return enemyChessList;
@@ -744,6 +799,8 @@ public class GameCore {
         ArrayList<Chess> targetChessList = new ArrayList<>();
         ArrayList<Chess> possibleList = getEnemyChess(position, turn.reverse());
         for (Chess chess : possibleList) {
+            //simply to see after the chess move to the protection area,
+            //will the king in danger
             chessList.remove(getChessIndex(chess));
             if (!isChecked(turn))
                 targetChessList.add(chess);
