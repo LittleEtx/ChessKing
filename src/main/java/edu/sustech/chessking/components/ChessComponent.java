@@ -2,29 +2,38 @@ package edu.sustech.chessking.components;
 
 
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.component.Component;
 import edu.sustech.chessking.EntityType;
 import edu.sustech.chessking.gameLogic.*;
-import com.almasb.fxgl.entity.components.ViewComponent;
-import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.enumType.CastleType;
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
 import javafx.geometry.Point2D;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 import static edu.sustech.chessking.VisualLogic.*;
 
 public class ChessComponent extends Component {
-    private static final String skin = gets("skin");
     private Chess chess;
 
     private boolean isMove = false;
     private static final GameCore gameCore = geto("core");
+    private Entity shadowChess = null;
+    private Entity redCross = null;
+    private Entity allyMark = null;
+    private Entity enemyMark = null;
+    private Position mousePos = null;
 
+    private enum AssistState {
+        NONE, ALLY, ENEMY
+    }
+
+    private AssistState assistState = AssistState.NONE;
 
     public ChessComponent(Chess chess) {
         this.chess = chess;
@@ -32,24 +41,77 @@ public class ChessComponent extends Component {
 
     @Override
     public void onAdded() {
-        setPic();
+        setPic(entity, chess);
         entity.setPosition(toPoint(chess.getPosition()));
+
+        getop("allyList").addListener((ob, ov, nv) -> {
+            if (chess.getColorType() != gameCore.getTurn())
+                return;
+
+            if (((ArrayList<?>) nv).contains(chess)) {
+                updateAssistState(AssistState.ALLY);
+            }
+            else
+                updateAssistState(AssistState.NONE);
+
+        });
+
+        getop("enemyList").addListener((ob, ov, nv) -> {
+            if (chess.getColorType() == gameCore.getTurn())
+                return;
+
+            if (((ArrayList<?>) nv).contains(chess)) {
+                updateAssistState(AssistState.ENEMY);
+            }
+            else
+                updateAssistState(AssistState.NONE);
+        });
     }
 
-    private void setPic() {
-        String pic = skin + " " + chess.getChessType().toString()
-                + "-" + chess.getColorType().toString() + ".png";
-        Texture img = texture(pic, 80, 80);
+    private void updateAssistState(AssistState newState) {
+        if (newState == assistState)
+            return;
 
-        ViewComponent viewComponent = entity.getViewComponent();
-        viewComponent.clearChildren();
-        viewComponent.addChild(img);
+        assistState = newState;
+
+        if (assistState == AssistState.NONE) {
+            allyMark = deSpawn(allyMark);
+            enemyMark = deSpawn(enemyMark);
+            return;
+        }
+
+
+        if (assistState == AssistState.ALLY) {
+            allyMark = spawn("allyMark", toPoint(chess.getPosition()));
+            enemyMark = deSpawn(enemyMark);
+        }
+        else {
+            enemyMark = spawn("enemyMark", toPoint(chess.getPosition()));
+            allyMark = deSpawn(allyMark);
+        }
+        setToTop(entity);
+    }
+
+    private Entity deSpawn(Entity bounceEntity) {
+        if (bounceEntity != null) {
+            bounceEntity.getComponent(BounceComponent.class).deSpawn();
+        }
+        return null;
     }
 
     @Override
     public void onUpdate(double tpf) {
-        if (isMouseOnBoard() && isMove){
+        if (isMove){
             moveWithMouse();
+            Position newPos = getMousePos();
+            //if the position change, change visual effect
+            if (newPos == mousePos)
+                return;
+            if (newPos != null && newPos.equals(mousePos))
+                return;
+
+            setVisualEffect(newPos);
+            mousePos = newPos;
         }
     }
 
@@ -62,15 +124,25 @@ public class ChessComponent extends Component {
         }
         isMove = true;
         printAvailablePos();
-        set("entityMoving",true);
+        set("availablePosition", gameCore.getAvailablePosition(chess));
         //set to the top
-        entity.removeFromWorld();
-        getGameWorld().addEntity(entity);
+        setToTop(entity);
         return true;
     }
 
     public void putChess(){
         isMove = false;
+        set("availablePosition", new ArrayList<Position>());
+        set("allyList", new ArrayList<Position>());
+        set("enemyList", new ArrayList<Position>());
+        removeShadowChess();
+        removeRedCross();
+
+        if (!isMouseOnBoard()) {
+            entity.setPosition(toPoint(chess.getPosition()));
+            return;
+        }
+
         Position pos = getMousePos();
         if (gameCore.isMoveAvailable(chess, pos)) {
             Move move = gameCore.castToMove(chess, pos);
@@ -79,7 +151,6 @@ public class ChessComponent extends Component {
                 getDialogService().showConfirmationBox(
                         "This move will cause you lose the game, are you sure?", aBoolean -> {
                             if (aBoolean) {
-                                System.out.println(pos);
                                 executeMove(move, pos);
                             }
                             else
@@ -107,7 +178,7 @@ public class ChessComponent extends Component {
                 eatChess(pos);
             gameCore.movePawnPromotion(chess, pos, chessType);
             chess = chess.promoteTo(chessType);
-            setPic();
+            setPic(entity, chess);
         }
         else {
             gameCore.moveChess(move);
@@ -128,22 +199,78 @@ public class ChessComponent extends Component {
                     if (rook == null)
                         throw new RuntimeException("Can't find rook entity");
                     Position toPos = new Position(row, 3);
-                    rook.setPosition(toPoint(toPos));
                     rook.getComponent(ChessComponent.class).moveTo(toPos);
                 } else {
                     Entity rook = getChessEntity(toPoint(new Position(row, 7)));
                     if (rook == null)
                         throw new RuntimeException("Can't find rook entity");
                     Position toPos = new Position(row, 5);
-                    rook.setPosition(toPoint(toPos));
                     rook.getComponent(ChessComponent.class).moveTo(toPos);
                 }
             }
         }
         System.out.print("Move " + chess.toString());
-        entity.setPosition(toPoint(pos));
         moveTo(pos);
         System.out.println(" to " + chess.getPosition().toString());
+    }
+
+    private void setVisualEffect(Position pos) {
+        if (isMouseOnBoard() &&
+                ((ArrayList<?>) geto("availablePosition")).contains(pos)) {
+            //if eat chess
+            if (!gameCore.hasChess(pos)) {
+                removeRedCross();
+                if (shadowChess == null) {
+                    shadowChess = spawn("shadowChess",
+                            new SpawnData().put("chess", chess.moveTo(pos)));
+                } else
+                    shadowChess.getComponent(ShadowChessComponent.class).setPosition(pos);
+            }
+            else {
+                removeShadowChess();
+                removeRedCross();
+                redCross = spawn("redCross",
+                        new SpawnData(toPoint(pos).add(new Point2D(0, 20))));
+            }
+            setToTop(entity);
+
+            ArrayList<Chess> allyList = gameCore.getAlly(pos);
+            //remove itself
+            allyList.remove(chess);
+            set("allyList", allyList);
+
+            ArrayList<Chess> enemyList = gameCore.getEnemy(chess, pos);
+            set("enemyList", enemyList);
+        }
+        else {
+            removeShadowChess();
+            removeRedCross();
+
+            if (!((ArrayList<?>)geto("allyList")).isEmpty())
+                set("allyList", new ArrayList<Chess>());
+            if (!((ArrayList<?>)geto("enemyList")).isEmpty())
+                set("enemyList", new ArrayList<Chess>());
+        }
+    }
+
+    private void removeRedCross() {
+        if (redCross != null) {
+            redCross.getComponent(BounceComponent.class).deSpawn();
+            redCross = null;
+        }
+    }
+
+    private void removeShadowChess() {
+        if (shadowChess != null) {
+            shadowChess.removeFromWorld();
+            shadowChess = null;
+        }
+    }
+
+    private void moveWithMouse(){
+        Point2D mouse = getInput().getMousePositionWorld();
+        entity.setX(mouse.getX()-40);
+        entity.setY(mouse.getY()-40);
     }
 
     private void eatChess(Position pos) {
@@ -153,6 +280,7 @@ public class ChessComponent extends Component {
     }
 
     private void moveTo(Position pos) {
+        entity.setPosition(toPoint(pos));
         this.chess = chess.moveTo(pos);
     }
 
@@ -172,11 +300,4 @@ public class ChessComponent extends Component {
         }
         System.out.print(chess.toString() + " can move to:" + str + "\n");
     }
-
-    private void moveWithMouse(){
-        Point2D mouse = getInput().getMousePositionWorld();
-        entity.setX(mouse.getX()-40);
-        entity.setY(mouse.getY()-40);
-    }
-
 }

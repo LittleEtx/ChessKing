@@ -123,17 +123,8 @@ public class GameCore {
         if (side != turn)
             return true;
 
-        //try each move for each chess
-        for (Chess chess : chessList) {
-            if (chess.getColorType() != side)
-                continue;
-            for (Move move : getAvailableMove(chess)) {
-                //if any move will save the king
-                if (!isMoveCauseDanger(move))
-                    return false;
-            }
-        }
-        return true;
+        //if no move can lead to safety, then indeed lost
+        return getSafeMove().isEmpty();
     }
 
     /**
@@ -370,10 +361,10 @@ public class GameCore {
                 //Castling checking
                 if (isMoveValid(chess, targetPos) &&
                     //must check if the move will lead the king in danger
-                        getEnemyChess(targetPos, chess.getColorType()).isEmpty())
+                        getEnemyChess(targetPos, chess.getColorType()).isEmpty()) {
                     return !hasChess(targetPos) ||
                             isOpposite(getChess(targetPos), chess.getColorType());
-
+                }
                 CastleType castleType;
                 if ((castleType = getCastleType(chess, targetPos)) != null &&
                         isCastleAvailable(chess, castleType))
@@ -660,30 +651,43 @@ public class GameCore {
     }
 
     /**
+     * @return all the moves that can prevent the king been checked.
+     * If the king is not checked, this method will return all possible safe moves
+     */
+    public ArrayList<Move> getSafeMove() {
+        ArrayList<Move> safeMove = new ArrayList<>();
+        //try each move for each chess
+        for (Chess chess : chessList) {
+            if (chess.getColorType() != turn)
+                continue;
+            System.out.println("Get move for " + chess);
+            for (Move move : getAvailableMove(chess)) {
+                //if any move will save the king
+                if (!isMoveCauseDanger(move))
+                    safeMove.add(move);
+            }
+            System.out.println("Finish finding move for " + chess);
+        }
+        return safeMove;
+    }
+
+    /**
      * @return a list of all the enemy chess (that are OPPOSITE the given side)
      * that can target the position.
      * The difference of this from getEnemy() is that this function won't test
-     * whether the enemy king move to the position will lead it to danger, i.e.
-     * the function only checks if any enemy can eat the position
+     * whether the enemy move to the position will cause danger.
      */
     public ArrayList<Chess> getEnemyChess(Position position, ColorType side) {
         ArrayList<Chess> list = new ArrayList<>();
         for (Chess chess : chessList) {
             if (chess.getColorType() != side) {
-                switch (chess.getChessType()) {
-                    case PAWN -> {
-                        if (isEatValid(chess, position) &&
-                                isMoveAvailable(chess, position))
-                            list.add(chess);
-                    }
-                    case KING -> {
-                        if (isEatValid(chess, position))
-                            list.add(chess);
-                    }
-                    default -> {
-                        if (isMoveAvailable(chess, position))
-                            list.add(chess);
-                    }
+                if (chess.getChessType() == PAWN || chess.getChessType() == KING) {
+                    if (isEatValid(chess, position))
+                        list.add(chess);
+                }
+                else {
+                    if (isMoveAvailable(chess, position))
+                        list.add(chess);
                 }
             }
         }
@@ -697,29 +701,53 @@ public class GameCore {
      * Return null when the move is not available.
      */
     public ArrayList<Chess> getEnemy(Chess chess, Position pos) {
-        Move move = castToMove(chess, pos);
+        Move move;
+        if (isPawnPromoteValid(chess))
+            move = castToMove(chess, pos, QUEEN);
+        else
+            move = castToMove(chess, pos);
+
         if (!isMoveAvailable(move))
             return null;
 
         moveChess(move);
+        Chess nowChess = getChess(pos);
+        if (nowChess == null) {
+            return null;
+        }
+
+        ArrayList<Chess> enemyChessList;
         //Note that it is the turn of enemy now
-        ArrayList<Chess> enemyChess = getAlly(pos);
+        ArrayList<Move> safeMove = getSafeMove();
+        enemyChessList = new ArrayList<>();
+        Chess enemyChess;
+        for (Move enemyMove : safeMove) {
+            if (enemyMove.getMoveType() != MOVE ||
+                    !nowChess.equals(enemyMove.getMoveTarget()[0]))
+                continue;
+            enemyChess = enemyMove.getChess();
+            if (!enemyChessList.contains(enemyChess))
+                enemyChessList.add(enemyChess);
+        }
         reverseMove();
-        return enemyChess;
+        return enemyChessList;
     }
 
     /**
-     * Will check if the move cause the king in danger
+     * Will check if the chess case danger. If already been checked, return null
      * @return a list of the same color chess that will protect the position.
      */
     public ArrayList<Chess> getAlly(Position position) {
+        if (isChecked(turn))
+            return null;
+
         ArrayList<Chess> targetChessList = new ArrayList<>();
-        for (Chess chess : chessList) {
-            if (chess.getColorType() == turn &&
-                    isEatValid(chess, position) &&
-                    isMoveAvailable(chess, position) &&
-                    !isMoveCauseDanger(castToMove(chess, position)))
+        ArrayList<Chess> possibleList = getEnemyChess(position, turn.reverse());
+        for (Chess chess : possibleList) {
+            chessList.remove(getChessIndex(chess));
+            if (!isChecked(turn))
                 targetChessList.add(chess);
+            chessList.add(chess);
         }
         return targetChessList;
     }
@@ -905,9 +933,9 @@ public class GameCore {
     }
 
     /**
-    /* get move from chess and position.
-    /* must check in advance that chess and targetPos are available.
-    /* can't get promote move, which will return null
+     * get move from chess and position.
+     * must check in advance that chess and targetPos are available.
+     * can't get promote move, which will return null
      */
     private Move getMove(Chess chess, Position targetPos) {
         Chess targetChess;

@@ -6,7 +6,7 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.input.UserAction;
-import edu.sustech.chessking.Factories.ChessKingEntityFactory;
+import edu.sustech.chessking.factories.ChessKingEntityFactory;
 import edu.sustech.chessking.components.ChessComponent;
 import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.GameCore;
@@ -38,6 +38,9 @@ public class ChessKingApp extends GameApplication {
         vars.put("skin", skin[1]);
         vars.put("isMovingChess", false);
         vars.put("downSideColor", downSide);
+        vars.put("allyList", new ArrayList<Chess>());
+        vars.put("enemyList", new ArrayList<Chess>());
+        vars.put("availablePosition", new ArrayList<Position>());
     }
 
     // ===============================
@@ -85,6 +88,7 @@ public class ChessKingApp extends GameApplication {
             spawn("chess", new SpawnData().put("chess", chess));
         }
     }
+
     public void initBoard(){
         for(int i = 0; i < 8; i++) {
             for (int f = 0; f < 8; f++) {
@@ -118,14 +122,15 @@ public class ChessKingApp extends GameApplication {
                     if (movingChess == null) {
                         return;
                     }
-                    if (movingChess.getComponent(ChessComponent.class).moveChess())
+                    if (movingChess.getComponent(ChessComponent.class).moveChess()) {
                         set("isMovingChess", true);
+                    }
                 }
                 else {
+                    set("isMovingChess", false);
                     if (movingChess == null)
                         return;
                     movingChess.getComponent(ChessComponent.class).putChess();
-                    set("isMovingChess", false);
                 }
             }
         }, MouseButton.PRIMARY);
