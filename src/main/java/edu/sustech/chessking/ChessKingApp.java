@@ -15,7 +15,7 @@ import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.gameLogic.Position;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
-import edu.sustech.chessking.ui.TestMainMenu;
+import edu.sustech.chessking.ui.MainMenu;
 import javafx.scene.input.MouseButton;
 import javafx.util.Duration;
 
@@ -68,7 +68,7 @@ public class ChessKingApp extends GameApplication {
         gameSettings.setSceneFactory(new SceneFactory(){
             @Override
             public FXGLMenu newMainMenu() {
-                return new TestMainMenu();
+                return new MainMenu();
             }
         });
 
