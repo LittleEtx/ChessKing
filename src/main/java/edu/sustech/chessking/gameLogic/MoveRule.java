@@ -54,7 +54,7 @@ public class MoveRule {
      */
     public static CastleType getCastleType(Chess king, Position pos) {
         if (!isKingCastleValid(king) ||
-                king.getPosition().getRow() != pos.getRow() &&
+                king.getPosition().getRow() != pos.getRow() ||
                 columnDistance(king.getPosition(), pos) != 2)
             return null;
 

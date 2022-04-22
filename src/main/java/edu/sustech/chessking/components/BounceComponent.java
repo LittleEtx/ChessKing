@@ -3,7 +3,7 @@ package edu.sustech.chessking.components;
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.Texture;
-import javafx.animation.Interpolator;
+
 import javafx.animation.ScaleTransition;
 import javafx.util.Duration;
 
@@ -39,7 +39,8 @@ public class BounceComponent extends Component {
         st.setToY(startScale);
         st.setInterpolator(Interpolators.BOUNCE.EASE_IN());
         st.setOnFinished(actionEvent -> {
-            entity.removeFromWorld();
+            if (entity != null)
+                entity.removeFromWorld();
         });
         st.play();
     }

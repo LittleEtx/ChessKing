@@ -71,6 +71,8 @@ public class VisualLogic {
     }
 
     public static void setToTop(Entity entity) {
+        if (entity == null)
+            return;
         //set chess to the top
         entity.removeFromWorld();
         getGameWorld().addEntity(entity);

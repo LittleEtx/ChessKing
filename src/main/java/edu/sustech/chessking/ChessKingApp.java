@@ -6,6 +6,7 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.input.UserAction;
+import com.almasb.fxgl.time.LocalTimer;
 import edu.sustech.chessking.factories.ChessKingEntityFactory;
 import edu.sustech.chessking.components.ChessComponent;
 import edu.sustech.chessking.gameLogic.Chess;
@@ -13,6 +14,7 @@ import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.gameLogic.Position;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.scene.input.MouseButton;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -27,6 +29,8 @@ public class ChessKingApp extends GameApplication {
     public final String[] skin = {"default","pixel"};
     public final ColorType downSide = ColorType.WHITE;
     private Entity movingChess;
+    private LocalTimer betweenClickTimer;
+    private LocalTimer betweenTurnTimer;
 
     // ===============================
     //initialize variables
@@ -80,6 +84,8 @@ public class ChessKingApp extends GameApplication {
         initChess();
         FXGL.loopBGM("BGM1.mp3");
         //System.out.println();
+        betweenClickTimer = newLocalTimer();
+        betweenTurnTimer = newLocalTimer();
     }
 
     public void initChess() {
@@ -117,6 +123,12 @@ public class ChessKingApp extends GameApplication {
         getInput().addAction(new UserAction("LeftClick") {
             @Override
             protected void onActionBegin() {
+
+                //In case move to fast
+                if (!betweenClickTimer.elapsed(Duration.seconds(0.1)))
+                    return;
+                betweenClickTimer.capture();
+
                 if (!getb("isMovingChess")) {
                     movingChess = getChessEntity(getMousePt());
                     if (movingChess == null) {
@@ -130,6 +142,7 @@ public class ChessKingApp extends GameApplication {
                     set("isMovingChess", false);
                     if (movingChess == null)
                         return;
+                    //if successfully move chess or cause player to choose
                     movingChess.getComponent(ChessComponent.class).putChess();
                 }
             }
