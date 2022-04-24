@@ -3,6 +3,7 @@ package edu.sustech.chessking;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
+import com.almasb.fxgl.app.scene.LoadingScene;
 import com.almasb.fxgl.app.scene.SceneFactory;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
@@ -15,6 +16,7 @@ import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.gameLogic.Position;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
+import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
 import javafx.scene.input.MouseButton;
 import javafx.util.Duration;
@@ -69,12 +71,19 @@ public class ChessKingApp extends GameApplication {
             public FXGLMenu newMainMenu() {
                 return new MainMenu();
             }
+
+            @Override
+            public LoadingScene newLoadingScene() {
+                return new Loading();
+            }
         });
+
 
         gameSettings.setTitle("Chess King");
         gameSettings.setVersion("0.1");
         gameSettings.setHeight(800);
         gameSettings.setWidth(1200);
+        gameSettings.setPauseMusicWhenMinimized(true);
     }
 
 

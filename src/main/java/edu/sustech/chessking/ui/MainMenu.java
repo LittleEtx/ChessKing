@@ -15,10 +15,14 @@ import javafx.scene.text.Font;
 import kotlin.coroutines.CoroutineContext;
 
 public class MainMenu extends FXGLMenu {
-    public MainMenu(){
+    public MainMenu() {
         super(MenuType.MAIN_MENU);
+        setMainMenuButton();
 
-        Button btn1 = new Button("New Game");
+    }
+
+    public void setMainMenuButton(){
+        Button btn1 = new Button("Local Game");
         btn1.setOnAction(event -> getController().startNewGame());
 
         btn1.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
@@ -56,25 +60,85 @@ public class MainMenu extends FXGLMenu {
         //better use java css style for style control!!!
         btn1.setStyle(
                 "-fx-background-color:#98FF9C;"+
-                "-fx-background-radius:20;" +
-                "-fx-text-fill: #FF98E8;"
-                );
+                        "-fx-background-radius:20;" +
+                        "-fx-text-fill: #FF98E8;"
+        );
+        BorderStroke bos = new BorderStroke(Color.BLACK,BorderStrokeStyle.SOLID,
+                new CornerRadii(20),new BorderWidths(1.0));
+        Border b = new Border(bos);
+        btn1.setBorder(b);
 
-        //added it to the main menu world
-        VBox boxbtn1 = new VBox(btn1);
-        boxbtn1.setLayoutY(400);
-        boxbtn1.setLayoutX(600-150/2);
 
-        Button btn2 = new Button("Settings");
+        Button btn2 = new Button("Online Game");
         btn2.setOnAction(event -> getController().gotoGameMenu());
+        btn2.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if(keyEvent.getCode().equals(KeyCode.ENTER)){
+                    getController().gotoGameMenu();
+                }
+            }
+        });
+        btn2.setPrefSize(150,60);
+        btn2.setFont(Font.font(20));
+        btn2.setStyle(
+                "-fx-background-color:#98FF9C;"+
+                        "-fx-background-radius:20;" +
+                        "-fx-text-fill: #FF98E8;"
+        );
+        btn2.setBorder(b);
 
-        Button btn3 = new Button("Leader Board");
+
+        Button btn3 = new Button("Settings");
+        btn3.setOnAction(event -> getController().gotoGameMenu());
+        btn3.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if(keyEvent.getCode().equals(KeyCode.ENTER)){
+                    getController().gotoGameMenu();
+                }
+            }
+        });
+        btn3.setPrefSize(150,60);
+        btn3.setFont(Font.font(20));
+        btn3.setStyle(
+                "-fx-background-color:#98FF9C;"+
+                        "-fx-background-radius:20;" +
+                        "-fx-text-fill: #FF98E8;"
+        );
+        btn3.setBorder(b);
+
+
 
         Button btn4 = new Button("Exit");
         btn4.setOnAction(event -> getController().exit());
+        btn4.setOnAction(event -> getController().gotoGameMenu());
+        btn4.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if(keyEvent.getCode().equals(KeyCode.ENTER)){
+                    getController().gotoGameMenu();
+                }
+            }
+        });
+        btn4.setPrefSize(150,60);
+        btn4.setFont(Font.font(20));
+        btn4.setStyle(
+                "-fx-background-color:#98FF9C;"+
+                        "-fx-background-radius:20;" +
+                        "-fx-text-fill: #FF98E8;"
+        );
+        btn4.setBorder(b);
 
-        VBox box = new VBox(btn2, btn3, btn4);
+        //added it to the main menu world
+        VBox box = new VBox(btn1, btn2, btn3, btn4);
+        box.setLayoutX(600-75);
+        box.setLayoutY(400);
 
-        getContentRoot().getChildren().setAll(box,boxbtn1);
+        getContentRoot().getChildren().setAll(box);
+    }
+
+    public void setMainMenuTitle(){
+        String titleStr = "ChessKing";
     }
 }
