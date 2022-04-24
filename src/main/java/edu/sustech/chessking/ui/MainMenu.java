@@ -7,9 +7,12 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import kotlin.coroutines.CoroutineContext;
 
 public class MainMenu extends FXGLMenu {
     public MainMenu(){
@@ -18,6 +21,14 @@ public class MainMenu extends FXGLMenu {
         Button btn1 = new Button("New Game");
         btn1.setOnAction(event -> getController().startNewGame());
 
+        btn1.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if(keyEvent.getCode().equals(KeyCode.ENTER)) {
+                    getController().startNewGame();
+                }
+            }
+        });
         //another way to set the actions;
 //        btn1.setOnAction(new EventHandler<ActionEvent>() {
 //            @Override
@@ -42,8 +53,9 @@ public class MainMenu extends FXGLMenu {
 //        btn1.setBackground(bg);
 //
 
-        //better use java css!!!
-        btn1.setStyle("-fx-background-color:#98FF9C;"+
+        //better use java css style for style control!!!
+        btn1.setStyle(
+                "-fx-background-color:#98FF9C;"+
                 "-fx-background-radius:20;" +
                 "-fx-text-fill: #FF98E8;"
                 );
