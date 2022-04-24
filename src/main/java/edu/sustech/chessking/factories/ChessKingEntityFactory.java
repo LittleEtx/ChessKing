@@ -70,7 +70,7 @@ public class ChessKingEntityFactory implements EntityFactory {
         return FXGL.entityBuilder(data)
                 .with(new BounceComponent(
                         texture("TargetMark.png", 80, 80)))
-                .neverUpdated()
+                .with(new TargetMarkComponent())
                 .build();
     }
 
