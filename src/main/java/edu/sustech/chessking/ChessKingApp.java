@@ -35,12 +35,9 @@ public class ChessKingApp extends GameApplication {
     public final ColorType downSide = ColorType.WHITE;
     private Entity movingChess;
     private LocalTimer betweenClickTimer;
-    private LocalTimer betweenTurnTimer;
 
     // ===============================
     //initialize variables
-
-
     @Override
     protected void initGameVars(Map<String, Object> vars) {
         vars.put("core", gameCore);
@@ -49,6 +46,8 @@ public class ChessKingApp extends GameApplication {
         vars.put("downSideColor", downSide);
         vars.put("allyList", new ArrayList<Chess>());
         vars.put("enemyList", new ArrayList<Chess>());
+        vars.put("targetList", new ArrayList<Chess>());
+        vars.put("targetKingList", new ArrayList<Chess>());
         vars.put("availablePosition", new ArrayList<Position>());
     }
 
@@ -104,7 +103,6 @@ public class ChessKingApp extends GameApplication {
         FXGL.loopBGM("BGM1.mp3");
         //System.out.println();
         betweenClickTimer = newLocalTimer();
-        betweenTurnTimer = newLocalTimer();
     }
 
     public void initChess() {
