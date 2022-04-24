@@ -29,16 +29,20 @@ public class ChessComponent extends Component {
     private static Entity shadowRook = null;
     private static Position castleRookPos = null;
     private static Entity redCross = null;
+
     private Entity allyMark = null;
     private Entity enemyMark = null;
+    private Entity targetMark = null;
+
     private static Position mousePos = null;
     private static final LocalTimer localTimer = newLocalTimer();
+    private static final LocalTimer messageTimer = newLocalTimer();
 
     private enum AssistState {
         NONE, ALLY, ENEMY, CASTLE
     }
-
     private AssistState assistState = AssistState.NONE;
+    private boolean targetState = false;
 
     public ChessComponent(Chess chess) {
         this.chess = chess;
@@ -50,30 +54,43 @@ public class ChessComponent extends Component {
         entity.setPosition(toPoint(chess.getPosition()));
 
         getop("allyList").addListener((ob, ov, nv) -> {
-            if (chess.getColorType() != gameCore.getTurn())
+            if (!gameCore.isInTurn(chess))
                 return;
 
-            if (((ArrayList<?>) nv).contains(chess)) {
+            if (!((ArrayList<?>)nv).contains(chess)) {
+                updateAssistState(AssistState.NONE);
+            }
+            else {
                 if (chess.getPosition().equals(castleRookPos))
                     updateAssistState(AssistState.CASTLE);
                 else
                     updateAssistState(AssistState.ALLY);
             }
-            else
-                updateAssistState(AssistState.NONE);
-
         });
 
         getop("enemyList").addListener((ob, ov, nv) -> {
-            if (chess.getColorType() == gameCore.getTurn())
+            if (gameCore.isInTurn(chess))
                 return;
 
-            if (((ArrayList<?>) nv).contains(chess)) {
+            if (!((ArrayList<?>)nv).contains(chess)) {
+                updateAssistState(AssistState.NONE);
+            }
+            else {
                 updateAssistState(AssistState.ENEMY);
             }
-            else
-                updateAssistState(AssistState.NONE);
         });
+
+        if (chess.getChessType() != ChessType.KING)
+            //will not set the king visual
+            getop("targetList").addListener((ob, ov, nv) -> {
+                if (gameCore.isInTurn(chess))
+                    return;
+                updateTargetState(((ArrayList<?>)nv).contains(chess));
+            });
+        else
+            getop("targetKingList").addListener((ob, ov, nv) -> {
+                updateTargetState(((ArrayList<?>)nv).contains(chess));
+            });
     }
 
     private void updateAssistState(AssistState newState) {
@@ -98,6 +115,20 @@ public class ChessComponent extends Component {
             allyMark = deSpawn(allyMark);
         }
         setToTop(entity);
+    }
+
+    private void updateTargetState(boolean isTarget) {
+        if (targetState == isTarget)
+            return;
+
+        targetState = isTarget;
+        System.out.println(chess .toString() + " has target state " + targetState);
+        if (targetState) {
+            if (targetMark == null)
+                targetMark = spawn("targetMark", toPoint(chess.getPosition()));
+        }
+        else
+            targetMark = deSpawn(targetMark);
     }
 
     private Entity deSpawn(Entity bounceEntity) {
@@ -136,6 +167,7 @@ public class ChessComponent extends Component {
                     "Not " + chess.getColorType().toString() + "'s turn!");
             return false;
         }
+
         isMove = true;
         printAvailablePos();
         set("availablePosition", gameCore.getAvailablePosition(chess));
@@ -146,20 +178,17 @@ public class ChessComponent extends Component {
 
     public void putChess(){
         isMove = false;
+        mousePos = null;
         set("availablePosition", new ArrayList<Position>());
-        set("allyList", new ArrayList<Position>());
-        set("enemyList", new ArrayList<Position>());
+        set("allyList", new ArrayList<Chess>());
+        set("enemyList", new ArrayList<Chess>());
+        set("targetList", new ArrayList<Chess>());
         removeShadowChess();
         removeShadowRook();
         removeRedCross();
 
-        if (!isMouseOnBoard()) {
-            entity.setPosition(toPoint(chess.getPosition()));
-            return;
-        }
-
         Position pos = getMousePos();
-        if (gameCore.isMoveAvailable(chess, pos)) {
+        if (isMouseOnBoard() && gameCore.isMoveAvailable(chess, pos)) {
             //if is to promote, move will be null. It doesn't matter
             Move move = gameCore.castToMove(chess, pos);
             //if case danger
@@ -168,8 +197,7 @@ public class ChessComponent extends Component {
                         "This move will cause you lose the game, are you sure?", aBoolean -> {
                             if (aBoolean) {
                                 executeMove(move, pos);
-                            }
-                            else
+                            } else
                                 entity.setPosition(toPoint(chess.getPosition()));
                         });
             }
@@ -179,9 +207,10 @@ public class ChessComponent extends Component {
         else {
             //reset the chess's position
             entity.setPosition(toPoint(chess.getPosition()));
-            getNotificationService().pushNotification("invalid position");
+            setTargetKingList();
         }
     }
+
 
     private void executeMove(Move move, Position pos) {
         //if promotion
@@ -190,6 +219,7 @@ public class ChessComponent extends Component {
             //
             //you need to show a panel for player to choose later
             //
+            //====================================
             ChessType chessType = ChessType.QUEEN;
             //if eat chess
             if (gameCore.hasChess(pos))
@@ -301,23 +331,45 @@ public class ChessComponent extends Component {
                 set("allyList", allyList);
             }
             else {
-                if (!((ArrayList<?>)geto("allyList")).isEmpty())
-                    set("allyList", new ArrayList<Chess>());
+                set("allyList", new ArrayList<Chess>());
             }
 
-            ArrayList<Chess> enemyList = gameCore.getEnemy(chess, pos);
-            set("enemyList", enemyList);
+            ArrayList<Chess>[] chessList = gameCore.getEnemyAndTarget(chess, pos);
+            //0 for enemy, 1 for target
+            set("enemyList", chessList[0]);
+            set("targetList", chessList[1]);
+            //update king state
+            ArrayList<Chess> kingList = new ArrayList<>();
+            for (Chess chess : chessList[1]) {
+                if (chess.getChessType() == ChessType.KING)
+                    kingList.add(chess);
+            }
+            if (gameCore.isMoveCauseDanger(gameCore.castToMove(chess, pos)))
+                kingList.add(gameCore.getChessKing(gameCore.getTurn()));
+            set("targetKingList", kingList);
         }
         else {
             removeShadowChess();
             removeShadowRook();
             removeRedCross();
 
-            if (!((ArrayList<?>)geto("allyList")).isEmpty())
-                set("allyList", new ArrayList<Chess>());
-            if (!((ArrayList<?>)geto("enemyList")).isEmpty())
-                set("enemyList", new ArrayList<Chess>());
+            set("allyList", new ArrayList<Chess>());
+            set("enemyList", new ArrayList<Chess>());
+            set("targetList", new ArrayList<Chess>());
+            setTargetKingList();
         }
+    }
+
+    private void setTargetKingList() {
+        if (chess.getChessType() == ChessType.KING)
+            return;
+        if (gameCore.isChecked(gameCore.getTurn())) {
+            ArrayList<Chess> kingList = new ArrayList<>();
+            kingList.add(gameCore.getChessKing(gameCore.getTurn()));
+            set("targetKingList", kingList);
+        }
+        else
+            set("targetKingList", new ArrayList<Chess>());
     }
 
     private void removeRedCross() {

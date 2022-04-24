@@ -743,12 +743,12 @@ public class GameCore {
     }
 
     /**
-     * see after move the chess to the position, what enemy chess can target the position.
-     * Will check if the enemy move will cause the king in danger
-     * @return a list of different color chess that will target the position.
-     * Return null when the move is not available.
+     * see after move the chess to the position, what will happen
+     * Will check if the enemy move will cause the king in danger.
+     * @return 0 index: a list of different color chess that will target the position.
+     * 1 index: target chess.
      */
-    public ArrayList<Chess> getEnemy(Chess chess, Position pos) {
+    public ArrayList<Chess>[] getEnemyAndTarget(Chess chess, Position pos) {
         Move move;
         if (isPawnPromoteValid(chess))
             move = castToMove(chess, pos, QUEEN);
@@ -763,15 +763,23 @@ public class GameCore {
         if (nowChess == null) {
             return null;
         }
-
+        //get enemies
         ArrayList<Chess> enemyChessList = new ArrayList<>();
-
         ArrayList<Move> safeEatMove = getSafeEatMove(nowChess);
         for (Move enemyMove : safeEatMove) {
             enemyChessList.add(enemyMove.getChess());
         }
+        //get Targets
+        ArrayList<Chess> targetChessList = new ArrayList<>();
+        ArrayList<Move> availableMove = getAvailableMove(nowChess);
+        for (Move targetMove : availableMove) {
+            if (targetMove.getMoveType() == EAT ||
+                    targetMove.getMoveType() == EATPROMOTE)
+                targetChessList.add((Chess)targetMove.getMoveTarget()[0]);
+        }
+
         reverseMove();
-        return enemyChessList;
+        return new ArrayList[]{enemyChessList, targetChessList};
     }
 
     /**
@@ -793,7 +801,6 @@ public class GameCore {
         }
         return targetChessList;
     }
-
 
     //==================================
     //       assistant method
