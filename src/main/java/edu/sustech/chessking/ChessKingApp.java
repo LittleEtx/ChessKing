@@ -65,6 +65,11 @@ public class ChessKingApp extends GameApplication {
     //initialize game settings
     @Override
     public void initSettings(GameSettings gameSettings) {
+        gameSettings.setTitle("Chess King");
+        gameSettings.setVersion("0.1");
+        gameSettings.setHeight(800);
+        gameSettings.setWidth(1200);
+        gameSettings.setPauseMusicWhenMinimized(true);
         gameSettings.setMainMenuEnabled(true);
 
         gameSettings.setSceneFactory(new SceneFactory(){
@@ -78,13 +83,6 @@ public class ChessKingApp extends GameApplication {
                 return new Loading();
             }
         });
-
-
-        gameSettings.setTitle("Chess King");
-        gameSettings.setVersion("0.1");
-        gameSettings.setHeight(800);
-        gameSettings.setWidth(1200);
-        gameSettings.setPauseMusicWhenMinimized(true);
     }
 
 

@@ -2,33 +2,51 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.MenuType;
-import javafx.event.ActionEvent;
+import com.almasb.fxgl.dsl.FXGL;
+import com.almasb.fxgl.texture.Texture;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
+import javafx.scene.effect.Bloom;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import kotlin.coroutines.CoroutineContext;
+
+import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class MainMenu extends FXGLMenu {
     public MainMenu() {
         super(MenuType.MAIN_MENU);
-        setMainMenuButton();
 
-    }
+        Texture background = texture("Background.png",1200,800);
+        getContentRoot().getChildren().setAll(background);
 
-    public void setMainMenuButton(){
+        var title = getUIFactoryService().newText(getSettings().getTitle(), Color.WHITE, 150);
+        title.setStroke(Color.BLACK);
+        title.setStrokeWidth(4);
+
+        if (!FXGL.isMobile()) {
+            title.setEffect(new Bloom(0.8));
+        }
+        centerTextBind(title, getAppWidth() / 2.0, 320);
+
+        var authors = getUIFactoryService().newText("Little_Etx & Mr_BHAAA", Color.WHITE, 22.0);
+        centerTextBind(authors, getAppWidth() / 2.0, 370);
+
+        getContentRoot().getChildren().addAll(title, authors);
+
+
+
+        //Set all the buttons
         Button btn1 = new Button("Local Game");
         btn1.setOnAction(event -> getController().startNewGame());
 
         btn1.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
-                if(keyEvent.getCode().equals(KeyCode.ENTER)) {
+                if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                     getController().startNewGame();
                 }
             }
@@ -40,7 +58,7 @@ public class MainMenu extends FXGLMenu {
 //                event.getSource(): will return the button
 //            }
 //        });
-        btn1.setPrefSize(150,60);
+        btn1.setPrefSize(150, 60);
         btn1.setFont(Font.font(20));
 
 //        //set the border of the button
@@ -59,32 +77,31 @@ public class MainMenu extends FXGLMenu {
 
         //better use java css style for style control!!!
         btn1.setStyle(
-                "-fx-background-color:#98FF9C;"+
+                "-fx-background-color:#40404080;" +
                         "-fx-background-radius:20;" +
-                        "-fx-text-fill: #FF98E8;"
+                        "-fx-text-fill: #FFFFFF;"
         );
-        BorderStroke bos = new BorderStroke(Color.BLACK,BorderStrokeStyle.SOLID,
-                new CornerRadii(20),new BorderWidths(1.0));
+        BorderStroke bos = new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
+                new CornerRadii(20), new BorderWidths(1.0));
         Border b = new Border(bos);
         btn1.setBorder(b);
-
 
         Button btn2 = new Button("Online Game");
         btn2.setOnAction(event -> getController().gotoGameMenu());
         btn2.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
-                if(keyEvent.getCode().equals(KeyCode.ENTER)){
+                if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                     getController().gotoGameMenu();
                 }
             }
         });
-        btn2.setPrefSize(150,60);
+        btn2.setPrefSize(150, 60);
         btn2.setFont(Font.font(20));
         btn2.setStyle(
-                "-fx-background-color:#98FF9C;"+
+                "-fx-background-color:#40404080;" +
                         "-fx-background-radius:20;" +
-                        "-fx-text-fill: #FF98E8;"
+                        "-fx-text-fill: #FFFFFF;"
         );
         btn2.setBorder(b);
 
@@ -94,20 +111,19 @@ public class MainMenu extends FXGLMenu {
         btn3.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
-                if(keyEvent.getCode().equals(KeyCode.ENTER)){
+                if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                     getController().gotoGameMenu();
                 }
             }
         });
-        btn3.setPrefSize(150,60);
+        btn3.setPrefSize(150, 60);
         btn3.setFont(Font.font(20));
         btn3.setStyle(
-                "-fx-background-color:#98FF9C;"+
+                "-fx-background-color:#40404080;" +
                         "-fx-background-radius:20;" +
-                        "-fx-text-fill: #FF98E8;"
+                        "-fx-text-fill: #FFFFFF;"
         );
         btn3.setBorder(b);
-
 
 
         Button btn4 = new Button("Exit");
@@ -116,29 +132,24 @@ public class MainMenu extends FXGLMenu {
         btn4.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
-                if(keyEvent.getCode().equals(KeyCode.ENTER)){
+                if (keyEvent.getCode().equals(KeyCode.ENTER)) {
                     getController().gotoGameMenu();
                 }
             }
         });
-        btn4.setPrefSize(150,60);
+        btn4.setPrefSize(150, 60);
         btn4.setFont(Font.font(20));
         btn4.setStyle(
-                "-fx-background-color:#98FF9C;"+
+                "-fx-background-color:#40404080;" +
                         "-fx-background-radius:20;" +
-                        "-fx-text-fill: #FF98E8;"
+                        "-fx-text-fill: #FFFFFF;"
         );
         btn4.setBorder(b);
 
-        //added it to the main menu world
-        VBox box = new VBox(btn1, btn2, btn3, btn4);
+        VBox box = new VBox(btn1,btn2,btn3,btn4);
+        box.setLayoutY(420);
         box.setLayoutX(600-75);
-        box.setLayoutY(400);
 
-        getContentRoot().getChildren().setAll(box);
-    }
-
-    public void setMainMenuTitle(){
-        String titleStr = "ChessKing";
+        getContentRoot().getChildren().addAll(box);
     }
 }
