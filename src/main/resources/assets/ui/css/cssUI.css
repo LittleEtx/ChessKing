@@ -1,0 +1,16 @@
+.menu-button{
+    -fx-background-color:#40404080;
+    -fx-background-radius:20;
+    -fx-text-fill: #FFFFFF;
+}
+
+.menu-button:hover{
+    -fx-background-color:#404040
+}
+
+.setting-box {
+    -fx-background-color: grey;
+}
+
+.setting-box .label{
+}

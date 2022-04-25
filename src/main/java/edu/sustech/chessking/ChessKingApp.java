@@ -20,8 +20,11 @@ import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
 import javafx.scene.Cursor;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -73,6 +76,7 @@ public class ChessKingApp extends GameApplication {
         gameSettings.setWidth(1200);
         gameSettings.setPauseMusicWhenMinimized(true);
         gameSettings.setMainMenuEnabled(true);
+        gameSettings.getCSSList().add("cssUI.css");
 
         gameSettings.setDefaultCursor(getCursor(cursorDefault));
 
@@ -114,6 +118,7 @@ public class ChessKingApp extends GameApplication {
         getGameWorld().addEntityFactory(new ChessKingEntityFactory());
         initBoard();
         initChess();
+        initUI();
         FXGL.loopBGM("BGM1.mp3");
         //System.out.println();
         betweenClickTimer = newLocalTimer();
@@ -179,6 +184,18 @@ public class ChessKingApp extends GameApplication {
         }, MouseButton.PRIMARY);
     }
 
+    // ===============================
+    //initializing the UI after game starts
+    @Override
+    protected void initUI() {
+        Label settingLable = new Label("setting");
+
+        VBox setting = new VBox(20,settingLable);
+        setting.setPrefSize(60,60);
+        setting.getStyleClass().add("setting-box");
+        addUINode(setting,10,10);
+
+    }
 
     // ===============================
     //finally launching the game

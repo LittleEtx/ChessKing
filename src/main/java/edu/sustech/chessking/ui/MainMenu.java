@@ -81,11 +81,19 @@ public class MainMenu extends FXGLMenu {
 //
 
         //better use java css style for style control!!!
-        btn1.setStyle(
-                "-fx-background-color:#40404080;" +
-                        "-fx-background-radius:20;" +
-                        "-fx-text-fill: #FFFFFF;"
-        );
+//        String css;
+//        if(btn1.isHover()){
+//            css = "-fx-background-color:#404040;" +
+//                    "-fx-background-radius:20;" +
+//                    "-fx-text-fill: #FFFFFF;";
+//        }else {
+//            css = "-fx-background-color:#40404080;" +
+//                    "-fx-background-radius:20;" +
+//                    "-fx-text-fill: #FFFFFF;";
+//        }
+//        btn1.setStyle(css);
+        btn1.getStyleClass().add("menu-button");
+
         BorderStroke bos = new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
                 new CornerRadii(20), new BorderWidths(1.0));
         Border b = new Border(bos);
@@ -104,11 +112,7 @@ public class MainMenu extends FXGLMenu {
         });
         btn2.setPrefSize(150, 60);
         btn2.setFont(Font.font(18));
-        btn2.setStyle(
-                "-fx-background-color:#40404080;" +
-                        "-fx-background-radius:20;" +
-                        "-fx-text-fill: #FFFFFF;"
-        );
+        btn2.getStyleClass().add("menu-button");
         btn2.setBorder(b);
 //        btn2.setCursor(Cursor.OPEN_HAND);
 
@@ -125,11 +129,7 @@ public class MainMenu extends FXGLMenu {
         });
         btn3.setPrefSize(150, 60);
         btn3.setFont(Font.font(20));
-        btn3.setStyle(
-                "-fx-background-color:#40404080;" +
-                        "-fx-background-radius:20;" +
-                        "-fx-text-fill: #FFFFFF;"
-        );
+        btn3.getStyleClass().add("menu-button");
         btn3.setBorder(b);
 //        btn3.setCursor(Cursor.OPEN_HAND);
 
@@ -149,11 +149,7 @@ public class MainMenu extends FXGLMenu {
         });
         btn4.setPrefSize(150, 60);
         btn4.setFont(Font.font(20));
-        btn4.setStyle(
-                "-fx-background-color:#40404080;" +
-                        "-fx-background-radius:20;" +
-                        "-fx-text-fill: #FFFFFF;"
-        );
+        btn4.getStyleClass().add("menu-button");
         btn4.setBorder(b);
 //        btn4.setCursor(Cursor.OPEN_HAND);
 
