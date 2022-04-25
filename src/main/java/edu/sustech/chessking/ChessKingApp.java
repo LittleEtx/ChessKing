@@ -116,6 +116,7 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void initGame() {
         getGameWorld().addEntityFactory(new ChessKingEntityFactory());
+        //spawn("backGround");
         initBoard();
         initChess();
         initUI();
@@ -188,6 +189,8 @@ public class ChessKingApp extends GameApplication {
     //initializing the UI after game starts
     @Override
     protected void initUI() {
+
+
         Label settingLable = new Label("setting");
         VBox setting = new VBox(20,settingLable);
         setting.setPrefSize(60,60);

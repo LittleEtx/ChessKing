@@ -5,6 +5,7 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.EntityFactory;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.Spawns;
+import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.EntityType;
 import edu.sustech.chessking.components.*;
 import javafx.scene.paint.Color;
@@ -80,6 +81,14 @@ public class ChessKingEntityFactory implements EntityFactory {
     public Entity newCircle(SpawnData data){
         return FXGL.entityBuilder(data)
                 .viewWithBBox(new Circle(20,data.get("color")))
+                .build();
+    }
+
+    @Spawns("backGround")
+    public Entity newBackGround(SpawnData data){
+
+        return FXGL.entityBuilder(data)
+                .view(texture("Background.png",1200,800))
                 .build();
     }
 }
