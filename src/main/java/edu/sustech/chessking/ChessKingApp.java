@@ -202,7 +202,7 @@ public class ChessKingApp extends GameApplication {
         Ally.getStyleClass().add("setting-box");
         Ally.setOnMouseClicked(event -> {
             //add turning on and off method here
-
+            //on and off have different colors?
         });
 
         Label EnemyLable = new Label("enemy");
@@ -211,10 +211,10 @@ public class ChessKingApp extends GameApplication {
         Enemy.getStyleClass().add("setting-box");
         Enemy.setOnMouseClicked(event -> {
             //add turning on and off method here
-
+            //on and off have different colors?
         });
 
-        addUINode(Ally,730,10);
+        addUINode(Ally,570,10);
         addUINode(Enemy,650,10);
         addUINode(setting,10,10);
 
