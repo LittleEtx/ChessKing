@@ -80,5 +80,4 @@ public class ChessKingEntityFactory implements EntityFactory {
                 .viewWithBBox(new Circle(20,data.get("color")))
                 .build();
     }
-
 }

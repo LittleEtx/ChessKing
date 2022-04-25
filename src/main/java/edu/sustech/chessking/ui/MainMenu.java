@@ -5,14 +5,17 @@ import com.almasb.fxgl.app.scene.MenuType;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.texture.Texture;
 import javafx.event.EventHandler;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.effect.Bloom;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
+
+import java.util.Timer;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 
@@ -41,7 +44,9 @@ public class MainMenu extends FXGLMenu {
 
         //Set all the buttons
         Button btn1 = new Button("Local Game");
-        btn1.setOnAction(event -> getController().startNewGame());
+        btn1.setOnAction(event -> {
+            getController().startNewGame();
+        });
 
         btn1.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
@@ -85,6 +90,7 @@ public class MainMenu extends FXGLMenu {
                 new CornerRadii(20), new BorderWidths(1.0));
         Border b = new Border(bos);
         btn1.setBorder(b);
+//        btn1.setCursor(Cursor.OPEN_HAND);
 
         Button btn2 = new Button("Online Game");
         btn2.setOnAction(event -> getController().gotoGameMenu());
@@ -97,13 +103,14 @@ public class MainMenu extends FXGLMenu {
             }
         });
         btn2.setPrefSize(150, 60);
-        btn2.setFont(Font.font(20));
+        btn2.setFont(Font.font(18));
         btn2.setStyle(
                 "-fx-background-color:#40404080;" +
                         "-fx-background-radius:20;" +
                         "-fx-text-fill: #FFFFFF;"
         );
         btn2.setBorder(b);
+//        btn2.setCursor(Cursor.OPEN_HAND);
 
 
         Button btn3 = new Button("Settings");
@@ -124,11 +131,14 @@ public class MainMenu extends FXGLMenu {
                         "-fx-text-fill: #FFFFFF;"
         );
         btn3.setBorder(b);
+//        btn3.setCursor(Cursor.OPEN_HAND);
 
 
         Button btn4 = new Button("Exit");
-        btn4.setOnAction(event -> getController().exit());
-        btn4.setOnAction(event -> getController().gotoGameMenu());
+        btn4.setOnAction(event -> {
+            getController().exit();
+            btn4.setCursor(Cursor.CLOSED_HAND);
+        });
         btn4.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
@@ -145,6 +155,7 @@ public class MainMenu extends FXGLMenu {
                         "-fx-text-fill: #FFFFFF;"
         );
         btn4.setBorder(b);
+//        btn4.setCursor(Cursor.OPEN_HAND);
 
         VBox box = new VBox(btn1,btn2,btn3,btn4);
         box.setLayoutY(420);

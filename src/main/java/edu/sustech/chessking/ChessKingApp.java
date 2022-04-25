@@ -1,5 +1,6 @@
 package edu.sustech.chessking;
 
+import com.almasb.fxgl.app.CursorInfo;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
@@ -18,7 +19,9 @@ import edu.sustech.chessking.gameLogic.Position;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
+import javafx.scene.Cursor;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -35,6 +38,7 @@ public class ChessKingApp extends GameApplication {
     public final ColorType downSide = ColorType.WHITE;
     private Entity movingChess;
     private LocalTimer betweenClickTimer;
+    private boolean cursorDefault = true;
 
     // ===============================
     //initialize variables
@@ -59,7 +63,6 @@ public class ChessKingApp extends GameApplication {
         getSettings().setGlobalMusicVolume(0.01);
     }
 
-
     // ===============================
     //initialize game settings
     @Override
@@ -70,6 +73,8 @@ public class ChessKingApp extends GameApplication {
         gameSettings.setWidth(1200);
         gameSettings.setPauseMusicWhenMinimized(true);
         gameSettings.setMainMenuEnabled(true);
+
+        gameSettings.setDefaultCursor(getCursor(cursorDefault));
 
         gameSettings.setSceneFactory(new SceneFactory(){
             @Override
@@ -84,6 +89,15 @@ public class ChessKingApp extends GameApplication {
         });
     }
 
+    public CursorInfo getCursor(boolean cursorDefault){
+        if(cursorDefault){
+            return new CursorInfo("Cursor1.png",
+                    10,10);
+        }else{
+            return new CursorInfo("Cursor2.png",
+                    10,10);
+        }
+    }
 
     // ===============================
     //initialize the physical properties of the game
@@ -115,11 +129,10 @@ public class ChessKingApp extends GameApplication {
     public void initBoard(){
         for(int i = 0; i < 8; i++) {
             for (int f = 0; f < 8; f++) {
-                Position position = new Position(i,f);
-                spawn("board",new SpawnData().put("position",position));
+                Position position = new Position(i, f);
+                spawn("board", new SpawnData().put("position", position));
             }
         }
-
     }
 
 
@@ -140,7 +153,6 @@ public class ChessKingApp extends GameApplication {
         getInput().addAction(new UserAction("LeftClick") {
             @Override
             protected void onActionBegin() {
-
                 //In case move to fast
                 if (!betweenClickTimer.elapsed(Duration.seconds(0.1)))
                     return;
@@ -162,6 +174,7 @@ public class ChessKingApp extends GameApplication {
                     //if successfully move chess or cause player to choose
                     movingChess.getComponent(ChessComponent.class).putChess();
                 }
+
             }
         }, MouseButton.PRIMARY);
     }
