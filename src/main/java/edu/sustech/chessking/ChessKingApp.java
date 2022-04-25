@@ -203,16 +203,16 @@ public class ChessKingApp extends GameApplication {
     }
 
     public void initButtons(){
-        Label settingLable = new Label("setting");
-        VBox setting = new VBox(20,settingLable);
+        Label settingLabel = new Label("setting");
+        VBox setting = new VBox(20,settingLabel);
         setting.setPrefSize(60,60);
         setting.getStyleClass().add("setting-box");
         setting.setOnMouseClicked(event -> {
             getGameController().gotoGameMenu();
         });
 
-        Label AllyLable = new Label("ally");
-        VBox ally = new VBox(20,AllyLable);
+    Label allyLabel = new Label("ally");
+        VBox ally = new VBox(20,allyLabel);
         ally.setPrefSize(60,60);
         ally.getStyleClass().add("setting-box");
         ally.setOnMouseClicked(event -> {
@@ -220,8 +220,8 @@ public class ChessKingApp extends GameApplication {
             //on and off have different colors?
         });
 
-        Label EnemyLable = new Label("enemy");
-        VBox enemy = new VBox(20,EnemyLable);
+        Label enemyLabel = new Label("enemy");
+        VBox enemy = new VBox(20,enemyLabel);
         enemy.setPrefSize(60,60);
         enemy.getStyleClass().add("setting-box");
         enemy.setOnMouseClicked(event -> {
