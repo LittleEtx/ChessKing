@@ -96,10 +96,10 @@ public class ChessKingApp extends GameApplication {
     public CursorInfo getCursor(boolean cursorDefault){
         if(cursorDefault){
             return new CursorInfo("Cursor1.png",
-                    10,10);
+                    0,0);
         }else{
             return new CursorInfo("Cursor2.png",
-                    10,10);
+                    0,0);
         }
     }
 
@@ -189,10 +189,33 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void initUI() {
         Label settingLable = new Label("setting");
-
         VBox setting = new VBox(20,settingLable);
         setting.setPrefSize(60,60);
         setting.getStyleClass().add("setting-box");
+        setting.setOnMouseClicked(event -> {
+           getGameController().gotoGameMenu();
+        });
+
+        Label AllyLable = new Label("ally");
+        VBox Ally = new VBox(20,AllyLable);
+        Ally.setPrefSize(60,60);
+        Ally.getStyleClass().add("setting-box");
+        Ally.setOnMouseClicked(event -> {
+            //add turning on and off method here
+
+        });
+
+        Label EnemyLable = new Label("enemy");
+        VBox Enemy = new VBox(20,EnemyLable);
+        Enemy.setPrefSize(60,60);
+        Enemy.getStyleClass().add("setting-box");
+        Enemy.setOnMouseClicked(event -> {
+            //add turning on and off method here
+
+        });
+
+        addUINode(Ally,730,10);
+        addUINode(Enemy,650,10);
         addUINode(setting,10,10);
 
     }

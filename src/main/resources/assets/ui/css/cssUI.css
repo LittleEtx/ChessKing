@@ -13,4 +13,9 @@
 }
 
 .setting-box .label{
+    -fx-pref-width:180;
+    -fx-pref-height:60;
+    -fx-font-size:14;
+    -fx-align:center;
+    -fx-alignment:center;
 }
