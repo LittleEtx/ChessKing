@@ -71,4 +71,15 @@ public class MoveHistory {
         return sb.toString();
     }
 
+    /**
+     * @return the first appear move in history list, use .equal method
+     * return -1 when the item is not found
+     */
+    public int getMoveIndex(Move move) {
+        for (int i = 0; i < getMoveNum(); i++) {
+            if (getMove(i).equals(move))
+                return i;
+        }
+        return -1;
+    }
 }

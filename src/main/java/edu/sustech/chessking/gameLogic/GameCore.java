@@ -22,10 +22,14 @@ public class GameCore {
     private final ArrayList<Chess> chessList = new ArrayList<>();
     private final MoveHistory moveHistory = new MoveHistory();
     private ColorType turn;
+    
+    private final ArrayList<Move> reappearMove  = new ArrayList<>();
+    private final ArrayList<Integer> reappearMoveIndex = new ArrayList<>();
 
     //===============================
     //    ChessBoard Setting Method
     //===============================
+
 
     /**
      * This method will set all chess to the beginning position
@@ -62,15 +66,20 @@ public class GameCore {
     }
 
     /**
-     * ## NOT DONE
      * This method will set all chess to a given state by game history
      */
     public boolean setGame(MoveHistory history) {
-
-
-        //Need to add
-
-        return false;
+        initialGame();
+        int moveNum =  history.getMoveNum();
+        Move move;
+        for (int i = 0; i < moveNum; i++) {
+            move = history.getMove(i);
+            if (!moveChess(move)) {
+                initialGame();
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -105,7 +114,6 @@ public class GameCore {
     //==================================
 
     /**
-     *  ## NOT DONE
      * see if one side has lost, including:
      * 1. No king on the chessboard
      * 2. Is being checked but no way to prevent this
@@ -138,11 +146,35 @@ public class GameCore {
      * ## NOT DONE
      * see if it has drawn at the time, including:
      * 1. One side has no move to go
-     * 2. The same situation appears for the third time
+     * 2. The same situation appears for the third time (in this method, check history steps)
      * 3. Not pawn was moved and no chess was eaten for the first 50 moves
      * 4. Some special ending situation where both side can not win
      */
     public boolean hasDrawn() {
+        if (isChecked(turn) || isChecking(turn))
+            return false;
+        
+        //check if no move to go
+        boolean noAvailableMove = true;
+        for (Chess chess : chessList) {
+            if (!isInTurn(chess))
+                continue;
+            
+            if (!getAvailableMove(chess).isEmpty()) {
+                noAvailableMove = false;
+                break;
+            }
+        }
+        if (noAvailableMove)
+            return true;
+        
+        Move lastMove = moveHistory.getLastMove();
+        //third time appear
+        if (reappearMove.contains(lastMove)) {
+            int first = moveHistory.getMoveIndex(lastMove);
+
+            //Leave to tomorrow
+        }
 
         //Needs to add
 
@@ -744,11 +776,12 @@ public class GameCore {
 
     /**
      * see after move the chess to the position, what will happen
-     * Will check if the enemy move will cause the king in danger.
      * @return 0 index: a list of different color chess that will target the position.
-     * 1 index: target chess.
+     * Will check if the enemy move will cause the king in danger. <br/>
+     * 1 index: target enemy chess list. <br/>
+     * 2 index: target ally chess list. <br/>
      */
-    public ArrayList<Chess>[] getEnemyAndTarget(Chess chess, Position pos) {
+    public ArrayList<Chess>[] simulateMove(Chess chess, Position pos) {
         Move move;
         if (isPawnPromoteValid(chess))
             move = castToMove(chess, pos, QUEEN);
@@ -763,23 +796,36 @@ public class GameCore {
         if (nowChess == null) {
             return null;
         }
+
         //get enemies
         ArrayList<Chess> enemyChessList = new ArrayList<>();
         ArrayList<Move> safeEatMove = getSafeEatMove(nowChess);
         for (Move enemyMove : safeEatMove) {
             enemyChessList.add(enemyMove.getChess());
         }
-        //get Targets
-        ArrayList<Chess> targetChessList = new ArrayList<>();
+
+        //get Enemy Targets
+        ArrayList<Chess> targetEnemyList = new ArrayList<>();
         ArrayList<Move> availableMove = getAvailableMove(nowChess);
         for (Move targetMove : availableMove) {
             if (targetMove.getMoveType() == EAT ||
                     targetMove.getMoveType() == EATPROMOTE)
-                targetChessList.add((Chess)targetMove.getMoveTarget()[0]);
+                targetEnemyList.add((Chess)targetMove.getMoveTarget()[0]);
+        }
+
+        //get Allay target list
+        ArrayList<Chess> targetAllyList = new ArrayList<>();
+        for (Chess ally : chessList) {
+            if (isInTurn(ally))
+                continue;
+
+            if (isEatValid(nowChess, ally.getPosition()) &&
+                    !hasChessInBetween(nowChess.getPosition(), ally.getPosition()))
+                targetAllyList.add(ally);
         }
 
         reverseMove();
-        return new ArrayList[]{enemyChessList, targetChessList};
+        return new ArrayList[]{enemyChessList, targetEnemyList, targetAllyList};
     }
 
     /**
@@ -920,6 +966,12 @@ public class GameCore {
         //switch turn and record
         moveHistory.addMove(move);
         turn = turn.reverse();
+        for (int i = 0; i < moveHistory.getMoveNum() - 1; i++) {
+            if (move.equals(moveHistory.getMove(i))) {
+                reappearMove.add(move);
+                reappearMoveIndex.add(moveHistory.getMoveNum() - 1);
+            }
+        }
     }
 
     private void moveListChess(Chess chess, Position position) {

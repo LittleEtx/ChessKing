@@ -69,12 +69,20 @@ public class ChessKingEntityFactory implements EntityFactory {
                 .build();
     }
 
-    @Spawns("targetMark")
-    public Entity newTargetMark(SpawnData data) {
+    @Spawns("targetEnemyMark")
+    public Entity newTargetEnemyMark(SpawnData data) {
         return FXGL.entityBuilder(data)
                 .with(new BounceComponent(
-                        texture("TargetMark.png", 80, 80)))
+                        texture("TargetEnemyMark.png", 80, 80)))
                 .with(new TargetMarkComponent())
+                .build();
+    }
+
+    @Spawns("targetAllyMark")
+    public Entity newTargetAllyMark(SpawnData data){
+        return FXGL.entityBuilder(data)
+                .with(new BounceComponent(
+                        texture("TargetAllyMark.png", 80, 80)))
                 .build();
     }
 

@@ -83,8 +83,6 @@ public class ChessComponent extends Component {
         if (chess.getChessType() != ChessType.KING)
             //will not set the king visual
             getop("targetList").addListener((ob, ov, nv) -> {
-                if (gameCore.isInTurn(chess))
-                    return;
                 updateTargetState(((ArrayList<?>)nv).contains(chess));
             });
         else
@@ -122,10 +120,15 @@ public class ChessComponent extends Component {
             return;
 
         targetState = isTarget;
-        System.out.println(chess .toString() + " has target state " + targetState);
         if (targetState) {
-            if (targetMark == null)
-                targetMark = spawn("targetMark", toPoint(chess.getPosition()));
+            if (targetMark == null) {
+                if (gameCore.isInTurn(chess)) {
+                    targetMark = spawn("targetAllyMark", toPoint(chess.getPosition()));
+                    setToTop(entity);
+                }
+                else
+                    targetMark = spawn("targetEnemyMark", toPoint(chess.getPosition()));
+            }
         }
         else
             targetMark = deSpawn(targetMark);
@@ -334,7 +337,8 @@ public class ChessComponent extends Component {
                 set("allyList", new ArrayList<Chess>());
             }
 
-            ArrayList<Chess>[] chessList = gameCore.getEnemyAndTarget(chess, pos);
+            ArrayList<Chess>[] chessList = gameCore.simulateMove(chess, pos);
+            chessList[1].addAll(chessList[2]);
             //0 for enemy, 1 for target
             set("enemyList", chessList[0]);
             set("targetList", chessList[1]);
