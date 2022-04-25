@@ -8,6 +8,7 @@ import com.almasb.fxgl.entity.Spawns;
 import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.EntityType;
 import edu.sustech.chessking.components.*;
+import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
@@ -91,4 +92,55 @@ public class ChessKingEntityFactory implements EntityFactory {
                 .view(texture("Background.png",1200,800))
                 .build();
     }
+
+    @Spawns("avatar")
+    public Entity newAvatar(SpawnData data){
+        Point2D avatar;
+        Color color;
+        if(data.get("playerSide").equals("black")){
+            avatar = new Point2D(735,10);
+            color = Color.GRAY;
+        }else{
+            avatar = new Point2D(1115,720);
+            color = Color.LIGHTGRAY;
+        }
+        return FXGL.entityBuilder(data)
+                .viewWithBBox(new Rectangle(70,70,color))
+                .at(avatar)
+                .build();
+    }
+
+    @Spawns("playerInfo")
+        public Entity newPlayerInfo(SpawnData data){
+            Point2D point;
+            Color color;
+            if(data.get("playerSide").equals("black")){
+                point = new Point2D(820,10);
+                color = Color.GRAY;
+            }else{
+                point = new Point2D(735,720);
+                color = Color.LIGHTGRAY;
+            }
+            return FXGL.entityBuilder(data)
+                    .view(new Rectangle(365,70,color))
+                    .at(point)
+                    .build();
+        }
+
+    @Spawns("chessGrave")
+        public Entity newChessGrave(SpawnData data){
+            Point2D point;
+            Color color;
+            if(data.get("playerSide").equals("black")){
+                point = new Point2D(735,95);
+                color = Color.GRAY;
+            }else{
+                point = new Point2D(735,645);
+                color = Color.LIGHTGRAY;
+            }
+            return FXGL.entityBuilder(data)
+                    .view(new Rectangle(450,60,color))
+                    .at(point)
+                    .build();
+        }
 }

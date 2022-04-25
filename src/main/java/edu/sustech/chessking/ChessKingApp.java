@@ -118,11 +118,21 @@ public class ChessKingApp extends GameApplication {
         getGameWorld().addEntityFactory(new ChessKingEntityFactory());
         //spawn("backGround");
         initBoard();
+        initAvatar();
         initChess();
         initUI();
         FXGL.loopBGM("BGM1.mp3");
         //System.out.println();
         betweenClickTimer = newLocalTimer();
+    }
+
+    public void initAvatar(){
+        spawn("avatar", new SpawnData().put("playerSide","white"));
+        spawn("avatar", new SpawnData().put("playerSide","black"));
+        spawn("playerInfo",new SpawnData().put("playerSide","white"));
+        spawn("playerInfo",new SpawnData().put("playerSide","black"));
+        spawn("chessGrave",new SpawnData().put("playerSide","black"));
+        spawn("chessGrave",new SpawnData().put("playerSide","white"));
     }
 
     public void initChess() {
@@ -189,39 +199,53 @@ public class ChessKingApp extends GameApplication {
     //initializing the UI after game starts
     @Override
     protected void initUI() {
+        initButtons();
+    }
 
-
+    public void initButtons(){
         Label settingLable = new Label("setting");
         VBox setting = new VBox(20,settingLable);
         setting.setPrefSize(60,60);
         setting.getStyleClass().add("setting-box");
         setting.setOnMouseClicked(event -> {
-           getGameController().gotoGameMenu();
+            getGameController().gotoGameMenu();
         });
 
         Label AllyLable = new Label("ally");
-        VBox Ally = new VBox(20,AllyLable);
-        Ally.setPrefSize(60,60);
-        Ally.getStyleClass().add("setting-box");
-        Ally.setOnMouseClicked(event -> {
+        VBox ally = new VBox(20,AllyLable);
+        ally.setPrefSize(60,60);
+        ally.getStyleClass().add("setting-box");
+        ally.setOnMouseClicked(event -> {
             //add turning on and off method here
             //on and off have different colors?
         });
 
         Label EnemyLable = new Label("enemy");
-        VBox Enemy = new VBox(20,EnemyLable);
-        Enemy.setPrefSize(60,60);
-        Enemy.getStyleClass().add("setting-box");
-        Enemy.setOnMouseClicked(event -> {
+        VBox enemy = new VBox(20,EnemyLable);
+        enemy.setPrefSize(60,60);
+        enemy.getStyleClass().add("setting-box");
+        enemy.setOnMouseClicked(event -> {
             //add turning on and off method here
             //on and off have different colors?
         });
 
-        addUINode(Ally,570,10);
-        addUINode(Enemy,650,10);
+        Label targetLabel = new Label("target");
+        VBox target = new VBox(20,targetLabel);
+        target.setPrefSize(60,60);
+        target.getStyleClass().add("setting-box");
+        target.setOnMouseClicked(event -> {
+            //add turning on and off method here
+            //on and off have different colors?
+        });
+
+
+        addUINode(target,490,10);
+        addUINode(ally,570,10);
+        addUINode(enemy,650,10);
         addUINode(setting,10,10);
 
     }
+
 
     // ===============================
     //finally launching the game
