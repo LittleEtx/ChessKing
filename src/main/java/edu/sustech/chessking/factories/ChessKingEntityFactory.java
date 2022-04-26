@@ -114,6 +114,7 @@ public class ChessKingEntityFactory implements EntityFactory {
         }
         return FXGL.entityBuilder(data)
                 .viewWithBBox(new Rectangle(70,70,color))
+                .with(new AvatarComponent(/*data.get(player avatar?)*/))
                 .at(avatar)
                 .build();
     }

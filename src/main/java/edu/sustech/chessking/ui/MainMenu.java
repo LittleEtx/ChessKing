@@ -3,6 +3,7 @@ package edu.sustech.chessking.ui;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.MenuType;
 import com.almasb.fxgl.dsl.FXGL;
+import com.almasb.fxgl.scene.SubScene;
 import com.almasb.fxgl.texture.Texture;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
@@ -20,6 +21,7 @@ import java.util.Timer;
 import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class MainMenu extends FXGLMenu {
+    private SubScene localStart = new LocalStart();
     public MainMenu() {
         super(MenuType.MAIN_MENU);
 
@@ -153,7 +155,25 @@ public class MainMenu extends FXGLMenu {
         btn4.setBorder(b);
 //        btn4.setCursor(Cursor.OPEN_HAND);
 
-        VBox box = new VBox(btn1,btn2,btn3,btn4);
+
+        Button btn5 = new Button("Test");
+        btn5.setOnAction(event -> {
+            getSceneService().pushSubScene(localStart);
+        });
+        btn5.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                    getController().gotoGameMenu();
+                }
+            }
+        });
+        btn5.setPrefSize(150, 60);
+        btn5.setFont(Font.font(20));
+        btn5.getStyleClass().add("menu-button");
+        btn5.setBorder(b);
+
+        VBox box = new VBox(btn1,btn2,btn3,btn4,btn5);
         box.setLayoutY(420);
         box.setLayoutX(600-75);
 
