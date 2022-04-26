@@ -1,0 +1,57 @@
+.menu-button{
+    -fx-pref-width: 150;
+    -fx-pref-height:60;
+    -fx-background-color:#40404080;
+    -fx-background-radius:20;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 20;
+    -fx-border-color:black;
+    -fx-border-style:solid;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+}
+
+.menu-button:hover{
+    -fx-background-color:#404040;
+    -fx-text-fill:#E0E0E0;
+}
+
+.setting-box {
+
+}
+
+.setting-box .label{
+    -fx-pref-width:180;
+    -fx-pref-height:60;
+    -fx-font-size:10;
+    -fx-align:center;
+    -fx-alignment:center;
+    -fx-border-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #c21702ff 0.0%, #ffc803ff 100.0%);
+    -fx-border-width:10;
+    -fx-font-weight: bold;
+}
+
+.setting-box .label:hover{
+    -fx-border-color: white;
+    -fx-background-color:linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #c21702ff 0.0%, #ffc803ff 100.0%);
+    -fx-text-fill:#E0E0E0;
+
+}
+
+.subScene{
+    -fx-border-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #c21702ff 0.0%, #ffc803ff 100.0%);
+    -fx-border-width: 20;
+    -fx-background-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #c21702ff 0.0%,  #ffc803ff 100.0%);
+}
+
+.subScene-button{
+    -fx-pref-height: 100;
+    -fx-pref-width: 100;
+    -fx-background-color:#40404080;
+    -fx-background-radius:10;
+    -fx-text-fill: #FFFFFF;
+}
+
+.subScene-button:hover{
+    -fx-background-color:#000000;
+}

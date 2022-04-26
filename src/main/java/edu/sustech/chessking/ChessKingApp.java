@@ -134,6 +134,29 @@ public class ChessKingApp extends GameApplication {
         FXGL.loopBGM("BGM1.mp3");
         //System.out.println();
         betweenClickTimer = newLocalTimer();
+
+        //deal with end turn method
+        getbp("isEndTurn").addListener((ob, ov, nv) -> {
+            if (!nv)
+                return;
+
+            side = gameCore.getTurn();
+            if (gameCore.hasWin(side)) {
+
+                //win ui
+
+            }
+            else if (gameCore.hasLost(side)) {
+
+                //lost ui
+
+            }
+            else if (gameCore.hasDrawn()) {
+
+                //drawn ui
+
+            }
+        });
     }
 
     public void initAvatar(){
@@ -207,29 +230,6 @@ public class ChessKingApp extends GameApplication {
 
             }
         }, MouseButton.PRIMARY);
-
-        //deal with end turn method
-        getbp("isEndTurn").addListener((ob, ov, nv) -> {
-            if (!nv)
-                return;
-
-            side = gameCore.getTurn();
-            if (gameCore.hasWin(side)) {
-
-                //win ui
-
-            }
-            else if (gameCore.hasLost(side)) {
-
-                //lost ui
-
-            }
-            else if (gameCore.hasDrawn()) {
-
-                //drawn ui
-
-            }
-        });
     }
 
     // ===============================
