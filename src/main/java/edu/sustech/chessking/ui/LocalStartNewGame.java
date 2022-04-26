@@ -3,12 +3,11 @@ package edu.sustech.chessking.ui;
 import com.almasb.fxgl.scene.SubScene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 
-public class LocalStart extends SubScene {
-    public LocalStart() {
+public class LocalStartNewGame extends SubScene {
+    public LocalStartNewGame() {
         Button newGame = new Button("New Game");
         newGame.setOnAction(event ->{
             getSceneService().popSubScene();

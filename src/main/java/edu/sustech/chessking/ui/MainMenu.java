@@ -13,19 +13,18 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.util.Duration;
-
-import java.util.Timer;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class MainMenu extends FXGLMenu {
-    private SubScene localStart = new LocalStart();
+    private SubScene localStartNewGame = new LocalStartNewGame();
+
+    public Button btn1 = new Button("Local Game");
+
     public MainMenu() {
         super(MenuType.MAIN_MENU);
 
-        Texture background = texture("Background.png",1200,800);
+        Texture background = texture("Background.png", 1200, 800);
         getContentRoot().getChildren().setAll(background);
 
         var title = getUIFactoryService().newText(getSettings().getTitle(), Color.WHITE, 150);
@@ -43,11 +42,17 @@ public class MainMenu extends FXGLMenu {
         getContentRoot().getChildren().addAll(title, authors);
 
 
+        setMainMenuBtn();
+    }
 
+
+    private VBox mainMenuBtn;
+    private void setMainMenuBtn() {
         //Set all the buttons
-        Button btn1 = new Button("Local Game");
+
         btn1.setOnAction(event -> {
-            getSceneService().pushSubScene(localStart);
+            setLocalGameBtn();
+            deleteMainMenuBtn();
         });
 
         btn1.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
@@ -58,6 +63,7 @@ public class MainMenu extends FXGLMenu {
                 }
             }
         });
+
         //another way to set the actions;
 //        btn1.setOnAction(new EventHandler<ActionEvent>() {
 //            @Override
@@ -65,9 +71,6 @@ public class MainMenu extends FXGLMenu {
 //                event.getSource(): will return the button
 //            }
 //        });
-        btn1.setPrefSize(150, 60);
-        btn1.setFont(Font.font(20));
-
 //        //set the border of the button
 //        BorderStroke bos = new BorderStroke(Color.BLACK,BorderStrokeStyle.SOLID,
 //                new CornerRadii(20),new BorderWidths(0.5));
@@ -96,10 +99,9 @@ public class MainMenu extends FXGLMenu {
 //        btn1.setStyle(css);
         btn1.getStyleClass().add("menu-button");
 
-        BorderStroke bos = new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-                new CornerRadii(20), new BorderWidths(1.0));
-        Border b = new Border(bos);
-        btn1.setBorder(b);
+//        BorderStroke bos = new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
+//                new CornerRadii(20), new BorderWidths(1.0));
+//        Border b = new Border(bos);
 //        btn1.setCursor(Cursor.OPEN_HAND);
 
         Button btn2 = new Button("Online Game");
@@ -112,10 +114,7 @@ public class MainMenu extends FXGLMenu {
                 }
             }
         });
-        btn2.setPrefSize(150, 60);
-        btn2.setFont(Font.font(18));
         btn2.getStyleClass().add("menu-button");
-        btn2.setBorder(b);
 //        btn2.setCursor(Cursor.OPEN_HAND);
 
 
@@ -129,10 +128,7 @@ public class MainMenu extends FXGLMenu {
                 }
             }
         });
-        btn3.setPrefSize(150, 60);
-        btn3.setFont(Font.font(20));
         btn3.getStyleClass().add("menu-button");
-        btn3.setBorder(b);
 //        btn3.setCursor(Cursor.OPEN_HAND);
 
 
@@ -149,16 +145,99 @@ public class MainMenu extends FXGLMenu {
                 }
             }
         });
-        btn4.setPrefSize(150, 60);
-        btn4.setFont(Font.font(20));
         btn4.getStyleClass().add("menu-button");
-        btn4.setBorder(b);
 //        btn4.setCursor(Cursor.OPEN_HAND);
 
-        VBox box = new VBox(btn1,btn2,btn3,btn4);
-        box.setLayoutY(420);
-        box.setLayoutX(600-75);
+        mainMenuBtn = new VBox(btn1, btn2, btn3, btn4);
+        mainMenuBtn.setLayoutY(420);
+        mainMenuBtn.setLayoutX(600 - 75);
 
-        getContentRoot().getChildren().addAll(box);
+        getContentRoot().getChildren().addAll(mainMenuBtn);
     }
+
+    private void deleteMainMenuBtn() {
+        getContentRoot().getChildren().removeAll(mainMenuBtn);
+    }
+
+    private void setLocalGameBtn() {
+        var localGame = getUIFactoryService().newText("Local Game", Color.WHITE, 70);
+        localGame.setStroke(Color.BLACK);
+        localGame.setStrokeWidth(3);
+        VBox localGameTitle = new VBox(localGame);
+        localGameTitle.setLayoutY(250);
+        localGameTitle.setLayoutX((getAppWidth()-384)/2);
+
+        Button backBtn = new Button("Back");
+        backBtn.getStyleClass().add("menu-button");
+
+        Button newGameBtn = new Button("New Game");
+        newGameBtn.getStyleClass().add("menu-button");
+
+        Button viewGameBtn = new Button("View Game");
+        viewGameBtn.getStyleClass().add("menu-button");
+
+        Button connectLanBtn = new Button("Connect Lan");
+        connectLanBtn.getStyleClass().add("menu-button");
+
+        VBox localGameBox = new VBox(newGameBtn,viewGameBtn,connectLanBtn,backBtn);
+        localGameBox.setLayoutY(420);
+        localGameBox.setLayoutX(600 - 75);
+        getContentRoot().getChildren().addAll(localGameBox,localGameTitle);
+
+        newGameBtn.setOnAction(event -> {
+            getSceneService().pushSubScene(localStartNewGame);
+        });
+
+        viewGameBtn.setOnAction(event -> {
+           //add method to view your game history here
+        });
+
+        connectLanBtn.setOnAction(event -> {
+           //method to connect to LAN
+        });
+
+        backBtn.setOnAction(event -> {
+           getContentRoot().getChildren().removeAll(localGameBox,localGameTitle);
+           setMainMenuBtn();
+        });
+    }
+//a discarded method of hovering mouse leads to other mouse
+//    private VBox localGame;
+//    private Button newGameBtn = new Button("New Game");
+//    private Button loadSaveBtn = new Button("Load Save");
+//    private boolean spawn = false;
+//
+//    @Override
+//    protected void onUpdate(double tpf) {
+//        btn1Hover();
+//    }
+//
+//    private void btn1Hover() {
+//        if(btn1.isHover()){
+//            if(!spawn) {
+//                spawnLocalGameBtn();
+//                spawn = true;
+//            }
+//        }else {
+//            if(localGame ==null){
+//                return;
+//            }
+//            if (!localGame.isHover()) {
+//                deleteLocalGameBtn();
+//                spawn = false;
+//            }
+//        }
+//    }
+//
+//    private void deleteLocalGameBtn() {
+//        getContentRoot().getChildren().remove(localGame);
+//    }
+//
+//    public void spawnLocalGameBtn() {
+//        newGameBtn.setOnAction(event -> getController().startNewGame());
+//        localGame = new VBox(newGameBtn,loadSaveBtn);
+//        localGame.setLayoutY(420);
+//        localGame.setLayoutX(675);
+//        getContentRoot().getChildren().addAll(localGame);
+//    }
 }
