@@ -17,6 +17,11 @@ public class EvaluationMethod {
     private static final int LongCastleScore = 5000;
     private static final int PromptScore = 8000;
 
+    /**
+     * get the score of current move. The logic is simply
+     * in order to deepen the search tree
+     */
+
     public static int getScore(Move move) {
         switch (move.getMoveType()) {
             case MOVE -> {
@@ -43,6 +48,19 @@ public class EvaluationMethod {
         }
         return 0;
     }
+
+    /**
+     * ## TO BE DONE
+     * The get score method also considering the position of the chess,
+     * the chess it can protect and chess it threatens
+     */
+    public static int getAccurateScore(Move move, GameCore gameCore) {
+
+        return 0;
+
+
+    }
+
 
     private static int getEatScore(Chess chess) {
         switch (chess.getChessType()) {

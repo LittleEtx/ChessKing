@@ -735,7 +735,7 @@ public class GameCore {
     /**
      * @return all possible move that the current side can take
      */
-    private ArrayList<Move> getAvailableMove() {
+    public ArrayList<Move> getAvailableMove() {
         ArrayList<Move> moveList = new ArrayList<>();
         for (Chess chess : chessList) {
             if (!isInTurn(chess))
