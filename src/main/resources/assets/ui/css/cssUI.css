@@ -26,3 +26,22 @@
     -fx-border-color: white;
     -fx-background-color:linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #c21702ff 0.0%, #ffc803ff 100.0%);
 }
+
+.subScene{
+    -fx-border-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #c21702ff 0.0%, #ffc803ff 100.0%);
+    -fx-border-width: 20;
+    -fx-background-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #c21702ff 0.0%,  #ffc803ff 100.0%);
+
+}
+
+.subScene-button{
+    -fx-pref-height: 100;
+    -fx-pref-width: 100;
+    -fx-background-color:#40404080;
+    -fx-background-radius:10;
+    -fx-text-fill: #FFFFFF;
+}
+
+.subScene-button:hover{
+    -fx-background-color:#404040
+}

@@ -14,10 +14,11 @@ public class LocalStart extends SubScene {
             getSceneService().popSubScene();
             getGameController().startNewGame();
         });
+        newGame.getStyleClass().add("subScene-button");
 
         StackPane interPane = new StackPane(newGame);
         interPane.setMaxSize(400,400);
-        interPane.setStyle("-fx-background-color: white;");
+        interPane.getStyleClass().add("subScene");
 
         StackPane pane = new StackPane(interPane);
         pane.setPrefSize(getAppWidth(),getAppHeight());
