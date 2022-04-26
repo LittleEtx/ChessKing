@@ -53,8 +53,9 @@ public class ChessComponent extends Component {
         setPic(entity, chess);
         entity.setPosition(toPoint(chess.getPosition()));
 
+        //set allyList
         getop("allyList").addListener((ob, ov, nv) -> {
-            if (!gameCore.isInTurn(chess))
+            if (!getb("openAllyVisual") || !gameCore.isInTurn(chess))
                 return;
 
             if (!((ArrayList<?>)nv).contains(chess)) {
@@ -68,8 +69,23 @@ public class ChessComponent extends Component {
             }
         });
 
+        getbp("openAllyVisual").addListener((ob, ov, nv) -> {
+            if (!gameCore.isInTurn(chess))
+                return;
+
+            if (!nv)
+                updateAssistState(AssistState.NONE);
+            else if (((ArrayList<?>)geto("allyList")).contains(chess)) {
+                if (chess.getPosition().equals(castleRookPos))
+                    updateAssistState(AssistState.CASTLE);
+                else
+                    updateAssistState(AssistState.ALLY);
+            }
+        });
+
+        //set enemyList
         getop("enemyList").addListener((ob, ov, nv) -> {
-            if (gameCore.isInTurn(chess))
+            if (!getb("openEnemyVisual") || gameCore.isInTurn(chess))
                 return;
 
             if (!((ArrayList<?>)nv).contains(chess)) {
@@ -80,15 +96,33 @@ public class ChessComponent extends Component {
             }
         });
 
-        if (chess.getChessType() != ChessType.KING)
+        getbp("openEnemyVisual").addListener((ob, ov, nv) -> {
+            if (gameCore.isInTurn(chess))
+                return;
+
+            if (!nv)
+                updateAssistState(AssistState.NONE);
+            else if (((ArrayList<?>)geto("enemyList")).contains(chess))
+                updateAssistState(AssistState.ENEMY);
+        });
+
+        //set targetList
+        if (chess.getChessType() != ChessType.KING) {
             //will not set the king visual
             getop("targetList").addListener((ob, ov, nv) -> {
-                updateTargetState(((ArrayList<?>)nv).contains(chess));
+                if (getb("openTargetVisual"))
+                    updateTargetState(((ArrayList<?>) nv).contains(chess));
             });
-        else
-            getop("targetKingList").addListener((ob, ov, nv) -> {
-                updateTargetState(((ArrayList<?>)nv).contains(chess));
+
+            getbp("openTargetVisual").addListener((ob, ov, nv) -> {
+                if (!nv)
+                    updateTargetState(false);
+                else
+                    updateTargetState(((ArrayList<?>) geto("targetList")).contains(chess));
             });
+        } else
+            getop("targetKingList").addListener((ob, ov, nv) ->
+                    updateTargetState(((ArrayList<?>) nv).contains(chess)));
     }
 
     private void updateAssistState(AssistState newState) {
@@ -123,6 +157,8 @@ public class ChessComponent extends Component {
         if (targetState) {
             if (targetMark == null) {
                 if (gameCore.isInTurn(chess)) {
+                    if (chess.getChessType() == ChessType.KING)
+                        return;
                     targetMark = spawn("targetAllyMark", toPoint(chess.getPosition()));
                     setToTop(entity);
                 }

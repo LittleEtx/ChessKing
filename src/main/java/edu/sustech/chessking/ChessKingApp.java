@@ -56,6 +56,10 @@ public class ChessKingApp extends GameApplication {
         vars.put("targetList", new ArrayList<Chess>());
         vars.put("targetKingList", new ArrayList<Chess>());
         vars.put("availablePosition", new ArrayList<Position>());
+
+        vars.put("openAllyVisual", true);
+        vars.put("openEnemyVisual", true);
+        vars.put("openTargetVisual", true);
     }
 
     // ===============================
@@ -191,7 +195,6 @@ public class ChessKingApp extends GameApplication {
                     //if successfully move chess or cause player to choose
                     movingChess.getComponent(ChessComponent.class).putChess();
                 }
-
             }
         }, MouseButton.PRIMARY);
     }
@@ -212,13 +215,12 @@ public class ChessKingApp extends GameApplication {
             getGameController().gotoGameMenu();
         });
 
-    Label allyLabel = new Label("ally");
+        Label allyLabel = new Label("ally");
         VBox ally = new VBox(20,allyLabel);
         ally.setPrefSize(60,60);
         ally.getStyleClass().add("setting-box");
         ally.setOnMouseClicked(event -> {
-            //add turning on and off method here
-            //on and off have different colors?
+            set("openAllyVisual", !getb("openAllyVisual"));
         });
 
         Label enemyLabel = new Label("enemy");
@@ -226,8 +228,7 @@ public class ChessKingApp extends GameApplication {
         enemy.setPrefSize(60,60);
         enemy.getStyleClass().add("setting-box");
         enemy.setOnMouseClicked(event -> {
-            //add turning on and off method here
-            //on and off have different colors?
+            set("openEnemyVisual", !getb("openEnemyVisual"));
         });
 
         Label targetLabel = new Label("target");
@@ -235,8 +236,7 @@ public class ChessKingApp extends GameApplication {
         target.setPrefSize(60,60);
         target.getStyleClass().add("setting-box");
         target.setOnMouseClicked(event -> {
-            //add turning on and off method here
-            //on and off have different colors?
+            set("openTargetVisual", !getb("openTargetVisual"));
         });
 
 
