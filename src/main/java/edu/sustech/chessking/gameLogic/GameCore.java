@@ -148,7 +148,7 @@ public class GameCore {
      * 1. One side has no move to go
      * 2. The same situation appears for the third time (in this method, check history steps)
      * 3. Not pawn was moved and no chess was eaten for the first 50 moves
-     * 4. Some special ending situation where both side can not win
+     * 4. Some special ending situation where both side can not win (I just ignore that)
      */
     public boolean hasDrawn() {
         if (isChecked(turn) || isChecking(turn))
@@ -167,16 +167,40 @@ public class GameCore {
         }
         if (noAvailableMove)
             return true;
-        
+
+        //check if third time appear
         Move lastMove = moveHistory.getLastMove();
-        //third time appear
+        int moveNum = moveHistory.getMoveNum();
         if (reappearMove.contains(lastMove)) {
             int first = moveHistory.getMoveIndex(lastMove);
-
-            //Leave to tomorrow
+            int last = moveNum - 1;
+            int middle = (first + last) / 2;
+            boolean isSituationAlike = true;
+            for (int i = first; i < middle; i++) {
+                if (!moveHistory.getMove(i).equals(moveHistory.getMove(i + middle - first))) {
+                    isSituationAlike = false;
+                    break;
+                }
+            }
+            if (isSituationAlike)
+                return true;
         }
 
-        //Needs to add
+        //check if first 50 moves no chess-eating and no pawn-moving
+        if (moveNum >= 50) {
+            Move move;
+            boolean isDrawn = true;
+            for (int i = 0; i < moveNum; i++) {
+                move = moveHistory.getMove(i);
+                if (move.getChess().getChessType() == PAWN ||
+                        move.getMoveType() == EAT) {
+                    isDrawn = false;
+                    break;
+                }
+            }
+            if (isDrawn)
+                return true;
+        }
 
         return false;
     }
