@@ -11,6 +11,7 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.input.UserAction;
 import com.almasb.fxgl.time.LocalTimer;
+import com.almasb.fxgl.time.Timer;
 import edu.sustech.chessking.factories.ChessKingEntityFactory;
 import edu.sustech.chessking.components.ChessComponent;
 import edu.sustech.chessking.gameLogic.Chess;
@@ -43,6 +44,10 @@ public class ChessKingApp extends GameApplication {
     private LocalTimer betweenClickTimer;
     private boolean cursorDefault = true;
 
+    private Timer whiteTimer = new Timer();
+    private Timer blackTimer = new Timer();
+    private ColorType side;
+
     // ===============================
     //initialize variables
     @Override
@@ -50,6 +55,7 @@ public class ChessKingApp extends GameApplication {
         vars.put("core", gameCore);
         vars.put("skin", skin[1]);
         vars.put("isMovingChess", false);
+        vars.put("isEndTurn", false);
         vars.put("downSideColor", downSide);
         vars.put("allyList", new ArrayList<Chess>());
         vars.put("enemyList", new ArrayList<Chess>());
@@ -171,11 +177,13 @@ public class ChessKingApp extends GameApplication {
     //initialize the inputs
     @Override
     protected void initInput() {
+
+        //left click action
         getInput().addAction(new UserAction("LeftClick") {
             @Override
             protected void onActionBegin() {
                 //In case move to fast
-                if (!betweenClickTimer.elapsed(Duration.seconds(0.1)))
+                if (!betweenClickTimer.elapsed(Duration.seconds(0.1)) || getb("isEndTurn"))
                     return;
                 betweenClickTimer.capture();
 
@@ -195,8 +203,33 @@ public class ChessKingApp extends GameApplication {
                     //if successfully move chess or cause player to choose
                     movingChess.getComponent(ChessComponent.class).putChess();
                 }
+
+
             }
         }, MouseButton.PRIMARY);
+
+        //deal with end turn method
+        getbp("isEndTurn").addListener((ob, ov, nv) -> {
+            if (!nv)
+                return;
+
+            side = gameCore.getTurn();
+            if (gameCore.hasWin(side)) {
+
+                //win ui
+
+            }
+            else if (gameCore.hasLost(side)) {
+
+                //lost ui
+
+            }
+            else if (gameCore.hasDrawn()) {
+
+                //drawn ui
+
+            }
+        });
     }
 
     // ===============================

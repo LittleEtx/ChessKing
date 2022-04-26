@@ -156,9 +156,7 @@ public class ChessComponent extends Component {
         targetState = isTarget;
         if (targetState) {
             if (targetMark == null) {
-                if (gameCore.isInTurn(chess)) {
-                    if (chess.getChessType() == ChessType.KING)
-                        return;
+                if (gameCore.isInTurn(chess) && chess.getChessType() != ChessType.KING) {
                     targetMark = spawn("targetAllyMark", toPoint(chess.getPosition()));
                     setToTop(entity);
                 }
@@ -236,12 +234,15 @@ public class ChessComponent extends Component {
                         "This move will cause you lose the game, are you sure?", aBoolean -> {
                             if (aBoolean) {
                                 executeMove(move, pos);
+                                set("isEndTurn", true);
                             } else
                                 entity.setPosition(toPoint(chess.getPosition()));
                         });
             }
-            else
+            else {
                 executeMove(move, pos);
+                set("isEndTurn", true);
+            }
         }
         else {
             //reset the chess's position
@@ -381,11 +382,14 @@ public class ChessComponent extends Component {
             //update king state
             ArrayList<Chess> kingList = new ArrayList<>();
             for (Chess chess : chessList[1]) {
-                if (chess.getChessType() == ChessType.KING)
+                //if target enemy chess
+                if (chess.getChessType() == ChessType.KING && !gameCore.isInTurn(chess))
                     kingList.add(chess);
             }
-            if (gameCore.isMoveCauseDanger(gameCore.castToMove(chess, pos)))
+            //if self king is targeted
+            if (gameCore.isMoveCauseDanger(gameCore.castToMove(chess, pos))) {
                 kingList.add(gameCore.getChessKing(gameCore.getTurn()));
+            }
             set("targetKingList", kingList);
         }
         else {
@@ -401,8 +405,6 @@ public class ChessComponent extends Component {
     }
 
     private void setTargetKingList() {
-        if (chess.getChessType() == ChessType.KING)
-            return;
         if (gameCore.isChecked(gameCore.getTurn())) {
             ArrayList<Chess> kingList = new ArrayList<>();
             kingList.add(gameCore.getChessKing(gameCore.getTurn()));
