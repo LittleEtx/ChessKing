@@ -160,27 +160,46 @@ public class MainMenu extends FXGLMenu {
     }
 
     private void setLocalGameBtn() {
+        var localGame = getUIFactoryService().newText("Local Game", Color.WHITE, 70);
+        localGame.setStroke(Color.BLACK);
+        localGame.setStrokeWidth(3);
+        VBox localGameTitle = new VBox(localGame);
+        localGameTitle.setLayoutY(250);
+        localGameTitle.setLayoutX((getAppWidth()-384)/2);
+
         Button backBtn = new Button("Back");
         backBtn.getStyleClass().add("menu-button");
 
         Button newGameBtn = new Button("New Game");
         newGameBtn.getStyleClass().add("menu-button");
 
-        VBox localGameBox = new VBox(newGameBtn,backBtn);
+        Button viewGameBtn = new Button("View Game");
+        viewGameBtn.getStyleClass().add("menu-button");
+
+        Button connectLanBtn = new Button("Connect Lan");
+        connectLanBtn.getStyleClass().add("menu-button");
+
+        VBox localGameBox = new VBox(newGameBtn,viewGameBtn,connectLanBtn,backBtn);
         localGameBox.setLayoutY(420);
         localGameBox.setLayoutX(600 - 75);
-        getContentRoot().getChildren().add(localGameBox);
+        getContentRoot().getChildren().addAll(localGameBox,localGameTitle);
 
         newGameBtn.setOnAction(event -> {
             getSceneService().pushSubScene(localStartNewGame);
         });
 
-        backBtn.setOnAction(event -> {
-           getContentRoot().getChildren().removeAll(localGameBox);
-           setMainMenuBtn();
+        viewGameBtn.setOnAction(event -> {
+           //add method to view your game history here
         });
 
+        connectLanBtn.setOnAction(event -> {
+           //method to connect to LAN
+        });
 
+        backBtn.setOnAction(event -> {
+           getContentRoot().getChildren().removeAll(localGameBox,localGameTitle);
+           setMainMenuBtn();
+        });
     }
 //a discarded method of hovering mouse leads to other mouse
 //    private VBox localGame;
