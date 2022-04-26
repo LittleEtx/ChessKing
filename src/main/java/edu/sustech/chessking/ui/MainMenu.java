@@ -34,7 +34,7 @@ public class MainMenu extends FXGLMenu {
         if (!FXGL.isMobile()) {
             title.setEffect(new Bloom(0.8));
         }
-        centerTextBind(title, getAppWidth() / 2.0, 320);
+        centerTextBind(title, getAppWidth() / 2.0, 290);
 
         var authors = getUIFactoryService().newText("Little_Etx & Mr_BHAAA", Color.WHITE, 22.0);
         centerTextBind(authors, getAppWidth() / 2.0, 370);
@@ -163,15 +163,24 @@ public class MainMenu extends FXGLMenu {
         var localGame = getUIFactoryService().newText("Local Game", Color.WHITE, 70);
         localGame.setStroke(Color.BLACK);
         localGame.setStrokeWidth(3);
+        if (!FXGL.isMobile()) {
+            localGame.setEffect(new Bloom(0.8));
+        }
         VBox localGameTitle = new VBox(localGame);
         localGameTitle.setLayoutY(250);
         localGameTitle.setLayoutX((getAppWidth()-384)/2);
 
-        Button backBtn = new Button("Back");
-        backBtn.getStyleClass().add("menu-button");
+        Button loadSaveBtn = new Button("Load Save");
+        loadSaveBtn.getStyleClass().add("menu-button");
 
-        Button newGameBtn = new Button("New Game");
-        newGameBtn.getStyleClass().add("menu-button");
+        Button localFight = new Button("New Duel");
+        localFight.getStyleClass().add("menu-button");
+
+        Button localAIbtn = new Button("Local AI");
+        localAIbtn.setOnAction(event -> {
+
+        });
+        localAIbtn.getStyleClass().add("menu-button");
 
         Button viewGameBtn = new Button("View Game");
         viewGameBtn.getStyleClass().add("menu-button");
@@ -179,12 +188,28 @@ public class MainMenu extends FXGLMenu {
         Button connectLanBtn = new Button("Connect Lan");
         connectLanBtn.getStyleClass().add("menu-button");
 
-        VBox localGameBox = new VBox(newGameBtn,viewGameBtn,connectLanBtn,backBtn);
-        localGameBox.setLayoutY(420);
-        localGameBox.setLayoutX(600 - 75);
-        getContentRoot().getChildren().addAll(localGameBox,localGameTitle);
+        Button backBtn = new Button("Back");
+        backBtn.getStyleClass().add("menu-button");
+        backBtn.setLayoutX(600-75);
+        backBtn.setLayoutY(700);
 
-        newGameBtn.setOnAction(event -> {
+        VBox localGameBoxc1 = new VBox(20,localFight,localAIbtn,loadSaveBtn);
+        localGameBoxc1.setLayoutY(420);
+        localGameBoxc1.setLayoutX(600 - 170);
+
+        VBox localGameBoxc2 = new VBox(20,viewGameBtn,connectLanBtn);
+        localGameBoxc2.setLayoutY(420);
+        localGameBoxc2.setLayoutX(600 + 20);
+
+        getContentRoot().getChildren().addAll(localGameBoxc1,localGameBoxc2,localGameTitle,backBtn);
+
+        Button fightAIbtn = new Button("Fight AI");
+        fightAIbtn.setOnAction(event -> {
+            getController().startNewGame();
+        });
+        fightAIbtn.getStyleClass().add("menu-button");
+
+        localFight.setOnAction(event -> {
             getSceneService().pushSubScene(localStartNewGame);
         });
 
@@ -197,7 +222,8 @@ public class MainMenu extends FXGLMenu {
         });
 
         backBtn.setOnAction(event -> {
-           getContentRoot().getChildren().removeAll(localGameBox,localGameTitle);
+           getContentRoot().getChildren().removeAll(localGameBoxc1,
+                   localGameBoxc2,localGameTitle,backBtn);
            setMainMenuBtn();
         });
     }
