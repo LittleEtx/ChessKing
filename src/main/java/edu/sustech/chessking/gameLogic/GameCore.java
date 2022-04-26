@@ -36,6 +36,8 @@ public class GameCore {
      * Game History will be cleaned
      */
     public void initialGame() {
+        chessList.clear();
+
         for (int i = 0; i < 8; i++) {
             chessList.add(new Chess(White, Pawn, String.format("%c2", 'A' + i)));
             chessList.add(new Chess(Black, Pawn, String.format("%c7", 'A' + i)));
@@ -140,6 +142,17 @@ public class GameCore {
      */
     public boolean hasWin(ColorType side) {
         return hasLost(side.reverse());
+    }
+
+    /**
+     * if one side has wined, return that side. Otherwise, return null
+     */
+    public ColorType getWinSide() {
+        if (hasWin(turn))
+            return turn;
+        if (hasLost(turn))
+            return turn.reverse();
+        return null;
     }
 
     /**

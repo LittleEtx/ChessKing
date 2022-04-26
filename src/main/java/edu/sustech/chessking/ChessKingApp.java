@@ -20,11 +20,8 @@ import edu.sustech.chessking.gameLogic.Position;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
-import javafx.scene.Cursor;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
@@ -37,16 +34,27 @@ import static edu.sustech.chessking.VisualLogic.*;
 public class ChessKingApp extends GameApplication {
 
     private final GameCore gameCore = new GameCore();
-    public final ArrayList<Entity> board = new ArrayList<>();
     public final String[] skin = {"default","pixel"};
     public final ColorType downSide = ColorType.WHITE;
     private Entity movingChess;
     private LocalTimer betweenClickTimer;
     private boolean cursorDefault = true;
 
-    private Timer whiteTimer = new Timer();
-    private Timer blackTimer = new Timer();
-    private ColorType side;
+    private final Timer whiteTimer = new Timer();
+    private final Timer blackTimer = new Timer();
+    private static double gameTimeInSecond;
+    private static double turnTimeInSecond;
+    private ColorType side = ColorType.WHITE;
+
+    private enum EndGameType {
+        LOST, WIN, DRAWN, BLACKWIN, WHITEWIN
+    }
+
+    private enum GameType {
+        COMPUTER, LOCAL, LAN, NET
+    }
+
+    GameType gameType = GameType.LOCAL;
 
     // ===============================
     //initialize variables
@@ -135,34 +143,102 @@ public class ChessKingApp extends GameApplication {
         //System.out.println();
         betweenClickTimer = newLocalTimer();
 
-        //deal with end turn method
+        //deal with end turn method, check if end game
         getbp("isEndTurn").addListener((ob, ov, nv) -> {
             if (!nv)
                 return;
 
             side = gameCore.getTurn();
-            if (gameCore.hasWin(side)) {
-
-                //win ui
-
+            ColorType winSide = gameCore.getWinSide();
+            if (winSide != null) {
+                if (gameType == GameType.LOCAL) {
+                    if (winSide == ColorType.WHITE)
+                        endGame(EndGameType.WHITEWIN);
+                    else
+                        endGame(EndGameType.BLACKWIN);
+                }
+                else {
+                    if (winSide == downSide)
+                        endGame(EndGameType.WIN);
+                    else
+                        endGame(EndGameType.LOST);
+                }
             }
-            else if (gameCore.hasLost(side)) {
 
-                //lost ui
-
+            if (gameCore.hasDrawn()) {
+                endGame(EndGameType.DRAWN);
             }
-            else if (gameCore.hasDrawn()) {
 
-                //drawn ui
-
-            }
+            set("isEndTurn", false);
         });
+
+        //Timer method
+        gameTimeInSecond = -1;
+        turnTimeInSecond = -1;
+        whiteTimer.clear();
+        blackTimer.clear();
+        if (gameTimeInSecond > 0) {
+            whiteTimer.runOnceAfter(this::resetWhiteTurnClock, Duration.seconds(gameTimeInSecond));
+            blackTimer.runOnceAfter(this::resetWhiteTurnClock, Duration.seconds(gameTimeInSecond));
+        }
+    }
+
+    private void resetWhiteTurnClock() {
+        whiteTimer.clear();
+        whiteTimer.runOnceAfter(() -> {
+            //white use all his time, lost
+            if (gameType == GameType.LOCAL) {
+                endGame(EndGameType.BLACKWIN);
+            }
+            else {
+                if (side == ColorType.WHITE)
+                    endGame(EndGameType.LOST);
+                else
+                    endGame(EndGameType.WIN);
+            }
+        }, Duration.seconds(turnTimeInSecond));
+    }
+
+    private void resetBlackTurnClock() {
+        blackTimer.clear();
+        blackTimer.runOnceAfter(() -> {
+            //white use all his time, lost
+            if (gameType == GameType.LOCAL) {
+                endGame(EndGameType.WHITEWIN);
+            }
+            else {
+                if (side == ColorType.BLACK)
+                    endGame(EndGameType.LOST);
+                else
+                    endGame(EndGameType.WIN);
+            }
+        }, Duration.seconds(turnTimeInSecond));
+    }
+
+    private void endGame(EndGameType endGameType) {
+        switch (endGameType) {
+            case WIN -> getDialogService().showMessageBox("You win the game!",
+                    () -> getGameController().startNewGame());
+
+            case LOST -> getDialogService().showMessageBox("You lost the game!",
+                    () -> getGameController().startNewGame());
+
+            case DRAWN -> getDialogService().showMessageBox("The game is drawn!",
+                    () -> getGameController().startNewGame());
+
+            case WHITEWIN -> getDialogService().showMessageBox("White win the game!",
+                    () -> getGameController().startNewGame());
+
+            case BLACKWIN -> getDialogService().showMessageBox("Black win the game!",
+                    () -> getGameController().startNewGame());
+        }
     }
 
     public void initAvatar(){
         spawn("avatar", new SpawnData().put("playerSide","white"));
         spawn("avatar", new SpawnData().put("playerSide","black"));
         spawn("playerInfo",new SpawnData().put("playerSide","white"));
+
         spawn("playerInfo",new SpawnData().put("playerSide","black"));
         spawn("chessGrave",new SpawnData().put("playerSide","black"));
         spawn("chessGrave",new SpawnData().put("playerSide","white"));
@@ -190,9 +266,13 @@ public class ChessKingApp extends GameApplication {
     //methods used every frame
     @Override
     protected void onUpdate(double tpf) {
-        //System.out.println(getInput().getMousePositionWorld());
-        //System.out.println(getGameWorld());
-        //compareMouse();
+        //advance the time
+        if (side == ColorType.WHITE) {
+            whiteTimer.update(tpf);
+        }
+        else {
+            blackTimer.update(tpf);
+        }
     }
 
 
@@ -226,8 +306,6 @@ public class ChessKingApp extends GameApplication {
                     //if successfully move chess or cause player to choose
                     movingChess.getComponent(ChessComponent.class).putChess();
                 }
-
-
             }
         }, MouseButton.PRIMARY);
     }
