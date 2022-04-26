@@ -133,6 +133,7 @@ public class ChessKingApp extends GameApplication {
         spawn("playerInfo",new SpawnData().put("playerSide","black"));
         spawn("chessGrave",new SpawnData().put("playerSide","black"));
         spawn("chessGrave",new SpawnData().put("playerSide","white"));
+        spawn("chat");
     }
 
     public void initChess() {

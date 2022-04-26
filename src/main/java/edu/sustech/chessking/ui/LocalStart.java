@@ -26,7 +26,4 @@ public class LocalStart extends SubScene {
 
         getContentRoot().getChildren().add(pane);
     }
-
-
-
 }
