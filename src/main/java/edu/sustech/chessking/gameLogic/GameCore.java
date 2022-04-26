@@ -25,6 +25,8 @@ public class GameCore {
     
     private final ArrayList<Move> reappearMove  = new ArrayList<>();
     private final ArrayList<Integer> reappearMoveIndex = new ArrayList<>();
+    //record if negative gaming
+    private boolean isNegativeGame = true;
 
     //===============================
     //    ChessBoard Setting Method
@@ -200,18 +202,17 @@ public class GameCore {
         }
 
         //check if first 50 moves no chess-eating and no pawn-moving
-        if (moveNum >= 50) {
+        if (moveNum >= 50 && isNegativeGame) {
             Move move;
-            boolean isDrawn = true;
             for (int i = 0; i < moveNum; i++) {
                 move = moveHistory.getMove(i);
                 if (move.getChess().getChessType() == PAWN ||
                         move.getMoveType() == EAT) {
-                    isDrawn = false;
+                    isNegativeGame = false;
                     break;
                 }
             }
-            if (isDrawn)
+            if (isNegativeGame)
                 return true;
         }
 
@@ -732,6 +733,20 @@ public class GameCore {
     }
 
     /**
+     * @return all possible move that the current side can take
+     */
+    private ArrayList<Move> getAvailableMove() {
+        ArrayList<Move> moveList = new ArrayList<>();
+        for (Chess chess : chessList) {
+            if (!isInTurn(chess))
+                continue;
+            moveList.addAll(getAvailableMove(chess));
+        }
+        return moveList;
+    }
+
+
+    /**
      * @return all the moves that can prevent the king been checked.
      * If the king is not checked, this method will return all possible safe moves
      */
@@ -1006,7 +1021,6 @@ public class GameCore {
         for (int i = 0; i < moveHistory.getMoveNum() - 1; i++) {
             if (move.equals(moveHistory.getMove(i))) {
                 reappearMove.add(move);
-                reappearMoveIndex.add(moveHistory.getMoveNum() - 1);
             }
         }
     }

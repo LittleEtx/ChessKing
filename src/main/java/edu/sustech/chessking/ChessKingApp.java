@@ -16,6 +16,7 @@ import edu.sustech.chessking.factories.ChessKingEntityFactory;
 import edu.sustech.chessking.components.ChessComponent;
 import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.GameCore;
+import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.Position;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.ui.Loading;
@@ -45,6 +46,8 @@ public class ChessKingApp extends GameApplication {
     private static double gameTimeInSecond;
     private static double turnTimeInSecond;
     private ColorType side = ColorType.WHITE;
+
+    private Player localPlayer;
 
     private enum EndGameType {
         LOST, WIN, DRAWN, BLACKWIN, WHITEWIN

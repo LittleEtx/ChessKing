@@ -5,18 +5,15 @@ public class Player {
     String boardTheme;
     String backgroundTheme;
     String avatar;
-    String id;
     String name;
     String password;
 
-    public Player(String id, String name, String password) {
-        this.id = id;
+    public Player(String name, String password) {
         this.name = name;
         this.password = password;
     }
 
-    public Player(String id, String name) {
-        this.id = id;
+    public Player(String name) {
         this.name = name;
         this.password = null;
     }
@@ -59,10 +56,6 @@ public class Player {
 
     public String getAvatar() {
         return avatar;
-    }
-
-    public String getId() {
-        return id;
     }
 
     public String getName() {
