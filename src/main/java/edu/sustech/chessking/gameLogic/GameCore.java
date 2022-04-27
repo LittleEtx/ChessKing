@@ -8,10 +8,10 @@ import edu.sustech.chessking.gameLogic.exception.ChessLeapingException;
 
 import java.util.ArrayList;
 
-import static edu.sustech.chessking.gameLogic.enumType.ColorType.*;
-import static edu.sustech.chessking.gameLogic.enumType.ChessType.*;
+import static edu.sustech.chessking.gameLogic.Chess.isOpposite;
 import static edu.sustech.chessking.gameLogic.MoveRule.*;
-import static edu.sustech.chessking.gameLogic.Chess.*;
+import static edu.sustech.chessking.gameLogic.enumType.ChessType.*;
+import static edu.sustech.chessking.gameLogic.enumType.ColorType.*;
 import static edu.sustech.chessking.gameLogic.enumType.MoveType.*;
 
 /**
@@ -720,20 +720,29 @@ public class GameCore {
 
     /**
      * Return a list of all available moves of a chess
-     * Note that promotion is not included
+     * Note that all promotion is included
      */
     public ArrayList<Move> getAvailableMove(Chess chess) {
         ArrayList<Position> posList = getAvailablePosition(chess);
         ArrayList<Move> moveList = new ArrayList<>();
         Move move;
-        for (Position pos : posList)
+        for (Position pos : posList) {
             if ((move = getMove(chess, pos)) != null)
                 moveList.add(move);
+            else {
+                //promotion
+                moveList.add(getMove(chess, pos, QUEEN));
+                moveList.add(getMove(chess, pos, ROOK));
+                moveList.add(getMove(chess, pos, BISHOP));
+                moveList.add(getMove(chess, pos, KNIGHT));
+            }
+        }
         return moveList;
     }
 
     /**
      * @return all possible move that the current side can take
+     * if promotion is available, then will return all types of promotion
      */
     public ArrayList<Move> getAvailableMove() {
         ArrayList<Move> moveList = new ArrayList<>();

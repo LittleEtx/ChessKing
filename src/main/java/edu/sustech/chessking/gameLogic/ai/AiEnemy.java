@@ -1,14 +1,15 @@
 package edu.sustech.chessking.gameLogic.ai;
 
-import com.almasb.fxgl.dsl.FXGL;
 import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.gameLogic.Move;
 import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
-import static edu.sustech.chessking.gameLogic.ai.EvaluationMethod.*;
+import static edu.sustech.chessking.gameLogic.ai.EvaluationMethod.getAccurateScore;
+import static edu.sustech.chessking.gameLogic.ai.EvaluationMethod.getScore;
 
 public class AiEnemy {
     private AiType ai;
@@ -16,6 +17,9 @@ public class AiEnemy {
     private final ColorType side;
     private static final Player easyAiPlayer = new Player("Easy Computer");
     private int maxSearchNum = 8;
+    private static final int positiveIndefinite = Integer.MAX_VALUE / 2;
+    private static final int negativeIndefinite = Integer.MIN_VALUE / 2;
+
 
     /**
      * @param ai the difficulty of AI
@@ -44,20 +48,25 @@ public class AiEnemy {
 
     //alpha-beta pruning
     private int searchMax(int availableMax,  int index) {
-        int maxScore = Integer.MIN_VALUE;
+        int maxScore = negativeIndefinite;
         ArrayList<Move> availableMove = gameCore.getAvailableMove();
         //ranking the moves from best to worst
 
-        //sort the scores here
+        availableMove.sort(Comparator.
+                comparingInt(EvaluationMethod::getScore));
 
         int score;
         for (Move move : availableMove) {
             if (index < maxSearchNum) {
                 gameCore.moveChess(move);
-                score = getScore(move);
-                //if searchMin < maxScore - score, then score < maxScore,
-                //hence this branch can be abandoned
-                score += searchMin(maxScore - score, index + 1);
+                if (gameCore.hasDrawn())
+                    score = EvaluationMethod.getDrawnScore();
+                else {
+                    score = getScore(move);
+                    //if searchMin < maxScore - score, then score < maxScore,
+                    //hence this branch can be abandoned
+                    score += searchMin(maxScore - score, index + 1);
+                }
                 gameCore.reverseMove();
             }
             else {
@@ -74,19 +83,24 @@ public class AiEnemy {
     }
 
     private int searchMin(int AvailableMin, int index) {
-        int minScore = Integer.MAX_VALUE;
+        int minScore = positiveIndefinite;
         ArrayList<Move> availableMove = gameCore.getAvailableMove();
 
-        //sort here
+        availableMove.sort(Comparator.
+                comparingInt(EvaluationMethod::getScore));
 
         int score;
         for (Move move : availableMove) {
             if (index < maxSearchNum) {
-                score = - getScore(move);
                 gameCore.moveChess(move);
-                //if searchMax > minScore - score, then score > minScore,
-                //hence this branch can be abandoned
-                score += searchMax(minScore - score, index + 1);
+                if (gameCore.hasDrawn())
+                    score = EvaluationMethod.getDrawnScore();
+                else {
+                    score = -getScore(move);
+                    //if searchMax > minScore - score, then score > minScore,
+                    //hence this branch can be abandoned
+                    score += searchMax(minScore - score, index + 1);
+                }
                 gameCore.reverseMove();
             }
             else {

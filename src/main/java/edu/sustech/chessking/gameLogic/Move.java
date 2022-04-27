@@ -2,6 +2,7 @@ package edu.sustech.chessking.gameLogic;
 
 import edu.sustech.chessking.gameLogic.enumType.CastleType;
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
+import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
 import edu.sustech.chessking.gameLogic.exception.ConstructorException;
 
@@ -176,5 +177,54 @@ public class Move {
             sb.append(ob.toString());
         }
         return sb.toString();
+    }
+
+    /**
+     * @return the target position of the chess of the move
+     */
+    public Position getPosition() {
+        switch (moveType) {
+            case MOVE -> {
+                return (Position) moveTarget[0];
+            }
+            case EAT, EATPROMOTE -> {
+                return ((Chess) moveTarget[0]).getPosition();
+            }
+            case CASTLE -> {
+                CastleType castleType = (CastleType) moveTarget[0];
+                if (castleType == CastleType.LONG)
+                    return chess.getPosition().getLeft(2);
+                else
+                    return chess.getPosition().getRight(2);
+            }
+            case PROMOTE -> {
+                if (chess.getColorType() == ColorType.WHITE)
+                    return chess.getPosition().getUp();
+                else
+                    return chess.getPosition().getDown();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Move move = (Move) o;
+
+        if (!chess.equals(move.chess)) return false;
+        if (moveType != move.moveType) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        return Arrays.equals(moveTarget, move.moveTarget);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = chess.hashCode();
+        result = 31 * result + moveType.hashCode();
+        result = 31 * result + Arrays.hashCode(moveTarget);
+        return result;
     }
 }
