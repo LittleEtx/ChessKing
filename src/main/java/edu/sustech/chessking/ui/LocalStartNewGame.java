@@ -5,9 +5,11 @@ import com.almasb.fxgl.scene.SubScene;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
@@ -20,24 +22,27 @@ public class LocalStartNewGame extends SubScene {
             getSceneService().popSubScene();
             getGameController().startNewGame();
         });
-        newGameBtn.getStyleClass().add("subScene-button");
+        newGameBtn.getStyleClass().add("newLocalGame-subScene-button");
 
         Button backBtn = new Button("Back");
         backBtn.setOnAction(event ->{
            getSceneService().popSubScene();
         });
-        backBtn.getStyleClass().add("subScene-button");
+        backBtn.getStyleClass().add("newLocalGame-subScene-button");
 
         HBox buttons = new HBox(50,backBtn,newGameBtn);
-        buttons.setLayoutX(600-125);
-        buttons.setLayoutY(735);
+        buttons.setLayoutX(600-175);
+        buttons.setLayoutY(600);
 
         //maybe don't use a rectangle
-        Rectangle rect = new Rectangle(600,400,Color.web("#606060"));
-        rect.setLayoutX(300);
-        rect.setLayoutY(400);
+        Rectangle rect = new Rectangle(1200,800,Color.web("#00000090"));
 
-        getContentRoot().getChildren().addAll(rect,buttons);
+        VBox bg = new VBox();
+        bg.getStyleClass().add("newLocalGame-subScene-bg");
+        bg.setLayoutX(150);
+        bg.setLayoutY(100);
+
+        getContentRoot().getChildren().addAll(rect,bg,buttons);
 //        StackPane newGame = new StackPane(buttons);
 //        newGame.setMaxSize(400,400);
 //        newGame.getStyleClass().add("subScene");

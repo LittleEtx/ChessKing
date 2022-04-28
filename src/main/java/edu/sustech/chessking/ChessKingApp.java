@@ -231,23 +231,23 @@ public class ChessKingApp extends GameApplication {
         switch (endGameType) {
             case WIN -> /*getDialogService().showMessageBox("You win the game!",
                     () -> getGameController().startNewGame())*/
-                        str = "You win the game :)";
+                        str = "You win the game!";
 
             case LOST -> /*getDialogService().showMessageBox("You lost the game!",
                     () -> getGameController().startNewGame())*/
-                        str = "You lose the game :(";
+                        str = "You lose the game...";
 
             case DRAWN -> /*getDialogService().showMessageBox("The game is drawn!",
                     () -> getGameController().startNewGame())*/
-                        str = "          Drawn";
+                        str = "It's a Drawn game!";
 
             case WHITEWIN -> /*getDialogService().showMessageBox("White win the game!",
                     () -> getGameController().startNewGame())*/
-                        str = "      White side wins";
+                        str = "The White side wins";
 
             case BLACKWIN -> /*getDialogService().showMessageBox("Black win the game!",
                     () -> getGameController().startNewGame())*/
-                        str = "      Black side wins";
+                        str = "The Black side wins";
         }
         getSceneService().pushSubScene(new EndGameScene(str));
     }
@@ -349,12 +349,31 @@ public class ChessKingApp extends GameApplication {
     }
 
     public void initButtons(){
-        Label settingLabel = new Label("setting");
+
+        Label settingLabel = new Label();
         VBox setting = new VBox(20,settingLabel);
         setting.setPrefSize(60,60);
-        setting.getStyleClass().add("setting-box-on");
+        setting.getStyleClass().add("setting-box");
         setting.setOnMouseClicked(event -> {
             getGameController().gotoGameMenu();
+        });
+
+        VBox save = new VBox();
+        save.setPrefSize(65,65);
+        save.getStyleClass().add("save-box");
+        save.setOnMouseClicked(event -> {
+           //add save method here
+
+
+        });
+
+        VBox undo = new VBox();
+        undo.setPrefSize(60,60);
+        undo.getStyleClass().add("undo-box");
+        undo.setOnMouseClicked(event->{
+            //add undo method here
+            System.out.println("undo");
+
         });
 
         Label allyLabel = new Label();
@@ -408,6 +427,8 @@ public class ChessKingApp extends GameApplication {
         addUINode(ally,570,10);
         addUINode(enemy,650,10);
         addUINode(setting,10,10);
+        addUINode(save,10,90);
+        addUINode(undo,10,170);
 
     }
 
