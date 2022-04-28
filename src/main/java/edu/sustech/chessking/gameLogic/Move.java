@@ -188,7 +188,14 @@ public class Move {
                 return (Position) moveTarget[0];
             }
             case EAT, EATPROMOTE -> {
-                return ((Chess) moveTarget[0]).getPosition();
+                Chess targetChess = (Chess) moveTarget[0];
+                if (MoveRule.isEatPassant(chess, targetChess)) {
+                    if (chess.getColorType() == ColorType.WHITE)
+                        return targetChess.getPosition().getUp();
+                    else
+                        return targetChess.getPosition().getDown();
+                }
+                return targetChess.getPosition();
             }
             case CASTLE -> {
                 CastleType castleType = (CastleType) moveTarget[0];

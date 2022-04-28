@@ -1,0 +1,14 @@
+{
+  "targetEnemyPawnScore": 0,
+  "targetEnemyKnightScore": 1,
+  "targetEnemyBishopScore": 1,
+  "targetEnemyRookScore": 2,
+  "targetEnemyQueenScore": 5,
+  "targetEnemyKingScore": 4,
+  "targetAllyPawnScore": 0,
+  "targetAllyKnightScore": 1,
+  "targetAllyBishopScore": 1,
+  "targetAllyRookScore": 0,
+  "targetAllyQueenScore": 0,
+  "targetAllyKingScore": 0
+}

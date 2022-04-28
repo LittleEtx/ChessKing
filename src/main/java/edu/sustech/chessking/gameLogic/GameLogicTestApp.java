@@ -2,19 +2,19 @@ package edu.sustech.chessking.gameLogic;
 
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
+import edu.sustech.chessking.gameLogic.ai.AiEnemy;
+import edu.sustech.chessking.gameLogic.ai.AiType;
 
-import java.util.ArrayList;
-
-import static edu.sustech.chessking.gameLogic.enumType.ChessType.*;
-import static edu.sustech.chessking.gameLogic.enumType.ColorType.*;
+import static edu.sustech.chessking.gameLogic.enumType.ColorType.BLACK;
+import static edu.sustech.chessking.gameLogic.enumType.ColorType.WHITE;
 
 public class GameLogicTestApp extends GameApplication {
     private final GameCore gameCore = new GameCore();
-    private final ArrayList<Chess> list = new ArrayList<>();
-
+    private final AiEnemy whiteAi = new AiEnemy(AiType.NORMAL, gameCore);
+    private final AiEnemy blackAi = new AiEnemy(AiType.NORMAL, gameCore);
+    private boolean beginTest = false;
     private void setChess() {
-        list.add(new Chess(White, Queen, "D4"));
-        System.out.println("Add chess " + list.get(0));
+        gameCore.initialGame();
     }
 
     @Override
@@ -25,23 +25,39 @@ public class GameLogicTestApp extends GameApplication {
     @Override
     protected void initGame() {
         setChess();
-        gameCore.setGame(list, WHITE);
-        ArrayList<Position> posList;
-        for (Chess chess: list) {
-            posList = gameCore.getAvailablePosition(chess);
-            System.out.println(chess.toString() + " can move to: ");
-            for (Position pos : posList)
-                System.out.print(pos.toString() + " ");
-        }
+    }
 
-        Position p = new Position("F4");
-        gameCore.moveChess(list.get(0), p);
-        Chess chess = gameCore.getChess(p);
-        System.out.println();
-        System.out.println(chess.toString() + " can move to: ");
-        posList = gameCore.getAvailablePosition(chess);
-        for (Position pos : posList)
-            System.out.print(pos.toString() + " ");
+    @Override
+    protected void onUpdate(double tpf) {
+        if (!beginTest) {
+            beginTest = true;
+            Move move;
+            for (int i = 0; i < 50; i++) {
+                move = whiteAi.getNextMove();
+                gameCore.moveChess(move);
+                System.out.println(move.toString());
+                if (gameCore.hasGameEnd()) {
+                    printResult();
+                    break;
+                }
+                move = blackAi.getNextMove();
+                System.out.println(move.toString());
+                gameCore.moveChess(move);
+                if (gameCore.hasGameEnd()) {
+                    printResult();
+                    break;
+                }
+            }
+        }
+    }
+
+    public void printResult() {
+        if (gameCore.hasWin(WHITE))
+            System.out.println("White Win");
+        else if (gameCore.hasWin(BLACK))
+            System.out.println("Black Win");
+        else if (gameCore.hasDrawn())
+            System.out.println("Drawn!");
     }
 
     public static void main(String[] args) {

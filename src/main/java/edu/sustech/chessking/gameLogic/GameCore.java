@@ -157,6 +157,11 @@ public class GameCore {
         return null;
     }
 
+    public boolean hasGameEnd() {
+        return getWinSide() != null ||
+                hasDrawn();
+    }
+
     /**
      * ## NOT DONE
      * see if it has drawn at the time, including:
@@ -171,7 +176,8 @@ public class GameCore {
         
         //check if no move to go
         boolean noAvailableMove = true;
-        for (Chess chess : chessList) {
+        ArrayList<Chess> copyList = new ArrayList<>(chessList);
+        for (Chess chess : copyList) {
             if (!isInTurn(chess))
                 continue;
             
@@ -183,6 +189,9 @@ public class GameCore {
         if (noAvailableMove)
             return true;
 
+        //
+        // A Bug to fix
+        //
         //check if third time appear
         Move lastMove = moveHistory.getLastMove();
         int moveNum = moveHistory.getMoveNum();
@@ -197,8 +206,10 @@ public class GameCore {
                     break;
                 }
             }
-            if (isSituationAlike)
+            if (isSituationAlike) {
+                System.out.println("is situation alike");
                 return true;
+            }
         }
 
         //check if first 50 moves no chess-eating and no pawn-moving
@@ -385,7 +396,8 @@ public class GameCore {
         switch (chess.getChessType()) {
             case PAWN -> {
                 if (isMoveValid(chess, targetPos)) {
-                    return !hasChess(targetPos);
+                    return !hasChess(targetPos) &&
+                            !hasChessInBetween(chess.getPosition(), targetPos);
                 }
                 //Should test eat passant first
                 if (isEatPassantAvailable(chess, targetPos))
@@ -477,7 +489,11 @@ public class GameCore {
             }
             case EAT -> {
                 Chess targetChess = (Chess) move.getMoveTarget()[0];
-                Position pos = targetChess.getPosition();
+                Position pos = move.getPosition();
+                //if eat passant
+                if (isEatPassant(chess, targetChess)) {
+                    return isEatPassantAvailable(chess, pos);
+                }
                 //if there has chess
                 if (targetChess.equals(getChess(pos)) &&
                         !hasChessInBetween(chess.getPosition(), pos))
@@ -746,7 +762,8 @@ public class GameCore {
      */
     public ArrayList<Move> getAvailableMove() {
         ArrayList<Move> moveList = new ArrayList<>();
-        for (Chess chess : chessList) {
+        ArrayList<Chess> copyList = new ArrayList<>(chessList);
+        for (Chess chess : copyList) {
             if (!isInTurn(chess))
                 continue;
             moveList.addAll(getAvailableMove(chess));
@@ -792,7 +809,7 @@ public class GameCore {
             if (!isInTurn(chess))
                 continue;
 
-            //if eat passant, not included in isMoveAvailable
+            //if eat passant, need to change the move to chess and pos
             if (chess.getColorType() == WHITE &&
                     isEatPassantAvailable(chess, pos.getUp()))
                 move = castToMove(chess, pos.getUp());
@@ -840,7 +857,7 @@ public class GameCore {
      * @return 0 index: a list of different color chess that will target the position.
      * Will check if the enemy move will cause the king in danger. <br/>
      * 1 index: target enemy chess list. <br/>
-     * 2 index: target ally chess list. <br/>
+     * 2 index: target ally chess list. Do not contain the King<br/>
      */
     public ArrayList<Chess>[] simulateMove(Chess chess, Position pos) {
         Move move;
@@ -849,8 +866,9 @@ public class GameCore {
         else
             move = castToMove(chess, pos);
 
-        if (!isMoveAvailable(move))
+        if (!isMoveAvailable(move)) {
             return null;
+        }
 
         moveChess(move);
         Chess nowChess = getChess(pos);
@@ -877,7 +895,8 @@ public class GameCore {
         //get Allay target list
         ArrayList<Chess> targetAllyList = new ArrayList<>();
         for (Chess ally : chessList) {
-            if (isInTurn(ally))
+            //it is the turn of the enemy
+            if (isInTurn(ally) || ally.getChessType() == KING)
                 continue;
 
             if (isEatValid(nowChess, ally.getPosition()) &&
@@ -1113,8 +1132,9 @@ public class GameCore {
                 //eat passant
                 if (chess.getColorType() == WHITE)
                     return new Move(chess, EAT, getChess(targetPos.getDown()));
-                else
+                else {
                     return new Move(chess, EAT, getChess(targetPos.getUp()));
+                }
             }
         }
         else if (chess.getChessType() == KING) {

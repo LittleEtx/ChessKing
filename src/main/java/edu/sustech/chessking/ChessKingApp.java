@@ -12,8 +12,8 @@ import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.input.UserAction;
 import com.almasb.fxgl.time.LocalTimer;
 import com.almasb.fxgl.time.Timer;
-import edu.sustech.chessking.factories.ChessKingEntityFactory;
 import edu.sustech.chessking.components.ChessComponent;
+import edu.sustech.chessking.factories.ChessKingEntityFactory;
 import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.gameLogic.Player;
@@ -22,23 +22,18 @@ import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
-import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Box;
-import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.Map;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
-import static edu.sustech.chessking.VisualLogic.*;
+import static edu.sustech.chessking.VisualLogic.getChessEntity;
+import static edu.sustech.chessking.VisualLogic.getMousePt;
 
 public class ChessKingApp extends GameApplication {
 
@@ -190,7 +185,7 @@ public class ChessKingApp extends GameApplication {
         blackTimer.clear();
         if (gameTimeInSecond > 0) {
             whiteTimer.runOnceAfter(this::resetWhiteTurnClock, Duration.seconds(gameTimeInSecond));
-            blackTimer.runOnceAfter(this::resetWhiteTurnClock, Duration.seconds(gameTimeInSecond));
+            blackTimer.runOnceAfter(this::resetBlackTurnClock, Duration.seconds(gameTimeInSecond));
         }
     }
 

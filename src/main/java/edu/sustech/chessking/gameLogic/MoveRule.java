@@ -6,8 +6,10 @@ import edu.sustech.chessking.gameLogic.enumType.ColorType;
 
 import java.util.ArrayList;
 
-import static edu.sustech.chessking.gameLogic.enumType.ChessType.*;
-import static edu.sustech.chessking.gameLogic.enumType.ColorType.*;
+import static edu.sustech.chessking.gameLogic.enumType.ChessType.KING;
+import static edu.sustech.chessking.gameLogic.enumType.ChessType.PAWN;
+import static edu.sustech.chessking.gameLogic.enumType.ColorType.BLACK;
+import static edu.sustech.chessking.gameLogic.enumType.ColorType.WHITE;
 
 public class MoveRule {
     /**
@@ -118,7 +120,8 @@ public class MoveRule {
     }
 
     /**
-     * To check if the chess can eat the chess in the position
+     * To check if the chess can move to the position and eat some chess
+     * Note that if eat passant, position is not where the eaten pawn is
      */
     public static boolean isEatValid(Chess chess, Position position) {
         if (chess == null || position == null)

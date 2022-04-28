@@ -6,26 +6,41 @@ import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.gameLogic.Move;
 import edu.sustech.chessking.gameLogic.Position;
 import edu.sustech.chessking.gameLogic.ai.data.ChessPositionScore;
+import edu.sustech.chessking.gameLogic.ai.data.TargetScore;
 import edu.sustech.chessking.gameLogic.enumType.CastleType;
+import edu.sustech.chessking.gameLogic.enumType.ChessType;
+
+import java.util.ArrayList;
+import java.util.Comparator;
 
 import static edu.sustech.chessking.gameLogic.enumType.ColorType.WHITE;
 
 public class EvaluationMethod {
-    private static final int EatKingScore = 100000000;
-    private static final int EatQueenScore = 10000;
-    private static final int EatBishopScore = 3000;
-    private static final int EatRookScore = 5000;
-    private static final int EatKnightScore = 3000;
-    private static final int EatPawnScore = 500;
+    private static final int KingScore = 100000000;
+    private static final int QueenScore = 10000;
+    private static final int BishopScore = 3000;
+    private static final int RookScore = 5000;
+    private static final int KnightScore = 3000;
+    private static final int PawnScore = 500;
 
     private static final int ShortCastleScore = 4000;
     private static final int LongCastleScore = 4000;
-    private static final int PromptScore = 8000;
+    private static final int PromptQueenScore = 8000;
+    private static final int PromptRookScore = 4000;
+    private static final int PromptKnightScore = 2500;
+    private static final int PromptBishopScore = 2500;
 
-    private static final int DrawnScore = 100;
+    private static final int DrawnScore = 0;
 
-    private static final ChessPositionScore positionScore = FXGL.getAssetLoader().loadJSON("data/aiPositionScore.json",
+    private static final int TargetRate = 5;
+
+
+
+    private static final ChessPositionScore positionScore = FXGL.
+            getAssetLoader().loadJSON("data/aiPositionScore.json",
             ChessPositionScore.class).get();
+    private static final TargetScore tgScore = FXGL.getAssetLoader().
+            loadJSON("data/aiTargetScore.json", TargetScore.class).get();
 
     /**
      * get the score of current move. The logic is simply
@@ -41,7 +56,7 @@ public class EvaluationMethod {
             }
             case EAT -> {
                 Chess chess = (Chess) move.getMoveTarget()[0];
-                return getEatScore(chess) + getPositionScore(oriChess,
+                return getChessScore(chess) + getPositionScore(oriChess,
                         chess.getPosition());
             }
             case CASTLE -> {
@@ -52,11 +67,30 @@ public class EvaluationMethod {
                     return ShortCastleScore;
             }
             case PROMOTE -> {
-                return PromptScore;
+                return getPromptScore((ChessType) move.getMoveTarget()[0]);
             }
             case EATPROMOTE -> {
                 Chess chess = (Chess) move.getMoveTarget()[0];
-                return getEatScore(chess) + PromptScore;
+                return getChessScore(chess) +
+                        getPromptScore((ChessType) move.getMoveTarget()[0]);
+            }
+        }
+        return 0;
+    }
+
+    private static int getPromptScore(ChessType chessType) {
+        switch (chessType) {
+            case KNIGHT -> {
+                return PromptKnightScore;
+            }
+            case BISHOP -> {
+                return PromptBishopScore;
+            }
+            case ROOK -> {
+                return PromptRookScore;
+            }
+            case QUEEN -> {
+                return PromptQueenScore;
             }
         }
         return 0;
@@ -68,22 +102,93 @@ public class EvaluationMethod {
      * the chess it can protect and chess it threatens
      */
     public static int getAccurateScore(Move move, GameCore gameCore) {
+        //System.out.println("simulate " + move.toString());
         //a move cause danger is surely not to take
         if (gameCore.isMoveCauseDanger(move))
-            return - EatKingScore;
+            return -KingScore;
 
-        //originScore
-        int score = getScore(move);
         Chess chess = move.getChess();
         Position pos = move.getPosition();
-        gameCore.getAlly(pos);
-        gameCore.simulateMove(chess, pos);
+        gameCore.moveChess(move);
+        boolean hasWin = gameCore.hasWin(chess.getColorType());
+        boolean hasDrawn = gameCore.hasDrawn();
+        gameCore.reverseMove();
+        if (hasWin)
+            return KingScore;
+        if (hasDrawn)
+            return DrawnScore;
 
+        //originScore
+        int score = getScore(move) + getPositionScore(chess, pos);
 
+        ArrayList<Chess> allyList = gameCore.getAlly(pos);
+        allyList.remove(chess);
+        ArrayList<Chess>[] list = gameCore.simulateMove(chess, pos);
+        ArrayList<Chess> enemyList = list[0];
+        ArrayList<Chess> targetEnemyList = list[1];
+        ArrayList<Chess> targetAllyList = list[2];
+
+        //arrange from small to big
+        allyList.sort(Comparator.comparingInt(EvaluationMethod::getChessScore));
+        enemyList.sort(Comparator.comparingInt(EvaluationMethod::getChessScore));
+
+        //the score to measure how many scores will be taken of
+        //if the chess is to be exchanged
+        int exchangeScore = 0;
+        Chess enemyChess, allyChess = chess;
+        int i = 0, j = 0;
+        while (i < enemyList.size() && j < allyList.size()) {
+            enemyChess = enemyList.get(i);
+            //if enemy chess is weaker or no chess to eat it
+            if (getChessScore(enemyChess) <= getChessScore(allyChess) ||
+                j >= allyList.size())
+                exchangeScore -= getChessScore(allyChess);
+            else
+                break;
+
+            allyChess = allyList.get(j);
+            if (getChessScore(allyChess) <= getChessScore(enemyChess) ||
+                i + 1 >= enemyList.size())
+                exchangeScore += getChessScore(enemyChess);
+            else
+                break;
+            ++i;
+            ++j;
+        }
+        score += exchangeScore;
+
+        int targetScore = 0;
+        for (Chess targetEnemyChess : targetEnemyList) {
+            switch (targetEnemyChess.getChessType()) {
+                case PAWN -> targetScore += tgScore.getTargetEnemyPawnScore();
+                case KNIGHT -> targetScore += tgScore.getTargetEnemyKnightScore();
+                case BISHOP -> targetScore += tgScore.getTargetEnemyBishopScore();
+                case ROOK -> targetScore += tgScore.getTargetEnemyRookScore();
+                case QUEEN -> targetScore += tgScore.getTargetEnemyQueenScore();
+                case KING -> targetScore += tgScore.getTargetEnemyKingScore();
+            }
+        }
+
+        for (Chess targetAllyChess : targetAllyList) {
+            switch (targetAllyChess.getChessType()) {
+                case PAWN -> targetScore += tgScore.getTargetAllyPawnScore();
+                case KNIGHT -> targetScore += tgScore.getTargetAllyKnightScore();
+                case BISHOP -> targetScore += tgScore.getTargetAllyBishopScore();
+                case ROOK -> targetScore += tgScore.getTargetAllyRookScore();
+                case QUEEN -> targetScore += tgScore.getTargetAllyQueenScore();
+                case KING -> targetScore += tgScore.getTargetAllyKingScore();
+            }
+        }
+
+        score += targetScore * TargetRate;
         return score;
     }
 
-
+    /**
+     * @param chess the chess to move
+     * @param position the position the chess will move to
+     * @return the score of the chess moving to the position
+     */
     private static int getPositionScore(Chess chess, Position position) {
         int pos = position.getRow() * 8 +
                 position.getColumn();
@@ -128,25 +233,25 @@ public class EvaluationMethod {
         return 0;
     }
 
-    private static int getEatScore(Chess chess) {
+    private static int getChessScore(Chess chess) {
         switch (chess.getChessType()) {
             case PAWN -> {
-                return EatPawnScore;
+                return PawnScore;
             }
             case KNIGHT -> {
-                return EatKnightScore;
+                return KnightScore;
             }
             case BISHOP -> {
-                return EatBishopScore;
+                return BishopScore;
             }
             case ROOK -> {
-                return EatRookScore;
+                return RookScore;
             }
             case QUEEN -> {
-                return EatQueenScore;
+                return QueenScore;
             }
             case KING -> {
-                return EatKingScore;
+                return KingScore;
             }
         }
         return 0;
