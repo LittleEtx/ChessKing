@@ -23,7 +23,11 @@ import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Box;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -324,33 +328,55 @@ public class ChessKingApp extends GameApplication {
         Label settingLabel = new Label("setting");
         VBox setting = new VBox(20,settingLabel);
         setting.setPrefSize(60,60);
-        setting.getStyleClass().add("setting-box");
+        setting.getStyleClass().add("setting-box-on");
         setting.setOnMouseClicked(event -> {
             getGameController().gotoGameMenu();
         });
 
-        Label allyLabel = new Label("ally");
-        VBox ally = new VBox(20,allyLabel);
+        Label allyLabel = new Label();
+        VBox ally = new VBox(allyLabel);
         ally.setPrefSize(60,60);
-        ally.getStyleClass().add("setting-box");
+        ally.getStyleClass().add("setting-box-ally-on");
+        //int allyCounter = 0;
         ally.setOnMouseClicked(event -> {
             set("openAllyVisual", !getb("openAllyVisual"));
+            if(getb("openAllyVisual")) {
+                ally.getStyleClass().removeAll("setting-box-ally-off");
+                ally.getStyleClass().add("setting-box-ally-on");
+            }else{
+                ally.getStyleClass().removeAll("setting-box-ally-on");
+                ally.getStyleClass().add("setting-box-ally-off");
+            }
         });
 
-        Label enemyLabel = new Label("enemy");
+        Label enemyLabel = new Label();
         VBox enemy = new VBox(20,enemyLabel);
         enemy.setPrefSize(60,60);
-        enemy.getStyleClass().add("setting-box");
+        enemy.getStyleClass().add("setting-box-enemy-on");
         enemy.setOnMouseClicked(event -> {
             set("openEnemyVisual", !getb("openEnemyVisual"));
+            if(getb("openEnemyVisual")) {
+                enemy.getStyleClass().removeAll("setting-box-enemy-off");
+                enemy.getStyleClass().add("setting-box-enemy-on");
+            }else{
+                enemy.getStyleClass().removeAll("setting-box-enemy-on");
+                enemy.getStyleClass().add("setting-box-enemy-off");
+            }
         });
 
-        Label targetLabel = new Label("target");
+        Label targetLabel = new Label();
         VBox target = new VBox(20,targetLabel);
         target.setPrefSize(60,60);
-        target.getStyleClass().add("setting-box");
+        target.getStyleClass().add("setting-box-target-on");
         target.setOnMouseClicked(event -> {
             set("openTargetVisual", !getb("openTargetVisual"));
+            if(getb("openTargetVisual")) {
+                target.getStyleClass().removeAll("setting-box-target-off");
+                target.getStyleClass().add("setting-box-target-on");
+            }else{
+                target.getStyleClass().removeAll("setting-box-target-on");
+                target.getStyleClass().add("setting-box-target-off");
+            }
         });
 
 

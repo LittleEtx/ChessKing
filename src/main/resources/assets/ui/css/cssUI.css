@@ -20,7 +20,7 @@
 
 }
 
-.setting-box .label{
+.setting-box-on .label{
     -fx-pref-width:180;
     -fx-pref-height:60;
     -fx-font-size:10;
@@ -31,11 +31,51 @@
     -fx-font-weight: bold;
 }
 
-.setting-box .label:hover{
+.setting-box-on .label:hover{
     -fx-background-color:linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #c21702ff 0.0%, #ffc803ff 100.0%);
     -fx-text-fill:#E0E0E0;
 
 }
+
+.setting-box-ally-on {
+    -fx-background-image: url("AllyMark.png");
+    -fx-background-size: 60 60;
+    -fx-text-alignment: center;
+}
+
+.setting-box-ally-off {
+    -fx-background-image: url("AllyMark.png");
+    -fx-background-size: 60 60;
+    -fx-text-alignment: center;
+    -fx-background-image: url("RedCross.png");
+}
+
+.setting-box-enemy-on {
+    -fx-background-image: url("EnemyMark.png");
+    -fx-background-size: 60 60;
+}
+
+.setting-box-enemy-off {
+    -fx-background-image: url("EnemyMark.png");
+    -fx-background-size: 60 60;
+    -fx-background-image: url("RedCross.png");
+}
+
+.setting-box-target-on {
+    -fx-background-image: url("TargetMark.png");
+    -fx-background-size: 60 60;
+    -fx-text-alignment: center;
+
+}
+
+.setting-box-target-off {
+    -fx-background-image: url("TargetMark.png");
+    -fx-background-size: 60 60;
+    -fx-text-alignment: center;
+    -fx-background-image: url("TargetMark.png");
+    -fx-background-image: url("RedCross.png");
+}
+
 
 .subScene{
     -fx-border-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #c21702ff 0.0%, #ffc803ff 100.0%);
