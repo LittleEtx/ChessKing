@@ -97,3 +97,23 @@
 .subScene-button:hover{
     -fx-background-color:#000000;
 }
+
+.game-fin-ap{
+    -fx-background-color: #00808080;
+}
+
+.endGame-button{
+    -fx-border-color:linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #fcdfe8ff 0.0%, #b6fefcff 100.0%);
+    -fx-background-color: white;
+    -fx-pref-height: 50;
+    -fx-pref-width: 160;
+    -fx-font-size: 25;
+}
+
+.endGame-button:hover{
+    -fx-background-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #fcdfe8ff 0.0%, #b6fefcff 100.0%);
+}
+
+.endGame-text{
+    -fx-alignment: center;
+}

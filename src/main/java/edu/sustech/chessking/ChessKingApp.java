@@ -19,10 +19,14 @@ import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.Position;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
+import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -223,22 +227,29 @@ public class ChessKingApp extends GameApplication {
     }
 
     private void endGame(EndGameType endGameType) {
+        String str = " ";
         switch (endGameType) {
-            case WIN -> getDialogService().showMessageBox("You win the game!",
-                    () -> getGameController().startNewGame());
+            case WIN -> /*getDialogService().showMessageBox("You win the game!",
+                    () -> getGameController().startNewGame())*/
+                        str = "You win the game :)";
 
-            case LOST -> getDialogService().showMessageBox("You lost the game!",
-                    () -> getGameController().startNewGame());
+            case LOST -> /*getDialogService().showMessageBox("You lost the game!",
+                    () -> getGameController().startNewGame())*/
+                        str = "You lose the game :(";
 
-            case DRAWN -> getDialogService().showMessageBox("The game is drawn!",
-                    () -> getGameController().startNewGame());
+            case DRAWN -> /*getDialogService().showMessageBox("The game is drawn!",
+                    () -> getGameController().startNewGame())*/
+                        str = "          Drawn";
 
-            case WHITEWIN -> getDialogService().showMessageBox("White win the game!",
-                    () -> getGameController().startNewGame());
+            case WHITEWIN -> /*getDialogService().showMessageBox("White win the game!",
+                    () -> getGameController().startNewGame())*/
+                        str = "      White side wins";
 
-            case BLACKWIN -> getDialogService().showMessageBox("Black win the game!",
-                    () -> getGameController().startNewGame());
+            case BLACKWIN -> /*getDialogService().showMessageBox("Black win the game!",
+                    () -> getGameController().startNewGame())*/
+                        str = "      Black side wins";
         }
+        getSceneService().pushSubScene(new EndGameScene(str));
     }
 
     public void initAvatar(){
@@ -287,6 +298,19 @@ public class ChessKingApp extends GameApplication {
     //initialize the inputs
     @Override
     protected void initInput() {
+        getInput().addAction(new UserAction("Win") {
+            @Override
+            protected void onActionBegin() {
+                endGame(EndGameType.WIN);
+            }
+        }, KeyCode.W);
+
+        getInput().addAction(new UserAction("Lose") {
+            @Override
+            protected void onActionBegin() {
+                endGame(EndGameType.LOST);
+            }
+        }, KeyCode.L);
 
         //left click action
         getInput().addAction(new UserAction("LeftClick") {
