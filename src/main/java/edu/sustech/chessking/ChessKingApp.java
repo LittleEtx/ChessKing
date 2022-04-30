@@ -6,6 +6,7 @@ import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.LoadingScene;
 import com.almasb.fxgl.app.scene.SceneFactory;
+import com.almasb.fxgl.app.scene.SimpleGameMenu;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
@@ -113,6 +114,13 @@ public class ChessKingApp extends GameApplication {
             @Override
             public LoadingScene newLoadingScene() {
                 return new Loading();
+            }
+
+            @Override
+            public FXGLMenu newGameMenu() {
+                return new SimpleGameMenu();
+                //rewrite Game Menu later
+
             }
         });
     }
