@@ -21,6 +21,7 @@ import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.Position;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.ui.EndGameScene;
+import edu.sustech.chessking.ui.GameMenu;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
 import javafx.scene.control.Label;
@@ -116,12 +117,11 @@ public class ChessKingApp extends GameApplication {
                 return new Loading();
             }
 
-            @Override
-            public FXGLMenu newGameMenu() {
-                return new SimpleGameMenu();
-                //rewrite Game Menu later
-
-            }
+//            @Override
+//            public FXGLMenu newGameMenu() {
+//                return new SimpleGameMenu();
+//                //rewrite Game Menu later
+//            }
         });
     }
 
