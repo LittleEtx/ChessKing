@@ -117,13 +117,13 @@
     -fx-background-radius:10;
     -fx-text-fill: #FFFFFF;
     -fx-font-size: 20;
-    -fx-border-color: black;
+    -fx-border-color: #00000070;
     -fx-border-width: 5;
     -fx-border-radius: 10;
 }
 
 .newLocalGame-subScene-button:hover{
-    -fx-background-color:#000000;
+    -fx-background-color:#00000070;
 }
 
 .newLocalGame-subScene-bg{
