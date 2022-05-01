@@ -7,7 +7,6 @@ import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.time.LocalTimer;
 import edu.sustech.chessking.EntityType;
 import edu.sustech.chessking.gameLogic.*;
-import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.enumType.CastleType;
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
@@ -216,13 +215,7 @@ public class ChessComponent extends Component {
     public void putChess(){
         isMove = false;
         mousePos = null;
-        set("availablePosition", new ArrayList<Position>());
-        set("allyList", new ArrayList<Chess>());
-        set("enemyList", new ArrayList<Chess>());
-        set("targetList", new ArrayList<Chess>());
-        removeShadowChess();
-        removeShadowRook();
-        removeRedCross();
+        resetVisualEffect();
 
         Position pos = getMousePos();
         if (isMouseOnBoard() && gameCore.isMoveAvailable(chess, pos)) {
@@ -233,14 +226,14 @@ public class ChessComponent extends Component {
                 getDialogService().showConfirmationBox(
                         "This move will cause you lose the game, are you sure?", aBoolean -> {
                             if (aBoolean) {
-                                executeMove(move, pos);
+                                executeMove(move);
                                 set("isEndTurn", true);
                             } else
                                 entity.setPosition(toPoint(chess.getPosition()));
                         });
             }
             else {
-                executeMove(move, pos);
+                executeMove(move);
                 set("isEndTurn", true);
             }
         }
@@ -251,11 +244,19 @@ public class ChessComponent extends Component {
         }
     }
 
+    public void computerExecuteMove(Move move) {
 
-    private void executeMove(Move move, Position pos) {
+
+
+
+    }
+
+    private void executeMove(Move move) {
+        Position pos = move.getPosition();
         //if promotion
         if (MoveRule.isPawnPromoteValid(chess)) {
             //Now just assume the chess promote to queen
+            //====================================
             //
             //you need to show a panel for player to choose later
             //
@@ -402,6 +403,16 @@ public class ChessComponent extends Component {
             set("targetList", new ArrayList<Chess>());
             setTargetKingList();
         }
+    }
+
+    private void resetVisualEffect() {
+        set("availablePosition", new ArrayList<Position>());
+        set("allyList", new ArrayList<Chess>());
+        set("enemyList", new ArrayList<Chess>());
+        set("targetList", new ArrayList<Chess>());
+        removeShadowChess();
+        removeShadowRook();
+        removeRedCross();
     }
 
     private void setTargetKingList() {
