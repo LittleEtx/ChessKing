@@ -1,7 +1,8 @@
 package edu.sustech.chessking.gameLogic;
 
 public class Player {
-    String chessTheme;
+    String chessSkin;
+    public boolean hasChessSkin = false;
     String boardTheme;
     String backgroundTheme;
     String avatar;
@@ -19,8 +20,14 @@ public class Player {
         this.password = null;
     }
 
-    public void setChessTheme(String chessTheme) {
-        this.chessTheme = chessTheme;
+    public void setChessSkin(String chessSkin) {
+        hasChessSkin = true;
+        this.chessSkin = chessSkin;
+    }
+
+    public void deleteChessSkin() {
+        hasChessSkin = false;
+        this.chessSkin = null;
     }
 
     public void setBoardTheme(String boardTheme) {
@@ -49,8 +56,8 @@ public class Player {
         this.name = name;
     }
 
-    public String getChessTheme() {
-        return chessTheme;
+    public String getChessSkin() {
+        return chessSkin;
     }
 
     public String getBoardTheme() {

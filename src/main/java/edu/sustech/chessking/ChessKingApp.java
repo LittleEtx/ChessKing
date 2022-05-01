@@ -52,7 +52,7 @@ public class ChessKingApp extends GameApplication {
     private static double turnTimeInSecond;
     private ColorType side = ColorType.WHITE;
 
-    private Player localPlayer;
+    private Player localPlayer = new Player("p1");
 
     private enum EndGameType {
         LOST, WIN, DRAWN, BLACKWIN, WHITEWIN
@@ -78,6 +78,7 @@ public class ChessKingApp extends GameApplication {
         vars.put("targetList", new ArrayList<Chess>());
         vars.put("targetKingList", new ArrayList<Chess>());
         vars.put("availablePosition", new ArrayList<Position>());
+        vars.put("localPlayer",localPlayer);
 
         vars.put("openAllyVisual", true);
         vars.put("openEnemyVisual", true);

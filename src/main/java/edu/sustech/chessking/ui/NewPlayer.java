@@ -14,7 +14,10 @@ import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class NewPlayer extends SubScene {
 
+    //Player player = geto("localPlayer");
     Player player = new Player("p1");
+    public String[] skin = {"default","pixel"};
+    
     public NewPlayer() {
         Button newGameBtn = new Button("New Game");
         newGameBtn.setOnAction(event ->{
@@ -312,8 +315,55 @@ public class NewPlayer extends SubScene {
         skinbg.setLayoutY(ycoordinate);
         skinbg.setLayoutX(xcoordinate+220);
         skinbg.setAlignment(Pos.TOP_CENTER);
+        
+        Button defaultbtn = new Button();
+        defaultbtn.getStyleClass().add("newPlayer-subScene-skinDefault");
 
-        getContentRoot().getChildren().addAll(skinbg);
+
+        Button pixelbtn = new Button();
+        pixelbtn.getStyleClass().add("newPlayer-subScene-skinPixel");
+
+        defaultbtn.setOnAction(event -> {
+            if(!player.hasChessSkin) {
+                defaultbtn.setStyle("-fx-border-color: #20B2AA;"+
+                        "-fx-border-width: 5");
+                player.setChessSkin("default");
+                System.out.println(player.getChessSkin());
+            }else{
+                defaultbtn.setStyle("-fx-border-color: transparent");
+                pixelbtn.setStyle("-fx-border-color: transparent");
+
+                player.deleteAvatar();
+                player.setChessSkin("default");
+                defaultbtn.setStyle("-fx-border-color: #20B2AA;"+
+                        "-fx-border-width: 5");
+                System.out.println(player.getChessSkin());
+            }
+        });
+
+        pixelbtn.setOnAction(event -> {
+            if(!player.hasChessSkin) {
+                pixelbtn.setStyle("-fx-border-color: #20B2AA;"+
+                        "-fx-border-width: 5");
+                player.setChessSkin("pixel");
+                System.out.println(player.getChessSkin());
+            }else{
+                defaultbtn.setStyle("-fx-border-color: transparent");
+                pixelbtn.setStyle("-fx-border-color: transparent");
+
+                player.deleteAvatar();
+                player.setChessSkin("pixel");
+                pixelbtn.setStyle("-fx-border-color: #20B2AA;"+
+                        "-fx-border-width: 5");
+                System.out.println(player.getChessSkin());
+            }
+        });
+
+        VBox skins = new VBox(15,defaultbtn,pixelbtn);
+        skins.setLayoutX(xcoordinate+220+10);
+        skins.setLayoutY(200);
+
+        getContentRoot().getChildren().addAll(skinbg,skins);
     }
 
     public void chooseBoard() {

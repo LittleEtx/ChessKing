@@ -228,6 +228,29 @@
     -fx-border-width: 5;
 }
 
+.newPlayer-subScene-skinDefault{
+    -fx-background-color: #FFFFFF50;
+    -fx-background-image: url("chessskin/default.png");
+    -fx-background-size: 180 60;
+    -fx-pref-height: 60;
+    -fx-pref-width: 180;
+}
+
+.newPlayer-subScene-skinDefault:hover{
+    -fx-background-color: #FFFFFF90;
+}
+
+.newPlayer-subScene-skinPixel{
+    -fx-background-color: #FFFFFF50;
+    -fx-background-image: url("chessskin/pixel.png");
+    -fx-background-size: 180 60;
+    -fx-pref-height: 60;
+    -fx-pref-width: 180;
+}
+
+.newPlayer-subScene-skinPixel:hover{
+    -fx-background-color: #FFFFFF90;
+}
 
 .game-fin-ap{
     -fx-background-color: #00808080;
