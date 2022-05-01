@@ -6,7 +6,6 @@ import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.LoadingScene;
 import com.almasb.fxgl.app.scene.SceneFactory;
-import com.almasb.fxgl.app.scene.SimpleGameMenu;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
@@ -15,13 +14,11 @@ import com.almasb.fxgl.time.LocalTimer;
 import com.almasb.fxgl.time.Timer;
 import edu.sustech.chessking.components.ChessComponent;
 import edu.sustech.chessking.factories.ChessKingEntityFactory;
-import edu.sustech.chessking.gameLogic.Chess;
-import edu.sustech.chessking.gameLogic.GameCore;
-import edu.sustech.chessking.gameLogic.Player;
-import edu.sustech.chessking.gameLogic.Position;
+import edu.sustech.chessking.gameLogic.*;
+import edu.sustech.chessking.gameLogic.ai.AiEnemy;
+import edu.sustech.chessking.gameLogic.ai.AiType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.ui.EndGameScene;
-import edu.sustech.chessking.ui.GameMenu;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
 import javafx.scene.control.Label;
@@ -41,7 +38,7 @@ public class ChessKingApp extends GameApplication {
 
     private final GameCore gameCore = new GameCore();
     public final String[] skin = {"default","pixel"};
-    public final ColorType downSide = ColorType.WHITE;
+    public ColorType downSide;
     private Entity movingChess;
     private LocalTimer betweenClickTimer;
     private boolean cursorDefault = true;
@@ -53,26 +50,33 @@ public class ChessKingApp extends GameApplication {
     private ColorType side = ColorType.WHITE;
 
     private Player localPlayer;
+    private Player downPlayer;
+    private Player upPlayer;
+    private String boardTheme;
+    private String backgroundTheme;
+
+    private AiEnemy ai;
 
     private enum EndGameType {
         LOST, WIN, DRAWN, BLACKWIN, WHITEWIN
     }
 
     private enum GameType {
-        COMPUTER, LOCAL, LAN, NET
+        COMPUTER, LOCAL, LAN, NET, REPLAY
     }
 
-    GameType gameType = GameType.LOCAL;
+    private GameType gameType;
 
     // ===============================
     //initialize variables
     @Override
     protected void initGameVars(Map<String, Object> vars) {
         vars.put("core", gameCore);
-        vars.put("skin", skin[1]);
+        vars.put("downChessTheme", "");
+        vars.put("upChessTheme", "");
+        vars.put("downSideColor", ColorType.WHITE);
         vars.put("isMovingChess", false);
         vars.put("isEndTurn", false);
-        vars.put("downSideColor", downSide);
         vars.put("allyList", new ArrayList<Chess>());
         vars.put("enemyList", new ArrayList<Chess>());
         vars.put("targetList", new ArrayList<Chess>());
@@ -148,52 +152,111 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void initGame() {
         getGameWorld().addEntityFactory(new ChessKingEntityFactory());
+        gameType = GameType.COMPUTER;
         //spawn("backGround");
-        initBoard();
         initAvatar();
-        initChess();
         initUI();
         FXGL.loopBGM("BGM1.mp3");
-        //System.out.println();
         betweenClickTimer = newLocalTimer();
 
         //deal with end turn method, check if end game
-        getbp("isEndTurn").addListener((ob, ov, nv) -> {
-            if (!nv)
-                return;
-
-            side = gameCore.getTurn();
-            ColorType winSide = gameCore.getWinSide();
-            if (winSide != null) {
-                if (gameType == GameType.LOCAL) {
-                    if (winSide == ColorType.WHITE)
-                        endGame(EndGameType.WHITEWIN);
-                    else
-                        endGame(EndGameType.BLACKWIN);
-                }
-                else {
-                    if (winSide == downSide)
-                        endGame(EndGameType.WIN);
-                    else
-                        endGame(EndGameType.LOST);
-                }
-            }
-
-            if (gameCore.hasDrawn()) {
-                endGame(EndGameType.DRAWN);
-            }
-
-            set("isEndTurn", false);
-        });
+        initialEndTurnListener();
 
         //Timer method
         gameTimeInSecond = -1;
         turnTimeInSecond = -1;
+
         whiteTimer.clear();
         blackTimer.clear();
         if (gameTimeInSecond > 0) {
             whiteTimer.runOnceAfter(this::resetWhiteTurnClock, Duration.seconds(gameTimeInSecond));
             blackTimer.runOnceAfter(this::resetBlackTurnClock, Duration.seconds(gameTimeInSecond));
+        }
+
+        //Set player and theme
+        localPlayer = new Player("local player");
+        localPlayer.setChessTheme("pixel");
+        localPlayer.setBoardTheme("");
+        localPlayer.setBackgroundTheme("");
+        downPlayer = localPlayer;
+
+        if (gameType == GameType.LOCAL) {
+            upPlayer = new Player("Up player");
+            upPlayer.setChessTheme("pixel");
+        }
+        else if (gameType == GameType.COMPUTER) {
+            ai = new AiEnemy(AiType.NORMAL, gameCore);
+            upPlayer = ai.getPlayer();
+        }
+
+        set("downChessTheme", downPlayer.getChessTheme());
+        set("upChessTheme", upPlayer.getChessTheme());
+
+        //random downside color
+        int side = FXGL.random(0,1);
+        if (side == 0)
+            downSide = ColorType.WHITE;
+        else
+            downSide = ColorType.BLACK;
+        set("downSideColor", downSide);
+
+        initBoard();
+        initChess();
+    }
+
+    /**
+     * This method contains all the logic between
+     * the player moving the chess
+     */
+    private void initialEndTurnListener() {
+        getbp("isEndTurn").addListener((ob, ov, nv) -> {
+            if (!nv)
+                return;
+
+            //when downSide finish moving chess
+            side = gameCore.getTurn();
+            checkIfEndGame();
+
+            switch (gameType) {
+                case COMPUTER -> {
+                    Move move = ai.getNextMove();
+
+
+                }
+                case LOCAL -> {
+
+                }
+                case LAN -> {
+                }
+                case NET -> {
+                }
+                case REPLAY -> {
+
+                }
+            }
+            set("isEndTurn", false);
+        });
+    }
+
+    private void checkIfEndGame() {
+        ColorType winSide = gameCore.getWinSide();
+        if (winSide != null) {
+            if (gameType == GameType.LOCAL) {
+                if (winSide == ColorType.WHITE)
+                    endGame(EndGameType.WHITEWIN);
+                else
+                    endGame(EndGameType.BLACKWIN);
+            }
+            else {
+                if (winSide == downSide)
+                    endGame(EndGameType.WIN);
+                else
+                    endGame(EndGameType.LOST);
+            }
+        }
+
+        if (gameCore.hasDrawn()) {
+            endGame(EndGameType.DRAWN);
         }
     }
 
