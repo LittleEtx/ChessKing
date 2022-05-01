@@ -72,7 +72,7 @@ public class EvaluationMethod {
             case EATPROMOTE -> {
                 Chess chess = (Chess) move.getMoveTarget()[0];
                 return getChessScore(chess) +
-                        getPromptScore((ChessType) move.getMoveTarget()[0]);
+                        getPromptScore((ChessType) move.getMoveTarget()[1]);
             }
         }
         return 0;

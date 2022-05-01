@@ -32,7 +32,7 @@ public class GameLogicTestApp extends GameApplication {
         if (!beginTest) {
             beginTest = true;
             Move move;
-            for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < 100; i++) {
                 move = whiteAi.getNextMove();
                 gameCore.moveChess(move);
                 System.out.println(move.toString());

@@ -163,7 +163,6 @@ public class GameCore {
     }
 
     /**
-     * ## NOT DONE
      * see if it has drawn at the time, including:
      * 1. One side has no move to go
      * 2. The same situation appears for the third time (in this method, check history steps)
@@ -195,19 +194,20 @@ public class GameCore {
         //check if third time appear
         Move lastMove = moveHistory.getLastMove();
         int moveNum = moveHistory.getMoveNum();
+
         if (reappearMove.contains(lastMove)) {
             int first = moveHistory.getMoveIndex(lastMove);
             int last = moveNum - 1;
             int middle = (first + last) / 2;
             boolean isSituationAlike = true;
             for (int i = first; i < middle; i++) {
+                //check from first to middle and from middle to last are alike
                 if (!moveHistory.getMove(i).equals(moveHistory.getMove(i + middle - first))) {
                     isSituationAlike = false;
                     break;
                 }
             }
             if (isSituationAlike) {
-                System.out.println("is situation alike");
                 return true;
             }
         }
@@ -321,7 +321,16 @@ public class GameCore {
      * reverse Move, return the reversed move
      */
     public Move reverseMove() {
+        //if the last move is considered as a reappeared move, remove it
+        int lastIndex = reappearMoveIndex.size() - 1;
+        if (lastIndex >= 0 && reappearMoveIndex.get(lastIndex) ==
+                moveHistory.getMoveNum() - 1) {
+            reappearMoveIndex.remove(lastIndex);
+            reappearMove.remove(lastIndex);
+        }
+
         Move move = moveHistory.popMove();
+
         if (move == null)
             return null;
 
@@ -1049,6 +1058,7 @@ public class GameCore {
         for (int i = 0; i < moveHistory.getMoveNum() - 1; i++) {
             if (move.equals(moveHistory.getMove(i))) {
                 reappearMove.add(move);
+                reappearMoveIndex.add(moveHistory.getMoveNum() - 1);
             }
         }
     }
