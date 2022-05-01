@@ -49,7 +49,7 @@ public class ChessKingApp extends GameApplication {
     private static double turnTimeInSecond;
     private ColorType side = ColorType.WHITE;
 
-    private Player localPlayer;
+    private Player localPlayer = new Player("p1");
     private Player downPlayer;
     private Player upPlayer;
     private String boardTheme;
@@ -82,6 +82,7 @@ public class ChessKingApp extends GameApplication {
         vars.put("targetList", new ArrayList<Chess>());
         vars.put("targetKingList", new ArrayList<Chess>());
         vars.put("availablePosition", new ArrayList<Position>());
+        vars.put("localPlayer",localPlayer);
 
         vars.put("openAllyVisual", true);
         vars.put("openEnemyVisual", true);
@@ -175,22 +176,22 @@ public class ChessKingApp extends GameApplication {
 
         //Set player and theme
         localPlayer = new Player("local player");
-        localPlayer.setChessTheme("pixel");
+        localPlayer.setChessSkin("pixel");
         localPlayer.setBoardTheme("");
         localPlayer.setBackgroundTheme("");
         downPlayer = localPlayer;
 
         if (gameType == GameType.LOCAL) {
             upPlayer = new Player("Up player");
-            upPlayer.setChessTheme("pixel");
+            upPlayer.setChessSkin("pixel");
         }
         else if (gameType == GameType.COMPUTER) {
             ai = new AiEnemy(AiType.NORMAL, gameCore);
             upPlayer = ai.getPlayer();
         }
 
-        set("downChessTheme", downPlayer.getChessTheme());
-        set("upChessTheme", upPlayer.getChessTheme());
+        set("downChessTheme", downPlayer.getChessSkin());
+        set("upChessTheme", upPlayer.getChessSkin());
 
         //random downside color
         int side = FXGL.random(0,1);
