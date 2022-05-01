@@ -5,6 +5,7 @@ import com.almasb.fxgl.entity.components.ViewComponent;
 import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.Position;
+import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.geometry.Point2D;
 
 import java.util.List;
@@ -39,16 +40,26 @@ public class VisualLogic {
         if (!isMouseOnBoard())
             return null;
 
-        int y = (int)((pt.getX()-pt.getX()%80)/80-1);
-        int x = (int) (8-(pt.getY()-pt.getY()%80)/80);
-        return new Position(x,y);
+        int y = (int) ((pt.getX() - pt.getX() % 80) / 80 - 1);
+        int x = (int) (8 - (pt.getY() - pt.getY() % 80) / 80);
+
+        if (geto("downSideColor") == ColorType.WHITE)
+            return new Position(x,y);
+        else
+            return new Position(7 - x, 7 - y);
     }
 
     public static Point2D toPoint(Position pos){
-        return new Point2D(
+        if (geto("downSideColor") == ColorType.WHITE)
+            return new Point2D(
                 80 + pos.getColumn() * 80,
                 640 - pos.getRow() * 80
-        );
+            );
+        else
+            return new Point2D(
+                80 + (7 - pos.getColumn()) * 80,
+                640 - (7 - pos.getRow()) * 80
+            );
     }
 
     public static Entity getChessEntity(Point2D pt) {
@@ -61,7 +72,12 @@ public class VisualLogic {
     }
 
     public static void setPic(Entity entity, Chess chess) {
-        String skin = gets("skin");
+        String skin;
+        if (chess.getColorType() == geto("downSideColor"))
+            skin = gets("downChessSkin");
+        else
+            skin = gets("upChessSkin");
+
         String pic = "chess/" + skin + "/" + skin + " " + chess.getChessType().toString()
                 + "-" + chess.getColorType().toString() + ".png";
         Texture img = texture(pic, 80, 80);

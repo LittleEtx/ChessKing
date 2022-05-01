@@ -4,6 +4,7 @@ package edu.sustech.chessking.components;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.component.Component;
+import com.almasb.fxgl.texture.Texture;
 import com.almasb.fxgl.time.LocalTimer;
 import edu.sustech.chessking.EntityType;
 import edu.sustech.chessking.gameLogic.*;
@@ -23,6 +24,9 @@ public class ChessComponent extends Component {
     private Chess chess;
 
     private boolean isMove = false;
+    private boolean isComputerMove = false;
+    private static Move computerMove;
+    private static final int velocity = 40;
     private static final GameCore gameCore = geto("core");
     private static Entity shadowChess = null;
     private static Entity shadowRook = null;
@@ -33,9 +37,9 @@ public class ChessComponent extends Component {
     private Entity enemyMark = null;
     private Entity targetMark = null;
 
-    private static Position mousePos = null;
+    private static Position movingChessPos = null;
+    private Position targetPos;
     private static final LocalTimer localTimer = newLocalTimer();
-    private static final LocalTimer messageTimer = newLocalTimer();
 
     private enum AssistState {
         NONE, ALLY, ENEMY, CASTLE
@@ -178,22 +182,37 @@ public class ChessComponent extends Component {
     public void onUpdate(double tpf) {
         if (isMove){
             moveWithMouse();
-
-            //update 0.5s per times
             if (!localTimer.elapsed(Duration.seconds(0.1)))
                 return;
             localTimer.capture();
-
-            Position newPos = getMousePos();
-            //if the position change, change visual effect
-            if (newPos == mousePos)
-                return;
-            if (newPos != null && newPos.equals(mousePos))
-                return;
-
-            setVisualEffect(newPos);
-            mousePos = newPos;
+            updateVisual();
         }
+        else if (isComputerMove) {
+            entity.translateTowards(toPoint(targetPos), velocity * tpf);
+            if (entity.getPosition().distance(toPoint(targetPos)) < 1) {
+                isComputerMove = false;
+                resetVisualEffect();
+                set("availablePosition", new ArrayList<Position>());
+                executeMove(computerMove);
+                set("isEnemyMovingChess", false);
+            }
+            updateVisual();
+        }
+    }
+
+    private void updateVisual() {
+        //update visual effect 0.5s per times
+        Texture texture = (Texture) entity.getViewComponent().getChildren().get(0);
+        Position newPos = toPosition(entity.getPosition().add(new Point2D(
+                        texture.getWidth() / 2, texture.getHeight() / 2)));
+        //if the position change, change visual effect
+        if (newPos == movingChessPos)
+            return;
+        if (newPos != null && newPos.equals(movingChessPos))
+            return;
+
+        setVisualEffect(newPos);
+        movingChessPos = newPos;
     }
 
     public boolean moveChess() {
@@ -214,19 +233,29 @@ public class ChessComponent extends Component {
 
     public void putChess(){
         isMove = false;
-        mousePos = null;
+        movingChessPos = null;
         resetVisualEffect();
+        set("availablePosition", new ArrayList<Position>());
 
         Position pos = getMousePos();
         if (isMouseOnBoard() && gameCore.isMoveAvailable(chess, pos)) {
-            //if is to promote, move will be null. It doesn't matter
+            //if is to promote, show a panel
             Move move = gameCore.castToMove(chess, pos);
+            if (move == null) {
+                //========================
+                //    show a panel here
+                //=========================
+                ChessType promptType = ChessType.QUEEN;
+                move = gameCore.castToMove(chess, pos, promptType);
+            }
+
             //if case danger
             if (gameCore.isMoveCauseDanger(move)) {
+                Move finalMove = move;
                 getDialogService().showConfirmationBox(
                         "This move will cause you lose the game, are you sure?", aBoolean -> {
                             if (aBoolean) {
-                                executeMove(move);
+                                executeMove(finalMove);
                                 set("isEndTurn", true);
                             } else
                                 entity.setPosition(toPoint(chess.getPosition()));
@@ -245,68 +274,60 @@ public class ChessComponent extends Component {
     }
 
     public void computerExecuteMove(Move move) {
-
-
-
-
+        targetPos = move.getPosition();
+        isComputerMove = true;
+        computerMove = move;
+        set("availablePosition", gameCore.getAvailablePosition(chess));
     }
 
     private void executeMove(Move move) {
         Position pos = move.getPosition();
-        //if promotion
-        if (MoveRule.isPawnPromoteValid(chess)) {
-            //Now just assume the chess promote to queen
-            //====================================
-            //
-            //you need to show a panel for player to choose later
-            //
-            //====================================
-            ChessType chessType = ChessType.QUEEN;
-            //if eat chess
-            if (gameCore.hasChess(pos))
-                eatChess(pos);
-            gameCore.movePawnPromotion(chess, pos, chessType);
+
+        gameCore.moveChess(move);
+        //if eat chess
+        if (move.getMoveType() == MoveType.EAT ||
+                move.getMoveType() == MoveType.EATPROMOTE) {
+            Chess targetChess = (Chess) move.getMoveTarget()[0];
+            eatChess(targetChess.getPosition());
+        }
+
+        //if prompt
+        if (move.getMoveType() == MoveType.PROMOTE) {
+                ChessType chessType = (ChessType) move.getMoveTarget()[0];
             chess = chess.promoteTo(chessType);
             setPic(entity, chess);
         }
-        else {
-            gameCore.moveChess(move);
-            //if eat chess
-            if (move.getMoveType() == MoveType.EAT) {
-                Chess targetChess = (Chess) move.getMoveTarget()[0];
+        else if (move.getMoveType() == MoveType.EATPROMOTE) {
+            ChessType chessType = (ChessType) move.getMoveTarget()[1];
+            chess = chess.promoteTo(chessType);
+            setPic(entity, chess);
+        }
 
-                System.out.println("Eat " + targetChess.toString());
-
-                eatChess(targetChess.getPosition());
-            }
-            //if castling
-            else if (move.getMoveType() == MoveType.CASTLE) {
-                CastleType castleType = MoveRule.getCastleType(chess, pos);
-                int row = chess.getPosition().getRow();
-                if (castleType == CastleType.LONG) {
-                    Entity rook = getChessEntity(toPoint(new Position(row, 0)));
-                    if (rook == null)
-                        throw new RuntimeException("Can't find rook entity");
-                    Position toPos = new Position(row, 3);
-                    rook.getComponent(ChessComponent.class).moveTo(toPos);
-                } else {
-                    Entity rook = getChessEntity(toPoint(new Position(row, 7)));
-                    if (rook == null)
-                        throw new RuntimeException("Can't find rook entity");
-                    Position toPos = new Position(row, 5);
-                    rook.getComponent(ChessComponent.class).moveTo(toPos);
-                }
+        //if castling
+        if (move.getMoveType() == MoveType.CASTLE) {
+            CastleType castleType = MoveRule.getCastleType(chess, pos);
+            int row = chess.getPosition().getRow();
+            if (castleType == CastleType.LONG) {
+                Entity rook = getChessEntity(toPoint(new Position(row, 0)));
+                if (rook == null)
+                    throw new RuntimeException("Can't find rook entity");
+                Position toPos = new Position(row, 3);
+                rook.getComponent(ChessComponent.class).moveTo(toPos);
+            } else {
+                Entity rook = getChessEntity(toPoint(new Position(row, 7)));
+                if (rook == null)
+                    throw new RuntimeException("Can't find rook entity");
+                Position toPos = new Position(row, 5);
+                rook.getComponent(ChessComponent.class).moveTo(toPos);
             }
         }
-        System.out.print("Move " + chess.toString());
+
         moveTo(pos);
-        System.out.println(" to " + chess.getPosition().toString());
+        System.out.println(move);
     }
 
     private void setVisualEffect(Position pos) {
-        if (isMouseOnBoard() &&
-                ((ArrayList<?>) geto("availablePosition")).contains(pos)) {
-
+        if (pos != null && ((ArrayList<?>) geto("availablePosition")).contains(pos)) {
             Move move = gameCore.castToMove(chess, pos);
             //If promotion, set it to the queen
             if (move == null)
@@ -394,19 +415,12 @@ public class ChessComponent extends Component {
             set("targetKingList", kingList);
         }
         else {
-            removeShadowChess();
-            removeShadowRook();
-            removeRedCross();
-
-            set("allyList", new ArrayList<Chess>());
-            set("enemyList", new ArrayList<Chess>());
-            set("targetList", new ArrayList<Chess>());
+            resetVisualEffect();
             setTargetKingList();
         }
     }
 
     private void resetVisualEffect() {
-        set("availablePosition", new ArrayList<Position>());
         set("allyList", new ArrayList<Chess>());
         set("enemyList", new ArrayList<Chess>());
         set("targetList", new ArrayList<Chess>());

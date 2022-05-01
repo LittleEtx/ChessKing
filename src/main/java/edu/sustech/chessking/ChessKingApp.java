@@ -31,8 +31,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
-import static edu.sustech.chessking.VisualLogic.getChessEntity;
-import static edu.sustech.chessking.VisualLogic.getMousePt;
+import static edu.sustech.chessking.VisualLogic.*;
 
 public class ChessKingApp extends GameApplication {
 
@@ -56,27 +55,29 @@ public class ChessKingApp extends GameApplication {
     private String backgroundTheme;
 
     private AiEnemy ai;
+    private boolean isEnemyFirst = false;
 
     private enum EndGameType {
         LOST, WIN, DRAWN, BLACKWIN, WHITEWIN
     }
 
-    private enum GameType {
-        COMPUTER, LOCAL, LAN, NET, REPLAY
-    }
-
-    private GameType gameType;
+    GameType gameType;
 
     // ===============================
     //initialize variables
     @Override
     protected void initGameVars(Map<String, Object> vars) {
         vars.put("core", gameCore);
-        vars.put("downChessTheme", "");
-        vars.put("upChessTheme", "");
+        vars.put("downChessSkin", "");
+        vars.put("upChessSkin", "");
         vars.put("downSideColor", ColorType.WHITE);
+        vars.put("gameType", GameType.LOCAL);
+        //indicate if the player is moving chess
         vars.put("isMovingChess", false);
+        //indicate the player end his turn
         vars.put("isEndTurn", false);
+        //indicate the enemy end his turn
+        vars.put("isEnemyMovingChess", false);
         vars.put("allyList", new ArrayList<Chess>());
         vars.put("enemyList", new ArrayList<Chess>());
         vars.put("targetList", new ArrayList<Chess>());
@@ -153,7 +154,9 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void initGame() {
         getGameWorld().addEntityFactory(new ChessKingEntityFactory());
+
         gameType = GameType.COMPUTER;
+        set("gameType", gameType);
         //spawn("backGround");
         initAvatar();
         initUI();
@@ -174,6 +177,14 @@ public class ChessKingApp extends GameApplication {
             blackTimer.runOnceAfter(this::resetBlackTurnClock, Duration.seconds(gameTimeInSecond));
         }
 
+        //random downside color
+        int side = FXGL.random(0,1);
+        if (side == 0)
+            downSide = ColorType.WHITE;
+        else
+            downSide = ColorType.BLACK;
+        set("downSideColor", downSide);
+
         //Set player and theme
         localPlayer = new Player("local player");
         localPlayer.setChessSkin("pixel");
@@ -188,18 +199,11 @@ public class ChessKingApp extends GameApplication {
         else if (gameType == GameType.COMPUTER) {
             ai = new AiEnemy(AiType.NORMAL, gameCore);
             upPlayer = ai.getPlayer();
+            isEnemyFirst = downSide != ColorType.WHITE;
         }
 
-        set("downChessTheme", downPlayer.getChessSkin());
-        set("upChessTheme", upPlayer.getChessSkin());
-
-        //random downside color
-        int side = FXGL.random(0,1);
-        if (side == 0)
-            downSide = ColorType.WHITE;
-        else
-            downSide = ColorType.BLACK;
-        set("downSideColor", downSide);
+        set("downChessSkin", downPlayer.getChessSkin());
+        set("upChessSkin", upPlayer.getChessSkin());
 
         initBoard();
         initChess();
@@ -215,17 +219,19 @@ public class ChessKingApp extends GameApplication {
                 return;
 
             //when downSide finish moving chess
-            side = gameCore.getTurn();
             checkIfEndGame();
+            side = gameCore.getTurn();
 
             switch (gameType) {
+                //set computer's turn
                 case COMPUTER -> {
+                    set("isEnemyMovingChess", true);
                     Move move = ai.getNextMove();
-
-
-                }
-                case LOCAL -> {
-
+                    Entity chess = getChessEntity(
+                            toPoint(move.getChess().getPosition()));
+                    if (chess == null)
+                        throw new RuntimeException("Cannot find chess!");
+                    chess.getComponent(ChessComponent.class).computerExecuteMove(move);
                 }
                 case LAN -> {
                 }
@@ -236,6 +242,15 @@ public class ChessKingApp extends GameApplication {
                 }
             }
             set("isEndTurn", false);
+        });
+
+        getbp("isEnemyMovingChess").addListener((ob, ov, nv) -> {
+            //After enemy end moving chess
+            if (nv)
+                return;
+
+            checkIfEndGame();
+            side = gameCore.getTurn();
         });
     }
 
@@ -358,6 +373,17 @@ public class ChessKingApp extends GameApplication {
         else {
             blackTimer.update(tpf);
         }
+
+        if (isEnemyFirst) {
+            set("isEnemyMovingChess", true);
+            //for computer, only begin to move after 3 sec
+            if (gameType == GameType.COMPUTER)
+                if (whiteTimer.getNow() < 3.0)
+                    return;
+
+            set("isEndTurn", true);
+            isEnemyFirst = false;
+        }
     }
 
 
@@ -383,9 +409,15 @@ public class ChessKingApp extends GameApplication {
         getInput().addAction(new UserAction("LeftClick") {
             @Override
             protected void onActionBegin() {
-                //In case move to fast
-                if (!betweenClickTimer.elapsed(Duration.seconds(0.1)) || getb("isEndTurn"))
+                //if enemy is moving chess or the turn is not over
+                if (getb("isEnemyMovingChess") ||
+                        getb("isEndTurn"))
                     return;
+
+                //In case move to fast
+                if (!betweenClickTimer.elapsed(Duration.seconds(0.1))) {
+                    return;
+                }
                 betweenClickTimer.capture();
 
                 if (!getb("isMovingChess")) {

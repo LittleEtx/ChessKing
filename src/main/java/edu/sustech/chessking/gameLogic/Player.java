@@ -13,11 +13,14 @@ public class Player {
     public Player(String name, String password) {
         this.name = name;
         this.password = password;
+        chessSkin = "default";
+        boardTheme = "default";
+        backgroundTheme = "default";
+        avatar = "default";
     }
 
     public Player(String name) {
-        this.name = name;
-        this.password = null;
+        this(name, null);
     }
 
     public void setChessSkin(String chessSkin) {
