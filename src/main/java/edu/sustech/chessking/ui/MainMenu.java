@@ -17,7 +17,7 @@ import javafx.scene.paint.Color;
 import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class MainMenu extends FXGLMenu {
-    private SubScene localStartNewGame = new LocalStartNewGame();
+    private SubScene newPlayer = new NewPlayer();
 
     public Button btn1 = new Button("Local Game");
 
@@ -182,7 +182,7 @@ public class MainMenu extends FXGLMenu {
         });
         localAIbtn.getStyleClass().add("menu-button");
 
-        Button viewGameBtn = new Button("View Game");
+        Button viewGameBtn = new Button("Replay");
         viewGameBtn.getStyleClass().add("menu-button");
 
         Button connectLanBtn = new Button("Connect Lan");
@@ -210,7 +210,7 @@ public class MainMenu extends FXGLMenu {
         fightAIbtn.getStyleClass().add("menu-button");
 
         localFight.setOnAction(event -> {
-            getSceneService().pushSubScene(localStartNewGame);
+            getSceneService().pushSubScene(newPlayer);
         });
 
         viewGameBtn.setOnAction(event -> {

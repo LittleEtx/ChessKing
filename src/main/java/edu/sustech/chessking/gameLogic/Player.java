@@ -5,6 +5,7 @@ public class Player {
     String boardTheme;
     String backgroundTheme;
     String avatar;
+    public boolean hasAvatar = false;
     String name;
     String password;
 
@@ -31,7 +32,13 @@ public class Player {
     }
 
     public void setAvatar(String avatar) {
+        hasAvatar = true;
         this.avatar = avatar;
+    }
+
+    public void deleteAvatar(){
+        this.hasAvatar = false;
+        this.avatar = null;
     }
 
     public void setPassword(String password) {

@@ -110,7 +110,7 @@
     -fx-background-color: #606060;
 }
 
-.newLocalGame-subScene-button{
+.newPlayer-subScene-button{
     -fx-pref-height: 50;
     -fx-pref-width: 150;
     -fx-background-color:#40404080;
@@ -122,15 +122,112 @@
     -fx-border-radius: 10;
 }
 
-.newLocalGame-subScene-button:hover{
+.newPlayer-subScene-button:hover{
     -fx-background-color:#00000070;
 }
 
-.newLocalGame-subScene-bg{
+.newPlayer-subScene-bg{
     -fx-background-color:linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #c21702ff 0.0%, #ffc803ff 100.0%);
     -fx-pref-height:600;
     -fx-pref-width:900;
 }
+
+.newPlayer-subScene-avatar1{
+    -fx-background-image: url("avatar/avatar1.png");
+    -fx-background-size: 70 70;
+    -fx-pref-height: 70;
+    -fx-pref-width: 70;
+}
+
+.newPlayer-subScene-avatar1:hover{
+    -fx-border-color: #20B2AA;
+    -fx-border-width: 5;
+}
+
+.newPlayer-subScene-avatar2{
+    -fx-background-image: url("avatar/avatar2.png");
+    -fx-background-size: 70 70;
+    -fx-pref-height: 70;
+    -fx-pref-width: 70;
+}
+
+.newPlayer-subScene-avatar2:hover{
+    -fx-border-color: #20B2AA;
+    -fx-border-width: 5;
+}
+
+.newPlayer-subScene-avatar3{
+    -fx-background-image: url("avatar/avatar3.png");
+    -fx-background-size: 70 70;
+    -fx-pref-height: 70;
+    -fx-pref-width: 70;
+}
+
+.newPlayer-subScene-avatar3:hover{
+    -fx-border-color: #20B2AA;
+    -fx-border-width: 5;
+}
+
+.newPlayer-subScene-avatar4{
+    -fx-background-image: url("avatar/avatar4.png");
+    -fx-background-size: 70 70;
+    -fx-pref-height: 70;
+    -fx-pref-width: 70;
+}
+
+.newPlayer-subScene-avatar4:hover{
+    -fx-border-color: #20B2AA;
+    -fx-border-width: 5;
+}
+
+.newPlayer-subScene-avatar5{
+    -fx-background-image: url("avatar/avatar5.png");
+    -fx-background-size: 70 70;
+    -fx-pref-height: 70;
+    -fx-pref-width: 70;
+}
+
+.newPlayer-subScene-avatar5:hover{
+    -fx-border-color: #20B2AA;
+    -fx-border-width: 5;
+}
+
+.newPlayer-subScene-avatar6{
+    -fx-background-image: url("avatar/avatar6.png");
+    -fx-background-size: 70 70;
+    -fx-pref-height: 70;
+    -fx-pref-width: 70;
+}
+
+.newPlayer-subScene-avatar6:hover{
+    -fx-border-color: #20B2AA;
+    -fx-border-width: 5;
+}
+
+.newPlayer-subScene-avatar7{
+    -fx-background-image: url("avatar/avatar7.png");
+    -fx-background-size: 70 70;
+    -fx-pref-height: 70;
+    -fx-pref-width: 70;
+}
+
+.newPlayer-subScene-avatar7:hover{
+    -fx-border-color: #20B2AA;
+    -fx-border-width: 5;
+}
+
+.newPlayer-subScene-avatar8{
+    -fx-background-image: url("avatar/avatar8.png");
+    -fx-background-size: 70 70;
+    -fx-pref-height: 70;
+    -fx-pref-width: 70;
+}
+
+.newPlayer-subScene-avatar8:hover{
+    -fx-border-color: #20B2AA;
+    -fx-border-width: 5;
+}
+
 
 .game-fin-ap{
     -fx-background-color: #00808080;
