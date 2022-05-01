@@ -16,12 +16,12 @@ public class AiEnemy {
     private static final Player easyAiPlayer = new Player("Easy Computer");
     private static final Player normalAiPlayer = new Player("Normal Computer");
     private static final Player hardAiPlayer = new Player("Hard Computer");
-    private int maxSearchNum;
+    private final int maxSearchNum;
     private static final int EasySearchNumber = 1;
     private static final int NormalSearchNumber = 4;
-    private static final int HardSearchNumber = 8;
-    private static final int positiveIndefinite = Integer.MAX_VALUE / 2;
-    private static final int negativeIndefinite = Integer.MIN_VALUE / 2;
+    private static final int HardSearchNumber = 7;
+    private static final int positiveInfinite = Integer.MAX_VALUE / 2;
+    private static final int negativeInfinite = Integer.MIN_VALUE / 2;
 
 
     /**
@@ -31,6 +31,12 @@ public class AiEnemy {
     public AiEnemy(AiType ai, GameCore gameCore) {
         this.ai = ai;
         this.gameCore = gameCore;
+        switch (ai) {
+            case EASY -> maxSearchNum = EasySearchNumber;
+            case NORMAL -> maxSearchNum = NormalSearchNumber;
+            case HARD -> maxSearchNum = HardSearchNumber;
+            default -> maxSearchNum = 1;
+        }
     }
 
     /**
@@ -56,17 +62,12 @@ public class AiEnemy {
      */
     public Move getNextMove() {
         ArrayList<Move> availableMove = gameCore.getAvailableMove();
-        switch (ai) {
-            case EASY -> maxSearchNum = EasySearchNumber;
-            case NORMAL -> maxSearchNum = NormalSearchNumber;
-            case HARD -> maxSearchNum = HardSearchNumber;
-        }
         //ranking from best to worst
         availableMove.sort((o1, o2) -> getScore(o2) - getScore(o1));
 
         //Scoring each
         ArrayList<Integer> moveScore = new ArrayList<>();
-        int maxScore = negativeIndefinite;
+        int maxScore = negativeInfinite;
         int score;
         for (Move move : availableMove) {
             score = getMaxSearchScore(1, maxScore, move);
@@ -87,7 +88,8 @@ public class AiEnemy {
 
     //alpha-beta pruning
     private int searchMax(int availableMax,  int index) {
-        int maxScore = negativeIndefinite;
+        //System.out.println("Search max with index " + index);
+        int maxScore = negativeInfinite;
         ArrayList<Move> availableMove = gameCore.getAvailableMove();
         //ranking the moves from best to worst
         availableMove.sort((o1, o2) -> getScore(o2) - getScore(o1));
@@ -125,7 +127,8 @@ public class AiEnemy {
     }
 
     private int searchMin(int AvailableMin, int index) {
-        int minScore = positiveIndefinite;
+        //System.out.println("Search min with index "+ index);
+        int minScore = positiveInfinite;
         ArrayList<Move> availableMove = gameCore.getAvailableMove();
 
         availableMove.sort((o1, o2) -> getScore(o2) - getScore(o1));
