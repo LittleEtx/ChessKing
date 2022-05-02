@@ -7,46 +7,49 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Save {
+    private final long uuid;
+    private final LocalDateTime saveDate;
     private final Player whitePlayer;
     private final Player blackPlayer;
     private final ColorType defaultDownColor;
-    private final MoveHistory gameHistory;
     private final double gameTime;
     private final double turnTime;
 
-    private final ArrayList<Double> whiteRemainingTime;
-    private final ArrayList<Double> blackRemainingTime;
+    private final ArrayList<Double> remainingTime;
+    private final MoveHistory gameHistory;
 
-    private final LocalDateTime saveDate;
-    private final long uuid;
 
     /**
      * generate a save by providing all data
      */
-    public Save(Player whitePlayer, Player blackPlayer, ColorType defaultDownColor,
-                double gameTime, double turnTime,
-                ArrayList<Double> whiteRemainingTime, ArrayList<Double> blackRemainingTime,
-                MoveHistory gameHistory, LocalDateTime saveDate, long uuid) {
+    public Save(long uuid, LocalDateTime saveDate,
+                Player whitePlayer, Player blackPlayer,
+                ColorType defaultDownColor, double gameTime, double turnTime,
+                ArrayList<Double> remainingTime,
+                MoveHistory gameHistory) {
+        this.uuid = uuid;
+        this.saveDate = saveDate;
         this.whitePlayer = whitePlayer;
         this.blackPlayer = blackPlayer;
         this.defaultDownColor = defaultDownColor;
         this.gameTime = gameTime;
         this.turnTime = turnTime;
-        this.whiteRemainingTime = whiteRemainingTime;
-        this.blackRemainingTime = blackRemainingTime;
+        this.remainingTime = remainingTime;
         this.gameHistory = gameHistory;
-        this.saveDate = saveDate;
-        this.uuid = uuid;
     }
 
     /**
      * generate a save with no time limit
      */
-    public Save(Player whitePlayer, Player blackPlayer, ColorType defaultDownColor,
-                MoveHistory gameHistory, LocalDateTime saveDate, long uuid) {
-        this(whitePlayer, blackPlayer, defaultDownColor,
-                -1, -1, null, null,
-                gameHistory, saveDate, uuid);
+    public Save(long uuid, LocalDateTime saveDate,
+                Player whitePlayer, Player blackPlayer,
+                ColorType defaultDownColor,
+                MoveHistory gameHistory) {
+        this(uuid, saveDate,
+                whitePlayer, blackPlayer,
+                defaultDownColor, -1, -1,
+                null,
+                gameHistory);
     }
 
     /**
@@ -54,11 +57,13 @@ public class Save {
      */
     public Save(Player whitePlayer, Player blackPlayer, ColorType defaultDownColor,
                 double gameTime, double turnTime,
-                ArrayList<Double> whiteRemainingTime, ArrayList<Double> blackRemainingTime,
+                ArrayList<Double> remainingTime,
                 MoveHistory gameHistory) {
-        this(whitePlayer, blackPlayer, defaultDownColor,
-                gameTime, turnTime, whiteRemainingTime, blackRemainingTime,
-                gameHistory, LocalDateTime.now(), (new Date()).getTime());
+        this((new Date()).getTime(), LocalDateTime.now(),
+                whitePlayer, blackPlayer,
+                defaultDownColor, gameTime, turnTime,
+                remainingTime,
+                gameHistory);
     }
 
     /**
@@ -66,8 +71,10 @@ public class Save {
      */
     public Save(Player whitePlayer, Player blackPlayer,
                 ColorType defaultDownColor, MoveHistory gameHistory) {
-        this(whitePlayer, blackPlayer, defaultDownColor, gameHistory,
-                LocalDateTime.now(), (new Date()).getTime());
+        this((new Date()).getTime(), LocalDateTime.now(),
+                whitePlayer, blackPlayer,
+                defaultDownColor,
+                gameHistory);
     }
 
     public Player getWhitePlayer() {
@@ -90,13 +97,10 @@ public class Save {
         return turnTime;
     }
 
-    public ArrayList<Double> getWhiteRemainingTime() {
-        return whiteRemainingTime;
+    public ArrayList<Double> getRemainingTime() {
+        return remainingTime;
     }
 
-    public ArrayList<Double> getBlackRemainingTime() {
-        return blackRemainingTime;
-    }
 
     public MoveHistory getGameHistory() {
         return gameHistory;

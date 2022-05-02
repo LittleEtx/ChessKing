@@ -38,7 +38,7 @@ public class Move {
     /**
      * Construct through String in the format:
      * Chess MoveType RelevantType
-     * Throw ConstructorException
+     * @exception ConstructorException when String method not match
      */
     public Move(String moveInfo) {
         this(moveInfo.split(" "));
