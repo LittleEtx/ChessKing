@@ -5,24 +5,41 @@ import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.gameLogic.Player;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.effect.Bloom;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-
 import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class NewPlayer extends SubScene {
 
-    //Player player = geto("localPlayer");
+//    Player player = geto("localPlayer");
     Player player = new Player("p1");
     public String[] skin = {"default","pixel"};
     
     public NewPlayer() {
-        Button newGameBtn = new Button("New Game");
+
+        //maybe don't use a rectangle
+        Rectangle rect = new Rectangle(1200,800,Color.web("#00000090"));
+
+        VBox bg = new VBox();
+        bg.getStyleClass().add("newPlayer-subScene-bg");
+        bg.setLayoutX(150);
+        bg.setLayoutY(100);
+
+        getContentRoot().getChildren().addAll(rect,bg);
+
+        //for input names
+        TextField name = new TextField();
+        getName(name);
+
+        Button newGameBtn = new Button("Done");
         newGameBtn.setOnAction(event ->{
+            player.setName(name.getText());
             getSceneService().popSubScene();
             getGameController().startNewGame();
+            System.out.println(player.getName() + " " + player.getAvatar() + " " + player.getChessSkin());
         });
         newGameBtn.getStyleClass().add("newPlayer-subScene-button");
 
@@ -34,17 +51,9 @@ public class NewPlayer extends SubScene {
 
         HBox buttons = new HBox(50,backBtn,newGameBtn);
         buttons.setLayoutX(600-175);
-        buttons.setLayoutY(600);
+        buttons.setLayoutY(620);
 
-        //maybe don't use a rectangle
-        Rectangle rect = new Rectangle(1200,800,Color.web("#00000090"));
-
-        VBox bg = new VBox();
-        bg.getStyleClass().add("newPlayer-subScene-bg");
-        bg.setLayoutX(150);
-        bg.setLayoutY(100);
-
-        getContentRoot().getChildren().addAll(rect,bg,buttons);
+        getContentRoot().getChildren().addAll(buttons);
 //        StackPane newGame = new StackPane(buttons);
 //        newGame.setMaxSize(400,400);
 //        newGame.getStyleClass().add("subScene");
@@ -61,8 +70,32 @@ public class NewPlayer extends SubScene {
         chooseBackground();
     }
 
+    public void getName(TextField name){
+        var nameText = getUIFactoryService().newText("Name",Color.BROWN,35);
+        nameText.setStroke(Color.WHITE);
+        nameText.setStrokeWidth(3);
+        if(!FXGL.isMobile()){
+            nameText.setEffect(new Bloom(0.8));
+        }
+
+        name.setPromptText("Your name here plz");
+//        name.setOnKeyPressed(e->{
+//            if(e.getCode()==KeyCode.ENTER){
+//                player.setName(name.getText());
+//                name.setPromptText(player.getName());
+//            }
+//        });
+
+        HBox nameBox = new HBox(20,nameText,name);
+        nameBox.setAlignment(Pos.CENTER);
+        nameBox.setLayoutX(460);
+        nameBox.setLayoutY(120);
+
+        getContentRoot().getChildren().addAll(nameBox);
+    }
+
     public final int xcoordinate = 170;
-    public final int ycoordinate =155;
+    public final int ycoordinate =180;
     public void chooseAvatar(){
 
 
@@ -294,7 +327,7 @@ public class NewPlayer extends SubScene {
         HBox avatarR4 = new HBox(20,avatar7btn,avatar8btn);
         VBox avatars = new VBox(20,avatarR1,avatarR2,avatarR3,avatarR4);
 
-        avatars.setLayoutY(200);
+        avatars.setLayoutY(225);
         avatars.setLayoutX(190);
 
         getContentRoot().getChildren().addAll(avatarbg,avatars);
@@ -361,11 +394,10 @@ public class NewPlayer extends SubScene {
 
         VBox skins = new VBox(15,defaultbtn,pixelbtn);
         skins.setLayoutX(xcoordinate+220+10);
-        skins.setLayoutY(200);
+        skins.setLayoutY(225);
 
         getContentRoot().getChildren().addAll(skinbg,skins);
     }
-
     public void chooseBoard() {
 
         var boardText = getUIFactoryService().newText("Board Skin",Color.BROWN,35);

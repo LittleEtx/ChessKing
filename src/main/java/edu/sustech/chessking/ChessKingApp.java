@@ -48,7 +48,7 @@ public class ChessKingApp extends GameApplication {
     private static double turnTimeInSecond;
     private ColorType side = ColorType.WHITE;
 
-    private Player localPlayer = new Player("p1");
+    private Player localPlayer;
     private Player downPlayer;
     private Player upPlayer;
     private String boardTheme;
@@ -83,6 +83,7 @@ public class ChessKingApp extends GameApplication {
         vars.put("targetList", new ArrayList<Chess>());
         vars.put("targetKingList", new ArrayList<Chess>());
         vars.put("availablePosition", new ArrayList<Position>());
+
         vars.put("localPlayer",localPlayer);
 
         vars.put("openAllyVisual", true);
@@ -188,8 +189,8 @@ public class ChessKingApp extends GameApplication {
         //Set player and theme
         localPlayer = new Player("local player");
         localPlayer.setChessSkin("pixel");
-        localPlayer.setBoardTheme("");
-        localPlayer.setBackgroundTheme("");
+        localPlayer.setBoardSkin("");
+        localPlayer.setBackground("");
         downPlayer = localPlayer;
 
         if (gameType == GameType.LOCAL) {

@@ -3,24 +3,32 @@ package edu.sustech.chessking.gameLogic;
 public class Player {
     String chessSkin;
     public boolean hasChessSkin = false;
-    String boardTheme;
-    String backgroundTheme;
+    String boardSkin;
+    String background;
     String avatar;
     public boolean hasAvatar = false;
     String name;
+    public boolean hasName = false;
     String password;
 
     public Player(String name, String password) {
         this.name = name;
+        hasName = true;
         this.password = password;
         chessSkin = "default";
-        boardTheme = "default";
-        backgroundTheme = "default";
+        boardSkin = "default";
+        background = "default";
         avatar = "default";
     }
 
     public Player(String name) {
         this(name, null);
+        hasName = true;
+    }
+
+    public void deleteName(){
+        this.name = null;
+        hasName = false;
     }
 
     public void setChessSkin(String chessSkin) {
@@ -33,12 +41,12 @@ public class Player {
         this.chessSkin = null;
     }
 
-    public void setBoardTheme(String boardTheme) {
-        this.boardTheme = boardTheme;
+    public void setBoardSkin(String boardSkin) {
+        this.boardSkin = boardSkin;
     }
 
-    public void setBackgroundTheme(String backgroundTheme) {
-        this.backgroundTheme = backgroundTheme;
+    public void setBackground(String background) {
+        this.background = background;
     }
 
     public void setAvatar(String avatar) {
@@ -63,12 +71,12 @@ public class Player {
         return chessSkin;
     }
 
-    public String getBoardTheme() {
-        return boardTheme;
+    public String getboardSkin() {
+        return boardSkin;
     }
 
-    public String getBackgroundTheme() {
-        return backgroundTheme;
+    public String getbackground() {
+        return background;
     }
 
     public String getAvatar() {
@@ -81,5 +89,16 @@ public class Player {
 
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(name).append(" ");
+        sb.append(avatar).append(" ");
+        sb.append(chessSkin).append(" ");
+        sb.append(boardSkin).append(" ");
+        sb.append(background).append(" ");
+        return sb.toString();
     }
 }
