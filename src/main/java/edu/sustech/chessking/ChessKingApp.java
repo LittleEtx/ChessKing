@@ -162,8 +162,6 @@ public class ChessKingApp extends GameApplication {
         gameType = GameType.COMPUTER;
         set("gameType", gameType);
         //spawn("backGround");
-        initAvatar();
-        initUI();
         FXGL.loopBGM("BGM1.mp3");
         betweenClickTimer = newLocalTimer();
 
@@ -183,10 +181,12 @@ public class ChessKingApp extends GameApplication {
 
         //random downside color
         int side = FXGL.random(0,1);
-        if (side == 0)
+        if (side == 0) {
             downSide = ColorType.WHITE;
-        else
+        }
+        else {
             downSide = ColorType.BLACK;
+        }
         set("downSideColor", downSide);
 
         //Set player and theme
@@ -195,9 +195,9 @@ public class ChessKingApp extends GameApplication {
 //        localPlayer.setBoardSkin("");
 //        localPlayer.setBackground("");
         downPlayer = localPlayer;
-
         if (gameType == GameType.LOCAL) {
-            upPlayer = new Player("Up player");
+            upPlayer = new Player();
+            upPlayer.setName("Up player");
             upPlayer.setChessSkin("pixel");
         }
         else if (gameType == GameType.COMPUTER) {
@@ -209,6 +209,8 @@ public class ChessKingApp extends GameApplication {
         set("downChessSkin", downPlayer.getChessSkin());
         set("upChessSkin", upPlayer.getChessSkin());
 
+        initAvatar();
+        initUI();
         initBoard();
         initChess();
     }
@@ -339,9 +341,9 @@ public class ChessKingApp extends GameApplication {
     }
 
     public void initAvatar(){
-        spawn("playerAvatar", new SpawnData().put("localPlayer",localPlayer));
-        spawn("upAvatar");
-        spawn("playerInfo",new SpawnData().put("playerSide","white"));
+        spawn("downAvatar", new SpawnData().put("player", downPlayer));
+        spawn("upAvatar", new SpawnData().put("player", upPlayer));
+        spawn("playerInfo",new SpawnData().put("playerSide", "white"));
 
         spawn("playerInfo",new SpawnData().put("playerSide","black"));
         spawn("chessGrave",new SpawnData().put("playerSide","black"));

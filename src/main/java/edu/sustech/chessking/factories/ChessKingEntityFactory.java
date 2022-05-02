@@ -104,15 +104,15 @@ public class ChessKingEntityFactory implements EntityFactory {
     public Entity newAvatar(SpawnData data){
         return FXGL.entityBuilder(data)
                 .at(new Point2D(735,10))
-                .with(new PlayerComponent(data.get("upPlayer")))
+                .with(new PlayerComponent(data.get("player")))
                 .build();
     }
 
-    @Spawns("playerAvatar")
-    public Entity newPlayerAvatar(SpawnData data){
+    @Spawns("downAvatar")
+    public Entity newDownAvatar(SpawnData data){
         return FXGL.entityBuilder(data)
                 .at(new Point2D(1115,720))
-                .with(new PlayerComponent(data.get("downPlayer")))
+                .with(new PlayerComponent(data.get("player")))
                 .build();
     }
 
