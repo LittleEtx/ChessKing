@@ -5,7 +5,6 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.EntityFactory;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.Spawns;
-import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.EntityType;
 import edu.sustech.chessking.components.*;
 import javafx.geometry.Point2D;
@@ -104,8 +103,8 @@ public class ChessKingEntityFactory implements EntityFactory {
     @Spawns("upAvatar")
     public Entity newAvatar(SpawnData data){
         return FXGL.entityBuilder(data)
-                .viewWithBBox(texture("avatar/echo.png",70,70))
                 .at(new Point2D(735,10))
+                .with(new PlayerComponent(data.get("upPlayer")))
                 .build();
     }
 
@@ -113,7 +112,7 @@ public class ChessKingEntityFactory implements EntityFactory {
     public Entity newPlayerAvatar(SpawnData data){
         return FXGL.entityBuilder(data)
                 .at(new Point2D(1115,720))
-                .with(new PlayerComponent(data.get("localPlayer")))
+                .with(new PlayerComponent(data.get("downPlayer")))
                 .build();
     }
 

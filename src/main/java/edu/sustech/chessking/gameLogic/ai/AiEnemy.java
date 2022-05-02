@@ -13,11 +13,24 @@ import static edu.sustech.chessking.gameLogic.ai.EvaluationMethod.getAccurateSco
 import static edu.sustech.chessking.gameLogic.ai.EvaluationMethod.getScore;
 
 public class AiEnemy {
+    private static final Player easyAiPlayer = new Player();
+    private static final Player normalAiPlayer = new Player();
+    private static final Player hardAiPlayer = new Player();
+    static {
+        easyAiPlayer.setName("Easy Computer");
+        easyAiPlayer.setChessSkin("default");
+        easyAiPlayer.setAvatar("aiAvatar");
+
+        normalAiPlayer.setName("Normal Computer");
+        normalAiPlayer.setChessSkin("pixel");
+        normalAiPlayer.setAvatar("aiAvatar");
+
+        hardAiPlayer.setName("Hard Computer");
+        hardAiPlayer.setChessSkin("default");
+        hardAiPlayer.setAvatar("aiAvatar");
+    }
     private final AiType ai;
     private final GameCore gameCore;
-    private static final Player easyAiPlayer = new Player("Easy Computer");
-    private static final Player normalAiPlayer = new Player("Normal Computer");
-    private static final Player hardAiPlayer = new Player("Hard Computer");
     private final int maxSearchNum;
     private static final int EasySearchNumber = 1;
     private static final int NormalSearchNumber = 4;
