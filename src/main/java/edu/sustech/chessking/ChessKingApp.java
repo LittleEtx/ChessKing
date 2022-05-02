@@ -47,7 +47,10 @@ public class ChessKingApp extends GameApplication {
     private static double gameTimeInSecond;
     private static double turnTimeInSecond;
 
-    private Player localPlayer;
+    private static Player localPlayer = new Player("p1");
+    public static Player getPlayer(){
+        return localPlayer;
+    }
     private Player downPlayer;
     private Player upPlayer;
     private String boardTheme;
@@ -187,10 +190,10 @@ public class ChessKingApp extends GameApplication {
         set("downSideColor", downSide);
 
         //Set player and theme
-        localPlayer = new Player("local player");
-        localPlayer.setChessSkin("pixel");
-        localPlayer.setBoardSkin("");
-        localPlayer.setBackground("");
+//        localPlayer = new Player("local player");
+//        localPlayer.setChessSkin("pixel");
+//        localPlayer.setBoardSkin("");
+//        localPlayer.setBackground("");
         downPlayer = localPlayer;
 
         if (gameType == GameType.LOCAL) {
@@ -336,8 +339,8 @@ public class ChessKingApp extends GameApplication {
     }
 
     public void initAvatar(){
-        spawn("avatar", new SpawnData().put("playerSide","white"));
-        spawn("avatar", new SpawnData().put("playerSide","black"));
+        spawn("playerAvatar", new SpawnData().put("localPlayer",localPlayer));
+        spawn("upAvatar");
         spawn("playerInfo",new SpawnData().put("playerSide","white"));
 
         spawn("playerInfo",new SpawnData().put("playerSide","black"));
@@ -405,6 +408,13 @@ public class ChessKingApp extends GameApplication {
                 endGame(EndGameType.LOST);
             }
         }, KeyCode.L);
+
+        getInput().addAction(new UserAction("Player Info") {
+            @Override
+            protected void onActionBegin() {
+                System.out.println(localPlayer.toString());
+            }
+        }, KeyCode.P);
 
         //left click action
         getInput().addAction(new UserAction("LeftClick") {
