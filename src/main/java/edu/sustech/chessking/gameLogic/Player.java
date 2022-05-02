@@ -1,44 +1,49 @@
 package edu.sustech.chessking.gameLogic;
 
+import edu.sustech.chessking.gameLogic.exception.ConstructorException;
+
 public class Player {
+    String name;
+    String avatar;
     String chessSkin;
-    public boolean hasChessSkin = false;
     String boardSkin;
     String background;
-    String avatar;
-    public boolean hasAvatar = false;
-    String name;
-    public boolean hasName = false;
     String password;
 
-    public Player(String name, String password) {
-        this.name = name;
-        hasName = true;
-        this.password = password;
+    /**
+     * default constructor
+     */
+    public Player() {
+        name = "default name";
+        avatar = "default";
         chessSkin = "default";
         boardSkin = "default";
         background = "default";
-        avatar = "default";
+        password = null;
     }
 
-    public Player(String name) {
-        this(name, null);
-        hasName = true;
+    public Player(String playerMessage) {
+        String[] data = playerMessage.split(" ");
+        if (data.length < 5)
+            throw new ConstructorException("Invalid message number");
+
+        name = data[0];
+        avatar = data[1];
+        chessSkin = data[2];
+        boardSkin = data[3];
+        background = data[4];
+        if (data.length == 6)
+            password = data[5];
+        else
+            password = null;
     }
 
-    public void deleteName(){
-        this.name = null;
-        hasName = false;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setChessSkin(String chessSkin) {
-        hasChessSkin = true;
         this.chessSkin = chessSkin;
-    }
-
-    public void deleteChessSkin() {
-        hasChessSkin = false;
-        this.chessSkin = null;
     }
 
     public void setBoardSkin(String boardSkin) {
@@ -50,41 +55,32 @@ public class Player {
     }
 
     public void setAvatar(String avatar) {
-        hasAvatar = true;
         this.avatar = avatar;
-    }
-
-    public void deleteAvatar(){
-        this.hasAvatar = false;
-        this.avatar = null;
     }
 
     public void setPassword(String password) {
         this.password = password;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    //getter method
+    public String getName() {
+        return name;
     }
 
     public String getChessSkin() {
         return chessSkin;
     }
 
-    public String getboardSkin() {
+    public String getBoardSkin() {
         return boardSkin;
     }
 
-    public String getbackground() {
+    public String getBackground() {
         return background;
     }
 
     public String getAvatar() {
         return avatar;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getPassword() {
@@ -98,7 +94,9 @@ public class Player {
         sb.append(avatar).append(" ");
         sb.append(chessSkin).append(" ");
         sb.append(boardSkin).append(" ");
-        sb.append(background).append(" ");
+        sb.append(background);
+        if (password != null)
+            sb.append(" ").append(password);
         return sb.toString();
     }
 }

@@ -4,7 +4,11 @@ import java.util.ArrayList;
 
 public class MoveHistory {
 
-    private final ArrayList<Move> moveHistory = new ArrayList<>();
+    private final ArrayList<Move> moveHistory;
+
+    MoveHistory() {
+       moveHistory  = new ArrayList<>();
+    }
 
     /**
      * Add a move step
