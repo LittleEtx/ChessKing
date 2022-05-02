@@ -101,21 +101,19 @@ public class ChessKingEntityFactory implements EntityFactory {
                 .build();
     }
 
-    @Spawns("avatar")
+    @Spawns("upAvatar")
     public Entity newAvatar(SpawnData data){
-        Point2D avatar;
-        Color color;
-        if(data.get("playerSide").equals("black")){
-            avatar = new Point2D(735,10);
-            color = Color.GRAY;
-        }else{
-            avatar = new Point2D(1115,720);
-            color = Color.LIGHTGRAY;
-        }
         return FXGL.entityBuilder(data)
-                .viewWithBBox(new Rectangle(70,70,color))
-                .with(new AvatarComponent(/*data.get(player avatar?)*/))
-                .at(avatar)
+                .viewWithBBox(texture("avatar/echo.png",70,70))
+                .at(new Point2D(735,10))
+                .build();
+    }
+
+    @Spawns("playerAvatar")
+    public Entity newPlayerAvatar(SpawnData data){
+        return FXGL.entityBuilder(data)
+                .at(new Point2D(1115,720))
+                .with(new PlayerComponent(data.get("localPlayer")))
                 .build();
     }
 

@@ -2,6 +2,7 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
+import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.gameLogic.Player;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -14,8 +15,8 @@ import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class NewPlayer extends SubScene {
 
-//    Player player = geto("localPlayer");
-    Player player = new Player("p1");
+//    Player player = new Player("p1");
+    Player player = ChessKingApp.getPlayer();
     public String[] skin = {"default","pixel"};
     
     public NewPlayer() {
@@ -144,15 +145,8 @@ public class NewPlayer extends SubScene {
                 player.setAvatar("avatar/avatar1.png");
                 System.out.println(player.getAvatar());
             }else{
-                avatar1btn.setStyle("-fx-border-color: transparent");
-                avatar2btn.setStyle("-fx-border-color: transparent");
-                avatar3btn.setStyle("-fx-border-color: transparent");
-                avatar4btn.setStyle("-fx-border-color: transparent");
-                avatar5btn.setStyle("-fx-border-color: transparent");
-                avatar6btn.setStyle("-fx-border-color: transparent");
-                avatar7btn.setStyle("-fx-border-color: transparent");
-                avatar8btn.setStyle("-fx-border-color: transparent");
-                player.deleteAvatar();
+                setTransparent(avatar1btn, avatar2btn, avatar3btn,
+                        avatar4btn, avatar5btn, avatar6btn, avatar7btn, avatar8btn);
                 player.setAvatar("avatar/avatar1.png");
                 avatar1btn.setStyle("-fx-border-color: #20B2AA;"+
                         "-fx-border-width: 5");
@@ -167,15 +161,8 @@ public class NewPlayer extends SubScene {
                 player.setAvatar("avatar/avatar2.png");
                 System.out.println(player.getAvatar());
             }else{
-                avatar1btn.setStyle("-fx-border-color: transparent");
-                avatar2btn.setStyle("-fx-border-color: transparent");
-                avatar3btn.setStyle("-fx-border-color: transparent");
-                avatar4btn.setStyle("-fx-border-color: transparent");
-                avatar5btn.setStyle("-fx-border-color: transparent");
-                avatar6btn.setStyle("-fx-border-color: transparent");
-                avatar7btn.setStyle("-fx-border-color: transparent");
-                avatar8btn.setStyle("-fx-border-color: transparent");
-                player.deleteAvatar();
+                setTransparent(avatar1btn, avatar2btn, avatar3btn,
+                        avatar4btn, avatar5btn, avatar6btn, avatar7btn, avatar8btn);
                 player.setAvatar("avatar/avatar2.png");
                 avatar2btn.setStyle("-fx-border-color: #20B2AA;"+
                         "-fx-border-width: 5");
@@ -190,15 +177,8 @@ public class NewPlayer extends SubScene {
                 player.setAvatar("avatar/avatar3.png");
                 System.out.println(player.getAvatar());
             }else{
-                avatar1btn.setStyle("-fx-border-color: transparent");
-                avatar2btn.setStyle("-fx-border-color: transparent");
-                avatar3btn.setStyle("-fx-border-color: transparent");
-                avatar4btn.setStyle("-fx-border-color: transparent");
-                avatar5btn.setStyle("-fx-border-color: transparent");
-                avatar6btn.setStyle("-fx-border-color: transparent");
-                avatar7btn.setStyle("-fx-border-color: transparent");
-                avatar8btn.setStyle("-fx-border-color: transparent");
-                player.deleteAvatar();
+                setTransparent(avatar1btn, avatar2btn, avatar3btn,
+                        avatar4btn, avatar5btn, avatar6btn, avatar7btn, avatar8btn);
                 player.setAvatar("avatar/avatar3.png");
                 avatar3btn.setStyle("-fx-border-color: #20B2AA;"+
                         "-fx-border-width: 5");
@@ -213,15 +193,8 @@ public class NewPlayer extends SubScene {
                 player.setAvatar("avatar/avatar4.png");
                 System.out.println(player.getAvatar());
             }else{
-                avatar1btn.setStyle("-fx-border-color: transparent");
-                avatar2btn.setStyle("-fx-border-color: transparent");
-                avatar3btn.setStyle("-fx-border-color: transparent");
-                avatar4btn.setStyle("-fx-border-color: transparent");
-                avatar5btn.setStyle("-fx-border-color: transparent");
-                avatar6btn.setStyle("-fx-border-color: transparent");
-                avatar7btn.setStyle("-fx-border-color: transparent");
-                avatar8btn.setStyle("-fx-border-color: transparent");
-                player.deleteAvatar();
+                setTransparent(avatar1btn, avatar2btn, avatar3btn,
+                        avatar4btn, avatar5btn, avatar6btn, avatar7btn, avatar8btn);
                 player.setAvatar("avatar/avatar4.png");
                 avatar4btn.setStyle("-fx-border-color: #20B2AA;"+
                         "-fx-border-width: 5");
@@ -236,15 +209,8 @@ public class NewPlayer extends SubScene {
                 player.setAvatar("avatar/avatar5.png");
                 System.out.println(player.getAvatar());
             }else{
-                avatar1btn.setStyle("-fx-border-color: transparent");
-                avatar2btn.setStyle("-fx-border-color: transparent");
-                avatar3btn.setStyle("-fx-border-color: transparent");
-                avatar4btn.setStyle("-fx-border-color: transparent");
-                avatar5btn.setStyle("-fx-border-color: transparent");
-                avatar6btn.setStyle("-fx-border-color: transparent");
-                avatar7btn.setStyle("-fx-border-color: transparent");
-                avatar8btn.setStyle("-fx-border-color: transparent");
-                player.deleteAvatar();
+                setTransparent(avatar1btn, avatar2btn, avatar3btn,
+                        avatar4btn, avatar5btn, avatar6btn, avatar7btn, avatar8btn);
                 player.setAvatar("avatar/avatar5.png");
                 avatar5btn.setStyle("-fx-border-color: #20B2AA;"+
                         "-fx-border-width: 5");
@@ -259,15 +225,8 @@ public class NewPlayer extends SubScene {
                 player.setAvatar("avatar/avatar6.png");
                 System.out.println(player.getAvatar());
             }else{
-                avatar1btn.setStyle("-fx-border-color: transparent");
-                avatar2btn.setStyle("-fx-border-color: transparent");
-                avatar3btn.setStyle("-fx-border-color: transparent");
-                avatar4btn.setStyle("-fx-border-color: transparent");
-                avatar5btn.setStyle("-fx-border-color: transparent");
-                avatar6btn.setStyle("-fx-border-color: transparent");
-                avatar7btn.setStyle("-fx-border-color: transparent");
-                avatar8btn.setStyle("-fx-border-color: transparent");
-                player.deleteAvatar();
+                setTransparent(avatar1btn, avatar2btn, avatar3btn,
+                        avatar4btn, avatar5btn, avatar6btn, avatar7btn, avatar8btn);
                 player.setAvatar("avatar/avatar6.png");
                 avatar6btn.setStyle("-fx-border-color: #20B2AA;"+
                         "-fx-border-width: 5");
@@ -282,15 +241,8 @@ public class NewPlayer extends SubScene {
                 player.setAvatar("avatar/avatar7.png");
                 System.out.println(player.getAvatar());
             }else{
-                avatar1btn.setStyle("-fx-border-color: transparent");
-                avatar2btn.setStyle("-fx-border-color: transparent");
-                avatar3btn.setStyle("-fx-border-color: transparent");
-                avatar4btn.setStyle("-fx-border-color: transparent");
-                avatar5btn.setStyle("-fx-border-color: transparent");
-                avatar6btn.setStyle("-fx-border-color: transparent");
-                avatar7btn.setStyle("-fx-border-color: transparent");
-                avatar8btn.setStyle("-fx-border-color: transparent");
-                player.deleteAvatar();
+                setTransparent(avatar1btn, avatar2btn, avatar3btn,
+                        avatar4btn, avatar5btn, avatar6btn, avatar7btn, avatar8btn);
                 player.setAvatar("avatar/avatar7.png");
                 avatar7btn.setStyle("-fx-border-color: #20B2AA;"+
                         "-fx-border-width: 5");
@@ -305,15 +257,8 @@ public class NewPlayer extends SubScene {
                 player.setAvatar("avatar/avatar8.png");
                 System.out.println(player.getAvatar());
             }else{
-                avatar1btn.setStyle("-fx-border-color: transparent");
-                avatar2btn.setStyle("-fx-border-color: transparent");
-                avatar3btn.setStyle("-fx-border-color: transparent");
-                avatar4btn.setStyle("-fx-border-color: transparent");
-                avatar5btn.setStyle("-fx-border-color: transparent");
-                avatar6btn.setStyle("-fx-border-color: transparent");
-                avatar7btn.setStyle("-fx-border-color: transparent");
-                avatar8btn.setStyle("-fx-border-color: transparent");
-                player.deleteAvatar();
+                setTransparent(avatar1btn, avatar2btn, avatar3btn,
+                        avatar4btn, avatar5btn, avatar6btn, avatar7btn, avatar8btn);
                 player.setAvatar("avatar/avatar8.png");
                 avatar8btn.setStyle("-fx-border-color: #20B2AA;"+
                         "-fx-border-width: 5");
@@ -331,6 +276,20 @@ public class NewPlayer extends SubScene {
         avatars.setLayoutX(190);
 
         getContentRoot().getChildren().addAll(avatarbg,avatars);
+    }
+
+    private void setTransparent(Button avatar1btn, Button avatar2btn, Button avatar3btn,
+                                Button avatar4btn, Button avatar5btn, Button avatar6btn,
+                                Button avatar7btn, Button avatar8btn) {
+        avatar1btn.setStyle("-fx-border-color: transparent");
+        avatar2btn.setStyle("-fx-border-color: transparent");
+        avatar3btn.setStyle("-fx-border-color: transparent");
+        avatar4btn.setStyle("-fx-border-color: transparent");
+        avatar5btn.setStyle("-fx-border-color: transparent");
+        avatar6btn.setStyle("-fx-border-color: transparent");
+        avatar7btn.setStyle("-fx-border-color: transparent");
+        avatar8btn.setStyle("-fx-border-color: transparent");
+        player.deleteAvatar();
     }
 
     public void chooseSkin() {
