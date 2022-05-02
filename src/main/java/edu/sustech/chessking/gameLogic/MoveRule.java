@@ -3,6 +3,7 @@ package edu.sustech.chessking.gameLogic;
 import edu.sustech.chessking.gameLogic.enumType.CastleType;
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
+import edu.sustech.chessking.gameLogic.enumType.MoveType;
 
 import java.util.ArrayList;
 
@@ -183,6 +184,12 @@ public class MoveRule {
             return pawn.getPosition().getRow() == 6;
     }
 
+    public static boolean isEatKing(Move move) {
+        if (move.getMoveType() != MoveType.EAT &&
+                move.getMoveType() != MoveType.EAT_PROMOTE)
+            return false;
+        return ((Chess)move.getMoveTarget()[0]).getChessType() == KING;
+    }
 
     /**
      * To check if two position are near each other

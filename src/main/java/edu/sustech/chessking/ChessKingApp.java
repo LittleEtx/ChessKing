@@ -42,11 +42,10 @@ public class ChessKingApp extends GameApplication {
     private LocalTimer betweenClickTimer;
     private boolean cursorDefault = true;
 
-    private final Timer whiteTimer = new Timer();
-    private final Timer blackTimer = new Timer();
+    private Timer whiteTimer;
+    private Timer blackTimer;
     private static double gameTimeInSecond;
     private static double turnTimeInSecond;
-    private ColorType side = ColorType.WHITE;
 
     private Player localPlayer;
     private Player downPlayer;
@@ -58,7 +57,7 @@ public class ChessKingApp extends GameApplication {
     private boolean isEnemyFirst = false;
 
     private enum EndGameType {
-        LOST, WIN, DRAWN, BLACKWIN, WHITEWIN
+        LOST, WIN, DRAWN, BLACK_WIN, WHITE_WIN
     }
 
     GameType gameType;
@@ -77,6 +76,7 @@ public class ChessKingApp extends GameApplication {
         //indicate the player end his turn
         vars.put("isEndTurn", false);
         //indicate the enemy end his turn
+        vars.put("turn", ColorType.WHITE);
         vars.put("isEnemyMovingChess", false);
         vars.put("allyList", new ArrayList<Chess>());
         vars.put("enemyList", new ArrayList<Chess>());
@@ -84,7 +84,7 @@ public class ChessKingApp extends GameApplication {
         vars.put("targetKingList", new ArrayList<Chess>());
         vars.put("availablePosition", new ArrayList<Position>());
 
-        vars.put("localPlayer",localPlayer);
+        //vars.put("localPlayer",localPlayer);
 
         vars.put("openAllyVisual", true);
         vars.put("openEnemyVisual", true);
@@ -171,8 +171,8 @@ public class ChessKingApp extends GameApplication {
         gameTimeInSecond = -1;
         turnTimeInSecond = -1;
 
-        whiteTimer.clear();
-        blackTimer.clear();
+        whiteTimer = new Timer();
+        blackTimer = new Timer();
         if (gameTimeInSecond > 0) {
             whiteTimer.runOnceAfter(this::resetWhiteTurnClock, Duration.seconds(gameTimeInSecond));
             blackTimer.runOnceAfter(this::resetBlackTurnClock, Duration.seconds(gameTimeInSecond));
@@ -221,7 +221,7 @@ public class ChessKingApp extends GameApplication {
 
             //when downSide finish moving chess
             checkIfEndGame();
-            side = gameCore.getTurn();
+            set("turn", gameCore.getTurn());
 
             switch (gameType) {
                 //set computer's turn
@@ -251,7 +251,7 @@ public class ChessKingApp extends GameApplication {
                 return;
 
             checkIfEndGame();
-            side = gameCore.getTurn();
+            set("turn", gameCore.getTurn());
         });
     }
 
@@ -260,9 +260,9 @@ public class ChessKingApp extends GameApplication {
         if (winSide != null) {
             if (gameType == GameType.LOCAL) {
                 if (winSide == ColorType.WHITE)
-                    endGame(EndGameType.WHITEWIN);
+                    endGame(EndGameType.WHITE_WIN);
                 else
-                    endGame(EndGameType.BLACKWIN);
+                    endGame(EndGameType.BLACK_WIN);
             }
             else {
                 if (winSide == downSide)
@@ -282,10 +282,10 @@ public class ChessKingApp extends GameApplication {
         whiteTimer.runOnceAfter(() -> {
             //white use all his time, lost
             if (gameType == GameType.LOCAL) {
-                endGame(EndGameType.BLACKWIN);
+                endGame(EndGameType.BLACK_WIN);
             }
             else {
-                if (side == ColorType.WHITE)
+                if (geto("turn") == ColorType.WHITE)
                     endGame(EndGameType.LOST);
                 else
                     endGame(EndGameType.WIN);
@@ -298,10 +298,10 @@ public class ChessKingApp extends GameApplication {
         blackTimer.runOnceAfter(() -> {
             //white use all his time, lost
             if (gameType == GameType.LOCAL) {
-                endGame(EndGameType.WHITEWIN);
+                endGame(EndGameType.WHITE_WIN);
             }
             else {
-                if (side == ColorType.BLACK)
+                if (geto("turn") == ColorType.BLACK)
                     endGame(EndGameType.LOST);
                 else
                     endGame(EndGameType.WIN);
@@ -324,11 +324,11 @@ public class ChessKingApp extends GameApplication {
                     () -> getGameController().startNewGame())*/
                         str = "It's a Drawn game!";
 
-            case WHITEWIN -> /*getDialogService().showMessageBox("White win the game!",
+            case WHITE_WIN -> /*getDialogService().showMessageBox("White win the game!",
                     () -> getGameController().startNewGame())*/
                         str = "The White side wins";
 
-            case BLACKWIN -> /*getDialogService().showMessageBox("Black win the game!",
+            case BLACK_WIN -> /*getDialogService().showMessageBox("Black win the game!",
                     () -> getGameController().startNewGame())*/
                         str = "The Black side wins";
         }
@@ -368,7 +368,7 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void onUpdate(double tpf) {
         //advance the time
-        if (side == ColorType.WHITE) {
+        if (geto("turn") == ColorType.WHITE) {
             whiteTimer.update(tpf);
         }
         else {

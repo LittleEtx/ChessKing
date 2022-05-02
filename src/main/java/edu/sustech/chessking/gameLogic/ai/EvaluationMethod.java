@@ -16,15 +16,15 @@ import java.util.Comparator;
 import static edu.sustech.chessking.gameLogic.enumType.ColorType.WHITE;
 
 public class EvaluationMethod {
-    private static final int KingScore = 100000000;
+    private static final int KingScore = 10000000;
     private static final int QueenScore = 10000;
     private static final int BishopScore = 3000;
     private static final int RookScore = 5000;
     private static final int KnightScore = 3000;
     private static final int PawnScore = 500;
 
-    private static final int ShortCastleScore = 4000;
-    private static final int LongCastleScore = 4000;
+    private static final int ShortCastleScore = 2500;
+    private static final int LongCastleScore = 2400;
     private static final int PromptQueenScore = 8000;
     private static final int PromptRookScore = 4000;
     private static final int PromptKnightScore = 2500;
@@ -69,7 +69,7 @@ public class EvaluationMethod {
             case PROMOTE -> {
                 return getPromptScore((ChessType) move.getMoveTarget()[0]);
             }
-            case EATPROMOTE -> {
+            case EAT_PROMOTE -> {
                 Chess chess = (Chess) move.getMoveTarget()[0];
                 return getChessScore(chess) +
                         getPromptScore((ChessType) move.getMoveTarget()[1]);

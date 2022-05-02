@@ -13,10 +13,9 @@ import java.util.List;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 
 public class VisualLogic {
-    public static boolean isMouseOnBoard(){
-        Point2D mouse = getInput().getMousePositionWorld();
-        return mouse.getX() < 720 && mouse.getX() > 80 &&
-                mouse.getY() > 80 && mouse.getY() < 720;
+    public static boolean isPointOnBoard(Point2D pt){
+        return pt.getX() < 720 && pt.getX() > 80 &&
+                pt.getY() > 80 && pt.getY() < 720;
     }
 
     public static Point2D getMousePt() {
@@ -37,7 +36,7 @@ public class VisualLogic {
      * @return null when the pt is not on board
      */
     public static Position toPosition(Point2D pt){
-        if (!isMouseOnBoard())
+        if (!isPointOnBoard(pt))
             return null;
 
         int y = (int) ((pt.getX() - pt.getX() % 80) / 80 - 1);

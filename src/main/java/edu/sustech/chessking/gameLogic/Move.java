@@ -25,7 +25,7 @@ public class Move {
      * EAT         Chess        <BR/>
      * CASTLE      CastleType   <BR/>
      * PROMOTION   ChessType    <BR/>
-     * EATPEOMOTE  Chess ChessType
+     * EAT_PROMOTE  Chess ChessType
      * @exception ConstructorException when moveTarget do not match the Object
      */
     public Move(Chess chess, MoveType moveType, Object ... moveTarget) {
@@ -55,7 +55,7 @@ public class Move {
 
         chess = new Chess(Arrays.copyOfRange(moveInfo, 0, 3));
 
-        switch (moveInfo[3].toLowerCase()) {
+        switch (moveInfo[3]) {
             case MoveType.Move ->  {
                 moveType = MoveType.MOVE;
                 if (moveInfo.length != 5)
@@ -85,7 +85,7 @@ public class Move {
                 moveTarget[0] = ChessType.toEnum(moveInfo[4]);
             }
             case MoveType.EatPromote -> {
-                moveType = MoveType.EATPROMOTE;
+                moveType = MoveType.EAT_PROMOTE;
                 if (moveInfo.length != 8)
                     throw new ConstructorException("Not valid number of parameter");
                 moveTarget = new Object[2];
@@ -139,12 +139,12 @@ public class Move {
                     throw new ConstructorException("Invalid promotion");
             }
 
-            case EATPROMOTE -> {
+            case EAT_PROMOTE -> {
                 if (moveTarget.length != 2)
                     throw new ConstructorException("Invalid parameter number");
                 if (moveTarget[0].getClass() != Chess.class ||
                         moveTarget[1].getClass() != ChessType.class)
-                    throw new ConstructorException("Invalid object for move type EATPROMOTE");
+                    throw new ConstructorException("Invalid object for move type EAT_PROMOTE");
                 if (!MoveRule.isEatValid(chess, (Chess) moveTarget[0]))
                     throw new ConstructorException("Invalid eat");
                 if (!MoveRule.isPromotionValid(chess, (ChessType) moveTarget[1]))
@@ -187,7 +187,7 @@ public class Move {
             case MOVE -> {
                 return (Position) moveTarget[0];
             }
-            case EAT, EATPROMOTE -> {
+            case EAT, EAT_PROMOTE -> {
                 Chess targetChess = (Chess) moveTarget[0];
                 if (MoveRule.isEatPassant(chess, targetChess)) {
                     if (chess.getColorType() == ColorType.WHITE)

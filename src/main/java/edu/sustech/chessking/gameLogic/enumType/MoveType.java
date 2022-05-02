@@ -1,13 +1,13 @@
 package edu.sustech.chessking.gameLogic.enumType;
 
 public enum MoveType {
-    MOVE, EAT, CASTLE, PROMOTE, EATPROMOTE;
+    MOVE, EAT, CASTLE, PROMOTE, EAT_PROMOTE;
 
     public static final String Move = "move";
     public static final String Eat = "eat";
     public static final String Castle = "castle";
     public static final String Promote = "promote";
-    public static final String EatPromote = "eatpromote";
+    public static final String EatPromote = "eatPromote";
 
     @Override
     public String toString() {
@@ -24,7 +24,7 @@ public enum MoveType {
             case PROMOTE -> {
                 return Promote;
             }
-            case EATPROMOTE -> {
+            case EAT_PROMOTE -> {
                 return EatPromote;
             }
         }

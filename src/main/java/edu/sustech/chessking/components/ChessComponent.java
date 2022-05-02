@@ -4,19 +4,24 @@ package edu.sustech.chessking.components;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.component.Component;
+import com.almasb.fxgl.entity.components.ViewComponent;
 import com.almasb.fxgl.texture.Texture;
 import com.almasb.fxgl.time.LocalTimer;
 import edu.sustech.chessking.EntityType;
+import edu.sustech.chessking.GameType;
 import edu.sustech.chessking.gameLogic.*;
 import edu.sustech.chessking.gameLogic.enumType.CastleType;
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
+import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
 import javafx.geometry.Point2D;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.almasb.fxgl.dsl.FXGL.set;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 import static edu.sustech.chessking.VisualLogic.*;
 
@@ -25,6 +30,8 @@ public class ChessComponent extends Component {
 
     private boolean isMove = false;
     private boolean isComputerMove = false;
+    private boolean isAtTargetPos = false;
+    private boolean isMouseEnter = false;
     private static Move computerMove;
     private static final int velocity = 40;
     private static final GameCore gameCore = geto("core");
@@ -128,6 +135,41 @@ public class ChessComponent extends Component {
                     updateTargetState(((ArrayList<?>) nv).contains(chess)));
     }
 
+    public void setOutLine(boolean state) {
+        //when end turn, close outline
+        if (!isChessMoveAvailable() ||
+                (!isMove && getb("isMovingChess")))
+            state = false;
+        //when moving chess, keep outline
+        else if (isMove)
+            state = true;
+
+        if (state == isMouseEnter)
+            return;
+        isMouseEnter = state;
+        ViewComponent vc = entity.getViewComponent();
+        if (state) {
+            Texture texture = (Texture) vc.getChildren().get(0);
+            texture = texture.outline(Color.WHITE, 5);
+            vc.clearChildren();
+            vc.addChild(texture);
+        }
+        else {
+            setPic(entity, chess);
+        }
+    }
+
+    private boolean isChessMoveAvailable() {
+        GameType gameType = geto("gameType");
+        ColorType downSideColor = geto("downSideColor");
+        if (gameType == GameType.LOCAL) {
+            return chess.getColorType() == geto("turn");
+        }
+        else
+            return geto("turn") == downSideColor &&
+                    chess.getColorType() == downSideColor;
+    }
+
     private void updateAssistState(AssistState newState) {
         if (newState == assistState)
             return;
@@ -188,17 +230,28 @@ public class ChessComponent extends Component {
             updateVisual();
         }
         else if (isComputerMove) {
-            entity.translateTowards(toPoint(targetPos), velocity * tpf);
-            if (entity.getPosition().distance(toPoint(targetPos)) < 1) {
-                isComputerMove = false;
-                resetVisualEffect();
-                set("availablePosition", new ArrayList<Position>());
-                executeMove(computerMove);
-                set("isEnemyMovingChess", false);
+            if (!isAtTargetPos) {
+                entity.translateTowards(toPoint(targetPos), velocity * tpf);
+                updateVisual();
+                if (entity.getPosition().distance(toPoint(targetPos)) < 1) {
+                    entity.setPosition(toPoint(targetPos));
+                    isAtTargetPos = true;
+                    localTimer.capture();
+                }
             }
-            updateVisual();
+            else {
+                if (localTimer.elapsed(Duration.seconds(1.0))) {
+                    isComputerMove = false;
+                    clearVisualEffect();
+                    set("availablePosition", new ArrayList<Position>());
+                    executeMove(computerMove);
+                    isAtTargetPos = false;
+                    set("isEnemyMovingChess", false);
+                }
+            }
         }
     }
+
 
     private void updateVisual() {
         //update visual effect 0.5s per times
@@ -223,22 +276,22 @@ public class ChessComponent extends Component {
             return false;
         }
 
-        isMove = true;
         printAvailablePos();
         set("availablePosition", gameCore.getAvailablePosition(chess));
         //set to the top
         setToTop(entity);
+        isMove = true;
         return true;
     }
 
     public void putChess(){
         isMove = false;
         movingChessPos = null;
-        resetVisualEffect();
+        clearVisualEffect();
         set("availablePosition", new ArrayList<Position>());
 
         Position pos = getMousePos();
-        if (isMouseOnBoard() && gameCore.isMoveAvailable(chess, pos)) {
+        if (pos != null && gameCore.isMoveAvailable(chess, pos)) {
             //if is to promote, show a panel
             Move move = gameCore.castToMove(chess, pos);
             if (move == null) {
@@ -257,8 +310,10 @@ public class ChessComponent extends Component {
                             if (aBoolean) {
                                 executeMove(finalMove);
                                 set("isEndTurn", true);
-                            } else
+                            } else {
                                 entity.setPosition(toPoint(chess.getPosition()));
+                                setTargetKingList();
+                            }
                         });
             }
             else {
@@ -275,9 +330,10 @@ public class ChessComponent extends Component {
 
     public void computerExecuteMove(Move move) {
         targetPos = move.getPosition();
-        isComputerMove = true;
         computerMove = move;
+        setToTop(entity);
         set("availablePosition", gameCore.getAvailablePosition(chess));
+        isComputerMove = true;
     }
 
     private void executeMove(Move move) {
@@ -286,7 +342,7 @@ public class ChessComponent extends Component {
         gameCore.moveChess(move);
         //if eat chess
         if (move.getMoveType() == MoveType.EAT ||
-                move.getMoveType() == MoveType.EATPROMOTE) {
+                move.getMoveType() == MoveType.EAT_PROMOTE) {
             Chess targetChess = (Chess) move.getMoveTarget()[0];
             eatChess(targetChess.getPosition());
         }
@@ -297,7 +353,7 @@ public class ChessComponent extends Component {
             chess = chess.promoteTo(chessType);
             setPic(entity, chess);
         }
-        else if (move.getMoveType() == MoveType.EATPROMOTE) {
+        else if (move.getMoveType() == MoveType.EAT_PROMOTE) {
             ChessType chessType = (ChessType) move.getMoveTarget()[1];
             chess = chess.promoteTo(chessType);
             setPic(entity, chess);
@@ -371,14 +427,15 @@ public class ChessComponent extends Component {
 
             //if eat chess, set red cross
             if (move.getMoveType() == MoveType.EAT ||
-                    move.getMoveType() == MoveType.EATPROMOTE) {
+                    move.getMoveType() == MoveType.EAT_PROMOTE) {
                 Chess eatenChess = (Chess) move.getMoveTarget()[0];
                 if (redCross == null ||
                         !redCross.getPosition().equals(toPoint(eatenChess.getPosition())
                                 .add(new Point2D(0, 20))))
                     removeRedCross();
                 redCross = spawn("redCross",
-                        new SpawnData(toPoint(pos).add(new Point2D(0, 20))));
+                        new SpawnData(toPoint(eatenChess.getPosition()).
+                                add(new Point2D(0, 20))));
             }
             else
                 removeRedCross();
@@ -415,12 +472,12 @@ public class ChessComponent extends Component {
             set("targetKingList", kingList);
         }
         else {
-            resetVisualEffect();
+            clearVisualEffect();
             setTargetKingList();
         }
     }
 
-    private void resetVisualEffect() {
+    private void clearVisualEffect() {
         set("allyList", new ArrayList<Chess>());
         set("enemyList", new ArrayList<Chess>());
         set("targetList", new ArrayList<Chess>());
@@ -430,13 +487,18 @@ public class ChessComponent extends Component {
     }
 
     private void setTargetKingList() {
-        if (gameCore.isChecked(gameCore.getTurn())) {
+        if (gameCore.isChecked(gameCore.getTurn()) && !isMovingKing()) {
             ArrayList<Chess> kingList = new ArrayList<>();
             kingList.add(gameCore.getChessKing(gameCore.getTurn()));
             set("targetKingList", kingList);
         }
         else
             set("targetKingList", new ArrayList<Chess>());
+    }
+
+    private boolean isMovingKing() {
+        return chess.getChessType() == ChessType.KING &&
+                (isMove || isComputerMove);
     }
 
     private void removeRedCross() {

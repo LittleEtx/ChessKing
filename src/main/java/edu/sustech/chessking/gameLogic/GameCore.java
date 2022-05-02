@@ -381,7 +381,7 @@ public class GameCore {
                     pawn = getChess(formerChess.getPosition().getDown());
                 moveListChess(pawn, formerChess.getPosition(), PAWN);
             }
-            case EATPROMOTE -> {
+            case EAT_PROMOTE -> {
                 Chess eatenChess = (Chess) move.getMoveTarget()[0];
                 Chess pawn = getChess(eatenChess.getPosition());
                 chessList.add(eatenChess);
@@ -518,7 +518,7 @@ public class GameCore {
                 else
                     return !hasChess(chess.getPosition().getDown());
             }
-            case EATPROMOTE -> {
+            case EAT_PROMOTE -> {
                 Chess target = (Chess) move.getMoveTarget()[0];
                 return target.equals(getChess(target.getPosition()));
             }
@@ -897,7 +897,7 @@ public class GameCore {
         ArrayList<Move> availableMove = getAvailableMove(nowChess);
         for (Move targetMove : availableMove) {
             if (targetMove.getMoveType() == EAT ||
-                    targetMove.getMoveType() == EATPROMOTE)
+                    targetMove.getMoveType() == EAT_PROMOTE)
                 targetEnemyList.add((Chess)targetMove.getMoveTarget()[0]);
         }
 
@@ -1045,7 +1045,7 @@ public class GameCore {
                 else
                     moveListChess(chess, chess.getPosition().getDown(), promoteType);
             }
-            case EATPROMOTE -> {
+            case EAT_PROMOTE -> {
                 Chess eatChess = (Chess) move.getMoveTarget()[0];
                 ChessType promoteType = (ChessType) move.getMoveTarget()[1];
                 chessList.remove(eatChess);
@@ -1176,6 +1176,6 @@ public class GameCore {
         if ((targetChess = getChess(pos)) == null)
             return new Move(pawn, PROMOTE, promoteType);
         else
-            return new Move(pawn, EATPROMOTE, targetChess, promoteType);
+            return new Move(pawn, EAT_PROMOTE, targetChess, promoteType);
     }
 }

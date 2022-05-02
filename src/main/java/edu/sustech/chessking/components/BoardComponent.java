@@ -1,16 +1,9 @@
 package edu.sustech.chessking.components;
 
-import com.almasb.fxgl.animation.Animation;
-import com.almasb.fxgl.animation.AnimationBuilder;
+import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
-import com.almasb.fxgl.texture.AnimatedTexture;
-import com.almasb.fxgl.time.LocalTimer;
 import edu.sustech.chessking.VisualLogic;
 import edu.sustech.chessking.gameLogic.Position;
-import javafx.animation.FadeTransition;
-import javafx.animation.Transition;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -18,12 +11,16 @@ import javafx.util.Duration;
 
 import java.util.ArrayList;
 
-import static com.almasb.fxgl.dsl.FXGL.*;
+import static com.almasb.fxgl.dsl.FXGL.getInput;
+import static com.almasb.fxgl.dsl.FXGL.getop;
+import static edu.sustech.chessking.VisualLogic.getChessEntity;
+import static edu.sustech.chessking.VisualLogic.toPoint;
 
 public class BoardComponent extends Component {
     private final Position position;
     private TwinkleComponent twinkleComponent;
-    boolean isOnTransition = false;
+
+    private boolean transState = false;
 
     public BoardComponent(Position position){
         this.position = position;
@@ -47,9 +44,7 @@ public class BoardComponent extends Component {
         twinkleComponent.setDuration(Duration.seconds(1.5)).
                 setFromOpacity(1.0).setToOpacity(0.2);
 
-        getop("availablePosition").addListener((ob, ov, nv) -> {
-            setTransition(((ArrayList<?>) nv).contains(position));
-        });
+        getop("availablePosition").addListener((ob, ov, nv) -> setTransition(((ArrayList<?>) nv).contains(position)));
     }
 
     @Override
@@ -58,27 +53,34 @@ public class BoardComponent extends Component {
     }
 
     public void setTransition(boolean state) {
-        if (state && !isOnTransition) {
+        if (state && !transState) {
             twinkleComponent.play();
-            isOnTransition = true;
+            transState = true;
         }
-        if (!state && isOnTransition) {
-            twinkleComponent.stop();;
-            isOnTransition = false;
+        if (!state && transState) {
+            twinkleComponent.stop();
+            transState = false;
         }
     }
 
     public void compareMouse(){
-        if (isOnTransition)
+        if (transState)
             return;
 
+        Entity chess = getChessEntity(toPoint(position));
         Point2D mouse = getInput().getMousePositionWorld();
-
-        if (Math.abs(mouse.getX() - entity.getX()-40)<40&&
-                    Math.abs(mouse.getY() - entity.getY()-40)<40){
+        if (Math.abs(mouse.getX() - entity.getX() - 40) < 40 &&
+                Math.abs(mouse.getY() - entity.getY() - 40) < 40) {
             entity.setOpacity(0.2);
-        }else{
+            if (chess != null) {
+                chess.getComponent(ChessComponent.class).setOutLine(true);
+            }
+        }
+        else {
             entity.setOpacity(1);
+            if (chess != null) {
+                chess.getComponent(ChessComponent.class).setOutLine(false);
+            }
         }
     }
 }

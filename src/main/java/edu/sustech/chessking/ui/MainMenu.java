@@ -11,7 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.effect.Bloom;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
@@ -178,6 +178,7 @@ public class MainMenu extends FXGLMenu {
 
         Button localAIbtn = new Button("Local AI");
         localAIbtn.setOnAction(event -> {
+
 
         });
         localAIbtn.getStyleClass().add("menu-button");

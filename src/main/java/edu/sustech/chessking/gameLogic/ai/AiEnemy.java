@@ -1,5 +1,6 @@
 package edu.sustech.chessking.gameLogic.ai;
 
+import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.dsl.FXGL;
 import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.gameLogic.Move;
@@ -7,6 +8,7 @@ import edu.sustech.chessking.gameLogic.Player;
 
 import java.util.ArrayList;
 
+import static edu.sustech.chessking.gameLogic.MoveRule.isEatKing;
 import static edu.sustech.chessking.gameLogic.ai.EvaluationMethod.getAccurateScore;
 import static edu.sustech.chessking.gameLogic.ai.EvaluationMethod.getScore;
 
@@ -20,8 +22,8 @@ public class AiEnemy {
     private static final int EasySearchNumber = 1;
     private static final int NormalSearchNumber = 4;
     private static final int HardSearchNumber = 7;
-    private static final int positiveInfinite = Integer.MAX_VALUE / 2;
-    private static final int negativeInfinite = Integer.MIN_VALUE / 2;
+    private static final int positiveInfinite = Integer.MAX_VALUE / 4;
+    private static final int negativeInfinite = Integer.MIN_VALUE / 4;
 
 
     /**
@@ -106,13 +108,17 @@ public class AiEnemy {
     }
 
     private int getMaxSearchScore(int index, int maxScore, Move move) {
+        if (isEatKing(move)) {
+            return getScore(move);
+        }
+
         int score;
         if (index < maxSearchNum) {
             gameCore.moveChess(move);
             if (gameCore.hasDrawn())
                 score = EvaluationMethod.getDrawnScore();
             else {
-                score = getScore(move);
+                score = FXGLMath.floor(getScore(move) * 0.95f);
                 //if searchMin < maxScore - score, then score < maxScore,
                 //hence this branch can be abandoned
                 score += searchMin(maxScore - score, index + 1);
@@ -135,6 +141,11 @@ public class AiEnemy {
 
         int score;
         for (Move move : availableMove) {
+            if (isEatKing(move)) {
+                //if the move is to eat the king
+                return  -getScore(move);
+            }
+
             if (index < maxSearchNum) {
                 gameCore.moveChess(move);
                 if (gameCore.hasDrawn())
@@ -151,6 +162,7 @@ public class AiEnemy {
                 //reaches the end of the tree
                 score = - getAccurateScore(move, gameCore);
             }
+
             if (score < AvailableMin) {
                 return score;
             }
