@@ -13,13 +13,13 @@ public class PlayerComponent extends Component {
     private String avatar;
 
     public PlayerComponent(Player player){
+        String str = "avatar/"+player.getAvatar()+".png";
         this.player = player;
-        this.avatar = player.getAvatar();
+        this.avatar = str;
     }
 
     private void setAvatar(String avatar){
-        String pic = avatar;
-        Texture img = texture(pic, 70, 70);
+        Texture img = texture(avatar, 70, 70);
         ViewComponent viewComponent = entity.getViewComponent();
         viewComponent.clearChildren();
         viewComponent.addChild(img);

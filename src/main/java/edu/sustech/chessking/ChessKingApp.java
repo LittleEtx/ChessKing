@@ -47,7 +47,7 @@ public class ChessKingApp extends GameApplication {
     private static double gameTimeInSecond;
     private static double turnTimeInSecond;
 
-    private static Player localPlayer = new Player("p1");
+    private static Player localPlayer = new Player();
     public static Player getPlayer(){
         return localPlayer;
     }
