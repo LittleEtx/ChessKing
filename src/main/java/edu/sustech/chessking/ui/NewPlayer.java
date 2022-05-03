@@ -16,7 +16,7 @@ import static com.almasb.fxgl.dsl.FXGL.*;
 public class NewPlayer extends SubScene {
 
 //    Player player = new Player("p1");
-    Player player = ChessKingApp.getPlayer();
+    Player player = ChessKingApp.getLocalPlayer();
     public String[] skin = {"default","pixel"};
     private boolean hasAvatar = false;
     private boolean hasChessSkin = false;
@@ -41,7 +41,6 @@ public class NewPlayer extends SubScene {
         newGameBtn.setOnAction(event ->{
             player.setName(name.getText());
             getSceneService().popSubScene();
-            getGameController().startNewGame();
             System.out.println(player.getName() + " " + player.getAvatar() + " " + player.getChessSkin());
         });
         newGameBtn.getStyleClass().add("newPlayer-subScene-button");

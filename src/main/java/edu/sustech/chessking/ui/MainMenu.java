@@ -5,6 +5,8 @@ import com.almasb.fxgl.app.scene.MenuType;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import com.almasb.fxgl.texture.Texture;
+import edu.sustech.chessking.ChessKingApp;
+import edu.sustech.chessking.GameType;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
@@ -53,6 +55,9 @@ public class MainMenu extends FXGLMenu {
         btn1.setOnAction(event -> {
             setLocalGameBtn();
             deleteMainMenuBtn();
+
+            //if no initial player
+            getSceneService().pushSubScene(newPlayer);
         });
 
         btn1.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
@@ -176,12 +181,11 @@ public class MainMenu extends FXGLMenu {
         Button localFight = new Button("New Duel");
         localFight.getStyleClass().add("menu-button");
 
-        Button localAIbtn = new Button("Local AI");
-        localAIbtn.setOnAction(event -> {
 
-
-        });
+        //start a new game with AI when clicked
+        Button localAIbtn = new Button("Fight AI");
         localAIbtn.getStyleClass().add("menu-button");
+
 
         Button viewGameBtn = new Button("Replay");
         viewGameBtn.getStyleClass().add("menu-button");
@@ -204,14 +208,14 @@ public class MainMenu extends FXGLMenu {
 
         getContentRoot().getChildren().addAll(localGameBoxc1,localGameBoxc2,localGameTitle,backBtn);
 
-        Button fightAIbtn = new Button("Fight AI");
-        fightAIbtn.setOnAction(event -> {
-            getController().startNewGame();
-        });
-        fightAIbtn.getStyleClass().add("menu-button");
 
         localFight.setOnAction(event -> {
             getSceneService().pushSubScene(newPlayer);
+        });
+
+        localAIbtn.setOnAction(event -> {
+            ChessKingApp.setGameType(GameType.COMPUTER);
+            getGameController().startNewGame();
         });
 
         viewGameBtn.setOnAction(event -> {
@@ -228,43 +232,4 @@ public class MainMenu extends FXGLMenu {
            setMainMenuBtn();
         });
     }
-//a discarded method of hovering mouse leads to other mouse
-//    private VBox localGame;
-//    private Button newGameBtn = new Button("New Game");
-//    private Button loadSaveBtn = new Button("Load Save");
-//    private boolean spawn = false;
-//
-//    @Override
-//    protected void onUpdate(double tpf) {
-//        btn1Hover();
-//    }
-//
-//    private void btn1Hover() {
-//        if(btn1.isHover()){
-//            if(!spawn) {
-//                spawnLocalGameBtn();
-//                spawn = true;
-//            }
-//        }else {
-//            if(localGame ==null){
-//                return;
-//            }
-//            if (!localGame.isHover()) {
-//                deleteLocalGameBtn();
-//                spawn = false;
-//            }
-//        }
-//    }
-//
-//    private void deleteLocalGameBtn() {
-//        getContentRoot().getChildren().remove(localGame);
-//    }
-//
-//    public void spawnLocalGameBtn() {
-//        newGameBtn.setOnAction(event -> getController().startNewGame());
-//        localGame = new VBox(newGameBtn,loadSaveBtn);
-//        localGame.setLayoutY(420);
-//        localGame.setLayoutX(675);
-//        getContentRoot().getChildren().addAll(localGame);
-//    }
 }

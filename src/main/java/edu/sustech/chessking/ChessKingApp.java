@@ -48,9 +48,10 @@ public class ChessKingApp extends GameApplication {
     private static double turnTimeInSecond;
 
     private static Player localPlayer = new Player();
-    public static Player getPlayer(){
+    public static Player getLocalPlayer(){
         return localPlayer;
     }
+    public static void setLocalPlayer(Player player){localPlayer = player;}
     private Player downPlayer;
     private Player upPlayer;
     private String boardTheme;
@@ -63,7 +64,10 @@ public class ChessKingApp extends GameApplication {
         LOST, WIN, DRAWN, BLACK_WIN, WHITE_WIN
     }
 
-    GameType gameType;
+    private static GameType gameType;
+    public static void setGameType(GameType gt){
+        gameType = gt;
+    }
 
     // ===============================
     //initialize variables
@@ -159,10 +163,13 @@ public class ChessKingApp extends GameApplication {
     protected void initGame() {
         getGameWorld().addEntityFactory(new ChessKingEntityFactory());
 
-        gameType = GameType.COMPUTER;
-        set("gameType", gameType);
+//        gameType = GameType.COMPUTER;
+//        set("gameType", gameType);
+
+
         //spawn("backGround");
         FXGL.loopBGM("BGM1.mp3");
+
         betweenClickTimer = newLocalTimer();
 
         //deal with end turn method, check if end game
