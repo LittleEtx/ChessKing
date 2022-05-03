@@ -3,18 +3,20 @@ package edu.sustech.chessking.gameLogic;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 public class SaveLoader {
-    private static File localSavePath = new File("localSaves");
-    private static File serverSavePath = new File("serverSaves");
+    private static final File localSavePath = new File("localSaves");
+    private static final File serverSavePath = new File("serverSaves");
 
-    private static File playerPath = new File("player");
+    private static final File playerPath = new File("player");
 
     /**
      * @param player read which player's saves
@@ -24,6 +26,10 @@ public class SaveLoader {
         return getSaves(localSavePath, player.getName());
     }
 
+    /**
+     * @param player read which player's saves
+     * @return all available saves of a player, in order of time
+     */
     public static ArrayList<Save> readServerSaveList(Player player) {
         return getSaves(serverSavePath, player.getName());
     }
@@ -58,11 +64,13 @@ public class SaveLoader {
         for (File saveFile : allSaves) {
             if (!saveFile.isFile())
                 continue;
-
+            if (!saveFile.getName().endsWith(".save"))
+                continue;
             if ((save = readSave(saveFile.toPath())) != null)
                 saveList.add(save);
         }
 
+        saveList.sort(Comparator.comparing(o -> o.getSaveDate().toString()));
         return saveList;
     }
 
@@ -124,8 +132,61 @@ public class SaveLoader {
         }
     }
 
-    public static boolean addSave(Save save) {
-        return false;
+    /**
+     * add a save to the local player's dictionary
+     * @return if save success
+     */
+    public static boolean addLocalSave(Save save, Player player) {
+        return addSave(save, Path.of(localSavePath + "\\" + player.getName()));
+    }
+
+    /**
+     * add a save to the server player's dictionary
+     * @return if save success
+     */
+    public static boolean addServerSave(Save save, Player player) {
+        return addSave(save, Path.of(serverSavePath + "\\" + player.getName()));
+    }
+
+    private static boolean addSave(Save save, Path savePath) {
+        //if player path do not exist, creates it
+        if (!savePath.toFile().exists()) {
+            if (!savePath.toFile().mkdirs())
+                return false;
+        }
+
+        File file = new File(savePath.toString() + "\\" +
+                save.getUuid() + ".save");
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(save.getUuid() + " " + save.getSaveDate().toString() + "\n");
+
+            writer.write(save.getWhitePlayer().toString() + "\n");
+            writer.write(save.getBlackPlayer().toString() + "\n");
+            writer.write(save.getDefaultDownColor().toString() + " " +
+                    save.getGameTime() + " " + save.getTurnTime() + "\n");
+            MoveHistory moveHistory = save.getGameHistory();
+            if (save.getGameTime() < 0) {
+                for (int i = 0; i < moveHistory.getMoveNum(); i++) {
+                    writer.write(moveHistory.getMove(i).toString() + "\n");
+                }
+            }
+            else {
+                ArrayList<Double> timeList = save.getRemainingTime();
+                if (moveHistory.getMoveNum() != timeList.size())
+                    throw new RuntimeException("Move history num abd remaining time not match!");
+
+                for (int i = 0; i < moveHistory.getMoveNum(); i++) {
+                    writer.write(moveHistory.getMove(i).toString() + " " +
+                            timeList.get(i).toString() + "\n");
+                }
+            }
+            return true;
+        }
+        catch (Exception e) {
+            if (file.exists())
+                file.delete();
+            return false;
+        }
     }
 
 
