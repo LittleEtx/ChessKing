@@ -163,7 +163,7 @@ public class MainMenu extends FXGLMenu {
         btn4.getStyleClass().add("menu-button");
 //        btn4.setCursor(Cursor.OPEN_HAND);
 
-        mainMenuBtn = new VBox(btn1, btn2, btn3, btn4);
+        mainMenuBtn = new VBox(15,btn1, btn2, btn3, btn4);
         mainMenuBtn.setLayoutY(420);
         mainMenuBtn.setLayoutX(600 - 75);
 

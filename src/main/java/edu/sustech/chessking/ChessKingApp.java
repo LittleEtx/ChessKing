@@ -24,10 +24,13 @@ import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
 import edu.sustech.chessking.ui.PawnPromote;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.effect.Bloom;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -353,9 +356,8 @@ public class ChessKingApp extends GameApplication {
     public void initAvatar(){
         spawn("downAvatar", new SpawnData().put("player", downPlayer));
         spawn("upAvatar", new SpawnData().put("player", upPlayer));
-        spawn("playerInfo",new SpawnData().put("playerSide", "white"));
-
-        spawn("playerInfo",new SpawnData().put("playerSide","black"));
+        //spawn("playerInfo",new SpawnData().put("playerSide", "white"));
+        //spawn("playerInfo",new SpawnData().put("playerSide","black"));
         spawn("chessGrave",new SpawnData().put("playerSide","black"));
         spawn("chessGrave",new SpawnData().put("playerSide","white"));
         spawn("chat");
@@ -461,6 +463,36 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void initUI() {
         initButtons();
+        initLabels();
+    }
+
+    public void initLabels(){
+        var upName = getUIFactoryService().newText(upPlayer.getName(), Color.BLACK,35);
+        upName.setStroke(Color.PINK);
+        upName.setStrokeWidth(1.5);
+        if(!FXGL.isMobile()){
+            upName.setEffect(new Bloom(0.8));
+        }
+        Label upPlayerScore = new Label("Score: "+ upPlayer.getScore());
+
+        VBox upPlayerInfo = new VBox(-5,upName,upPlayerScore);
+        upPlayerInfo.setPrefSize(365,70);
+        upPlayerInfo.setAlignment(Pos.CENTER_LEFT);
+
+        var downName = getUIFactoryService().newText(downPlayer.getName(), Color.BLACK,35);
+        downName.setStroke(Color.PINK);
+        downName.setStrokeWidth(1.5);
+        if(!FXGL.isMobile()){
+            downName.setEffect(new Bloom(0.8));
+        }
+        Label downPlayerScore = new Label("Score: "+downPlayer.getScore());
+
+        VBox downPlayerInfo = new VBox(-5,downName,downPlayerScore);
+        downPlayerInfo.setPrefSize(365,70);
+        downPlayerInfo.setAlignment(Pos.CENTER_RIGHT);
+
+        addUINode(upPlayerInfo,820,10);
+        addUINode(downPlayerInfo,820-90,720);
     }
 
     public void initButtons(){

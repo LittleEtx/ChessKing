@@ -5,11 +5,13 @@ import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.gameLogic.Player;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.Bloom;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 
 import static com.almasb.fxgl.dsl.FXGL.getSceneService;
@@ -21,7 +23,7 @@ public class NewPlayerName extends SubScene {
 
         Rectangle rect = new Rectangle(1200,800,Color.web("#00000080"));
 
-        TextField name = new TextField();
+        TextField nameInput = new TextField();
 
         var nameText = getUIFactoryService().newText("Name", Color.BROWN,35);
         nameText.setStroke(Color.WHITE);
@@ -29,23 +31,17 @@ public class NewPlayerName extends SubScene {
         if(!FXGL.isMobile()){
             nameText.setEffect(new Bloom(0.8));
         }
-        name.setMaxWidth(320);
-        name.setPromptText("Your name here plz");
+        nameInput.setMaxWidth(320);
+        nameInput.setPromptText("Your name here plz");
 
         Button doneBtn = new Button("Done");
         doneBtn.getStyleClass().add("newPlayer-subScene-button");
-        doneBtn.setOnAction(event ->{
-            player.setName(name.getText());
-            if(!player.getName().equals("")) {
-                getSceneService().popSubScene();
-                System.out.println(player.getName());
-            }
-        });
+
 
         Button skinBtn = new Button("Skin");
         skinBtn.getStyleClass().add("newPlayer-subScene-button");
         skinBtn.setOnAction(event ->{
-            player.setName(name.getText());
+            player.setName(nameInput.getText());
             if(!player.getName().equals("")) {
                 getSceneService().popSubScene();
                 SubScene newSkin = new NewPlayer(player);
@@ -56,7 +52,7 @@ public class NewPlayerName extends SubScene {
         HBox buttons = new HBox(20,skinBtn,doneBtn);
         buttons.setAlignment(Pos.TOP_CENTER);
 
-        VBox vb = new VBox(20,nameText,name,buttons);
+        VBox vb = new VBox(20,nameText,nameInput,buttons);
         vb.setAlignment(Pos.CENTER);
         vb.setLayoutX(400);
         vb.setLayoutY(300);
@@ -68,5 +64,30 @@ public class NewPlayerName extends SubScene {
 
 
         getContentRoot().getChildren().addAll(rect,vb);
+
+        doneBtn.setOnAction(event ->{
+            String name = nameInput.getText();
+            if(name.contains(" ") ||
+                    name.contains("\\") ||
+                    name.contains("/") ||
+                    name.contains(":") ||
+                    name.contains("*") ||
+                    name.contains("?") ||
+                    name.contains("\"") ||
+                    name.contains("<") ||
+                    name.contains(">") ||
+                    name.contains("|")){
+                Label invalidName = new Label("Invalid Name");
+                invalidName.setTextFill(Color.WHITE);
+                invalidName.setLayoutY(410);
+                invalidName.setLayoutX(440);
+                invalidName.setStyle("-fx-font-size: 12;");
+                getContentRoot().getChildren().add(invalidName);
+            }else {
+                player.setName(name);
+                getSceneService().popSubScene();
+                System.out.println(player.getName());
+            }
+        });
     }
 }

@@ -125,7 +125,7 @@ public class ChessKingEntityFactory implements EntityFactory {
                 color = Color.GRAY;
             }else{
                 point = new Point2D(735,720);
-                color = Color.LIGHTGRAY;
+                color = Color.RED;
             }
             return FXGL.entityBuilder(data)
                     .view(new Rectangle(365,70,color))
