@@ -5,19 +5,15 @@ import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.scene.control.Button;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-import java.util.concurrent.atomic.AtomicReference;
-
-import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
+import java.util.function.Consumer;
 
 public class PawnPromote extends SubScene {
-    public PawnPromote(ChessType promptType, String skin, ColorType color) {
-
-        AtomicReference<ChessType> type = new AtomicReference<>(promptType);
-
+    public PawnPromote(String skin, ColorType color, Consumer<ChessType> callBack) {
         Rectangle bg = new Rectangle(1200,800,Color.web("#00000080"));
         getContentRoot().getChildren().add(bg);
 
@@ -39,22 +35,22 @@ public class PawnPromote extends SubScene {
 
         bishopBtn.setOnAction(event -> {
             FXGL.getSceneService().popSubScene();
-            type.set(ChessType.BISHOP);
+            callBack.accept(ChessType.BISHOP);
         });
 
         knightBtn.setOnAction(event -> {
             FXGL.getSceneService().popSubScene();
-            type.set(ChessType.KNIGHT);
+            callBack.accept(ChessType.KNIGHT);
         });
 
         queenBtn.setOnAction(event -> {
             FXGL.getSceneService().popSubScene();
-            type.set(ChessType.QUEEN);
+            callBack.accept(ChessType.QUEEN);
         });
 
         rookBtn.setOnAction(event -> {
             FXGL.getSceneService().popSubScene();
-            type.set(ChessType.ROOK);
+            callBack.accept(ChessType.ROOK);
         });
 
         VBox c1 = new VBox(20,queenBtn,rookBtn);

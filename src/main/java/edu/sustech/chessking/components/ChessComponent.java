@@ -297,25 +297,28 @@ public class ChessComponent extends Component {
         if (pos != null && gameCore.isMoveAvailable(chess, pos)) {
             Move move = gameCore.castToMove(chess, pos);
             if (move == null) {
-                ChessType promoteType = ChessType.QUEEN;
                 String skin;
                 if(chess.getColorType().equals(geto("downSideColor"))) {
                     skin = gets("downChessSkin");
                 }else{
                     skin = gets("upChessSkin");
                 }
-                SubScene promote = new PawnPromote(promoteType,skin,chess.getColorType());
+
+                SubScene promote = new PawnPromote(skin, chess.getColorType(), promoteType -> {
+                    Move promoteMove = gameCore.castToMove(chess, pos, promoteType);
+                    executeMove(promoteMove);
+                    setTargetKingList();
+                    set("isEndTurn", true);
+                });
                 FXGL.getSceneService().pushSubScene(promote);
-                move = gameCore.castToMove(chess, pos, promoteType);
             }
 
             //if case danger
-            if (gameCore.isMoveCauseDanger(move)) {
-                Move finalMove = move;
+            else if (gameCore.isMoveCauseDanger(move)) {
                 getDialogService().showConfirmationBox(
-                        "This move will cause you lose the game, are you sure?", aBoolean -> {
-                            if (aBoolean) {
-                                executeMove(finalMove);
+                        "This move will cause you lose the game, are you sure?", sure -> {
+                            if (sure) {
+                                executeMove(move);
                                 set("isEndTurn", true);
                             } else {
                                 entity.setPosition(toPoint(chess.getPosition()));

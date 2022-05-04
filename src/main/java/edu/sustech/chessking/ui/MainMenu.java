@@ -8,10 +8,8 @@ import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.GameType;
 import edu.sustech.chessking.gameLogic.Player;
-import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.event.EventHandler;
-import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.effect.Bloom;
@@ -75,7 +73,7 @@ public class MainMenu extends FXGLMenu {
                     getSceneService().pushSubScene(newPlayerName);
                 }
                 if(keyEvent.getCode().equals(KeyCode.P)){
-                    SubScene promote = new PawnPromote(ChessType.QUEEN,"default", ColorType.WHITE);
+                    SubScene promote = new PawnPromote("default", ColorType.WHITE, chessType -> {});
                     getSceneService().pushSubScene(promote);
                 }
             }
