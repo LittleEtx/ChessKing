@@ -10,7 +10,6 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.input.UserAction;
-import com.almasb.fxgl.scene.SubScene;
 import com.almasb.fxgl.time.LocalTimer;
 import com.almasb.fxgl.time.Timer;
 import edu.sustech.chessking.components.ChessComponent;
@@ -18,12 +17,10 @@ import edu.sustech.chessking.factories.ChessKingEntityFactory;
 import edu.sustech.chessking.gameLogic.*;
 import edu.sustech.chessking.gameLogic.ai.AiEnemy;
 import edu.sustech.chessking.gameLogic.ai.AiType;
-import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
-import edu.sustech.chessking.ui.PawnPromote;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.effect.Bloom;
@@ -33,7 +30,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
@@ -42,16 +41,16 @@ import static edu.sustech.chessking.VisualLogic.*;
 public class ChessKingApp extends GameApplication {
 
     private final GameCore gameCore = new GameCore();
-    public final String[] skin = {"default","pixel"};
     public ColorType downSide;
     private Entity movingChess;
     private LocalTimer betweenClickTimer;
+    private String serverIP = "localhost";
     private boolean cursorDefault = true;
-
     private Timer whiteTimer;
     private Timer blackTimer;
-    private static double gameTimeInSecond;
-    private static double turnTimeInSecond;
+    private static double gameTimeInSecond = -1;
+    private static double turnTimeInSecond = -1;
+    private static ArrayList<Double> remainingTime = new ArrayList<>();
 
     private static Player localPlayer = new Player();
     public static Player getLocalPlayer(){
@@ -62,6 +61,8 @@ public class ChessKingApp extends GameApplication {
     public static Player getLocalPlayer2(){ return localPlayer2; }
     private Player downPlayer;
     private Player upPlayer;
+    private Long saveUuid = null;
+
     private String boardTheme;
     private String backgroundTheme;
 
@@ -90,8 +91,8 @@ public class ChessKingApp extends GameApplication {
         vars.put("isMovingChess", false);
         //indicate the player end his turn
         vars.put("isEndTurn", false);
-        //indicate the enemy end his turn
         vars.put("turn", ColorType.WHITE);
+        //indicate the enemy end his turn
         vars.put("isEnemyMovingChess", false);
         vars.put("allyList", new ArrayList<Chess>());
         vars.put("enemyList", new ArrayList<Chess>());
@@ -171,10 +172,6 @@ public class ChessKingApp extends GameApplication {
     protected void initGame() {
         getGameWorld().addEntityFactory(new ChessKingEntityFactory());
 
-//        gameType = GameType.COMPUTER;
-//        set("gameType", gameType);
-
-
         //spawn("backGround");
         FXGL.loopBGM("BGM1.mp3");
 
@@ -183,16 +180,6 @@ public class ChessKingApp extends GameApplication {
         //deal with end turn method, check if end game
         initialEndTurnListener();
 
-        //Timer method
-        gameTimeInSecond = -1;
-        turnTimeInSecond = -1;
-
-        whiteTimer = new Timer();
-        blackTimer = new Timer();
-        if (gameTimeInSecond > 0) {
-            whiteTimer.runOnceAfter(this::resetWhiteTurnClock, Duration.seconds(gameTimeInSecond));
-            blackTimer.runOnceAfter(this::resetBlackTurnClock, Duration.seconds(gameTimeInSecond));
-        }
 
         //random downside color
         int side = FXGL.random(0,1);
@@ -219,9 +206,26 @@ public class ChessKingApp extends GameApplication {
             isEnemyFirst = downSide != ColorType.WHITE;
         }
 
+        //Timer method
+        gameTimeInSecond = -1;
+        turnTimeInSecond = -1;
+
+        whiteTimer = new Timer();
+        blackTimer = new Timer();
+        if (gameTimeInSecond > 0) {
+            whiteTimer.runOnceAfter(this::resetWhiteTurnClock, Duration.seconds(gameTimeInSecond));
+            blackTimer.runOnceAfter(this::resetBlackTurnClock, Duration.seconds(gameTimeInSecond));
+        }
+
         set("downChessSkin", downPlayer.getChessSkin());
         set("upChessSkin", upPlayer.getChessSkin());
 
+        //initialize gameCore
+        if (saveUuid == null)
+            saveUuid = (new Date()).getTime();
+        gameCore.initialGame();
+
+        //initialize entity
         initAvatar();
         initUI();
         initBoard();
@@ -364,7 +368,6 @@ public class ChessKingApp extends GameApplication {
     }
 
     public void initChess() {
-        gameCore.initialGame();
         for(Chess chess: gameCore.getChessList()){
             spawn("chess", new SpawnData().put("chess", chess));
         }
@@ -505,12 +508,38 @@ public class ChessKingApp extends GameApplication {
             getGameController().gotoGameMenu();
         });
 
-        VBox save = new VBox();
-        save.setPrefSize(65,65);
-        save.getStyleClass().add("save-box");
-        save.setOnMouseClicked(event -> {
-           //add save method here
+        VBox saveBox = new VBox();
+        saveBox.setPrefSize(65,65);
+        saveBox.getStyleClass().add("save-box");
+        saveBox.setOnMouseClicked(event -> {
+            Player whitePlayer;
+            Player blackPlayer;
+            ColorType downColor = geto("downSideColor");
+            if (downColor == ColorType.WHITE) {
+                whitePlayer = downPlayer;
+                blackPlayer = upPlayer;
+            }
+            else {
+                whitePlayer = upPlayer;
+                blackPlayer = downPlayer;
+            }
 
+            Save save;
+            if (gameTimeInSecond < 0)
+                save = new Save(saveUuid, LocalDateTime.now(),
+                        whitePlayer, blackPlayer, downColor,
+                        gameCore.getGameHistory());
+            else
+                save = new Save(saveUuid, LocalDateTime.now(),
+                        whitePlayer, blackPlayer, downColor,
+                        gameTimeInSecond, turnTimeInSecond,
+                        remainingTime, gameCore.getGameHistory());
+
+           //add save method here
+            if (gameType != GameType.NET)
+                SaveLoader.writeLocalSave(localPlayer, save);
+            else
+                SaveLoader.writeServerSave(serverIP, localPlayer, save);
 
         });
 
@@ -574,7 +603,7 @@ public class ChessKingApp extends GameApplication {
         addUINode(ally,570,10);
         addUINode(enemy,650,10);
         addUINode(setting,10,10);
-        addUINode(save,10,90);
+        addUINode(saveBox,10,90);
         addUINode(undo,10,170);
 
     }
