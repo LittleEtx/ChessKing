@@ -150,7 +150,7 @@ public class SaveLoader {
      * add a save to the local player's dictionary
      * @return if save success
      */
-    public static boolean writeLocalSave(Save save, Player player) {
+    public static boolean writeLocalSave(Player player, Save save) {
         return writeSave(new File(localSavePath + "\\" +
                 player.getName()), save);
     }
@@ -160,7 +160,7 @@ public class SaveLoader {
      * override the save of the same uuid.
      * @return if save success
      */
-    public static boolean writeServerSave(String serverIdentifier, Save save, Player player) {
+    public static boolean writeServerSave(String serverIdentifier, Player player, Save save) {
         return writeSave(new File(serverSavePath + "\\" +
                 serverIdentifier + "\\" + player.getName()), save);
     }

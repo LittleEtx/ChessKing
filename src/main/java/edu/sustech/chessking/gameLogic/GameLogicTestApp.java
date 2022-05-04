@@ -82,8 +82,8 @@ public class GameLogicTestApp extends GameApplication {
         System.out.println(writePlayer(player1));
         System.out.println(writePlayer(player2));
         if (save != null) {
-            System.out.println(writeLocalSave(save, player1));
-            System.out.println(writeServerSave("localhost", save, player2));
+            System.out.println(writeLocalSave(player1, save));
+            System.out.println(writeServerSave("localhost", player2, save));
         }
 
         for (Player player : readPlayerList()) {
