@@ -205,6 +205,9 @@ public class ChessKingApp extends GameApplication {
         else if (gameType == GameType.COMPUTER) {
             ai = new AiEnemy(AiType.NORMAL, gameCore);
             upPlayer = ai.getPlayer();
+            upPlayer.setBackground(downPlayer.getBackground());
+            upPlayer.setColor1(downPlayer.getColor1());
+            upPlayer.setColor2(downPlayer.getColor2());
             isEnemyFirst = downSide != ColorType.WHITE;
         }
 
@@ -384,10 +387,21 @@ public class ChessKingApp extends GameApplication {
     }
 
     public void initBoard(){
+        Color color1;
+        Color color2;
+        int color = FXGL.random(0,1);
+        if(color==0) {
+            color1 = downPlayer.getColor1();
+            color2 = downPlayer.getColor2();
+        }else{
+            color1 = upPlayer.getColor1();
+            color2 = upPlayer.getColor2();
+        }
         for(int i = 0; i < 8; i++) {
             for (int f = 0; f < 8; f++) {
                 Position position = new Position(i, f);
-                spawn("board", new SpawnData().put("position", position));
+                spawn("board", new SpawnData().put("position", position).
+                        put("color1",color1).put("color2",color2));
             }
         }
     }
@@ -613,8 +627,8 @@ public class ChessKingApp extends GameApplication {
         addUINode(ally,570,10);
         addUINode(enemy,650,10);
         addUINode(setting,10,10);
-        addUINode(saveBox,10,90);
-        addUINode(undo,10,170);
+        addUINode(saveBox,90,10);
+        addUINode(undo,170,10);
 
     }
 

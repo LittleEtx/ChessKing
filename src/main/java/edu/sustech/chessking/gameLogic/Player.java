@@ -1,6 +1,7 @@
 package edu.sustech.chessking.gameLogic;
 
 import edu.sustech.chessking.gameLogic.exception.ConstructorException;
+import javafx.scene.paint.Color;
 
 public class Player {
     private int score;
@@ -10,6 +11,8 @@ public class Player {
     private String boardSkin;
     private String background;
     private String password;
+    private Color color1;
+    private Color color2;
 
     /**
      * default constructor
@@ -22,6 +25,7 @@ public class Player {
         boardSkin = "default";
         background = "apple";
         password = null;
+        setColor("wooden");
     }
 
     public Player(String playerMessage) {
@@ -120,6 +124,35 @@ public class Player {
 
     public String getPassword() {
         return password;
+    }
+
+    public void setColor(String color){
+        if(color.equals("default")){
+            this.color1 = Color.GREEN;
+            this.color2 = Color.LIGHTGOLDENRODYELLOW;
+        }else if(color.equals("transparent")){
+            this.color1 = Color.web("#00000070");
+            this.color2 = Color.web("#00000050");
+        }else if(color.equals("wooden")){
+            this.color1 = Color.web("#A52A2A");
+            this.color2 = Color.web("#FFFACD");
+        }
+    }
+
+    public void setColor1(Color color){
+        this.color1 = color;
+    }
+
+    public void setColor2(Color color){
+        this.color2 = color;
+    }
+
+    public Color getColor1(){
+        return this.color1;
+    }
+
+    public Color getColor2(){
+        return this.color2;
     }
 
     @Override

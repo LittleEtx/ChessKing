@@ -21,7 +21,7 @@ public class ChessKingEntityFactory implements EntityFactory {
     public Entity newBoard(SpawnData data){
         return FXGL.entityBuilder(data)
                 .with(new TwinkleComponent())
-                .with(new BoardComponent(data.get("position")))
+                .with(new BoardComponent(data.get("position"),data.get("color1"),data.get("color2")))
                 .type(EntityType.BOARD)
                 .build();
     }

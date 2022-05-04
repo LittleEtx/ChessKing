@@ -21,9 +21,13 @@ public class BoardComponent extends Component {
     private TwinkleComponent twinkleComponent;
 
     private boolean transState = false;
+    private Color color1;
+    private Color color2;
 
-    public BoardComponent(Position position){
+    public BoardComponent(Position position,Color color1,Color color2) {
         this.position = position;
+        this.color1 = color1;
+        this.color2 = color2;
     }
 
     @Override
@@ -33,9 +37,9 @@ public class BoardComponent extends Component {
         int sum = position.getRow()+position.getColumn();
         Color color;
         if (sum%2==0){
-            color = Color.GREEN;
+            color = color1;
         }else{
-            color = Color.LIGHTGOLDENRODYELLOW;
+            color = color2;
         }
         Rectangle rect = new Rectangle(80,80,color);
         entity.getViewComponent().addChild(rect);

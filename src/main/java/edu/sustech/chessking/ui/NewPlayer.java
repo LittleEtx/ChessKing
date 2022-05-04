@@ -6,6 +6,7 @@ import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.gameLogic.Player;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.Bloom;
 import javafx.scene.layout.*;
@@ -19,7 +20,7 @@ public class NewPlayer extends SubScene {
     private boolean hasAvatar = false;
     private boolean hasChessSkin = false;
     private boolean hasBackground = false;
-    
+
     public NewPlayer(Player player) {
 
         //maybe don't use a rectangle
@@ -65,7 +66,7 @@ public class NewPlayer extends SubScene {
         chooseBackground(player);
     }
 
-    public void getName(TextField name,Player player){
+    public void getName(TextField name, Player player){
         var nameText = getUIFactoryService().newText("Name",Color.BROWN,35);
         nameText.setStroke(Color.WHITE);
         nameText.setStrokeWidth(3);
@@ -302,7 +303,7 @@ public class NewPlayer extends SubScene {
         skinbg.setLayoutY(ycoordinate);
         skinbg.setLayoutX(xcoordinate+220);
         skinbg.setAlignment(Pos.TOP_CENTER);
-        
+
         Button defaultbtn = new Button();
         defaultbtn.getStyleClass().add("newPlayer-subScene-skinDefault");
 
@@ -351,6 +352,30 @@ public class NewPlayer extends SubScene {
 
         getContentRoot().getChildren().addAll(skinbg,skins);
     }
+
+    private final Slider s1 = new Slider(20,99,99);
+    private final Slider s2 = new Slider(20,99,99);
+    private final Button c1 = new Button();
+    private String c1Str;
+    private final Button c2 = new Button();
+    private String c2Str;
+    private final Button c3 = new Button();
+    private String c3Str;
+    private final Button c4 = new Button();
+    private String c4Str;
+    private final Button c5 = new Button();
+    private String c5Str;
+    private final Button c6 = new Button();
+    private String c6Str;
+    private final Button c7 = new Button();
+    private String c7Str;
+    private final Button c8 = new Button();
+    private String c8Str;
+    private boolean isC1 = false;
+    private boolean isC2 = false;
+
+
+
     public void chooseBoard(Player player) {
 
         var boardText = getUIFactoryService().newText("Board Skin",Color.BROWN,35);
@@ -360,7 +385,13 @@ public class NewPlayer extends SubScene {
             boardText.setEffect(new Bloom(0.8));
         }
 
-        VBox boardbg = new VBox(boardText);
+        HBox r1 = new HBox(8,c1,c2,c3,c4);
+        r1.setAlignment(Pos.CENTER);
+
+        HBox r2 = new HBox(8,c5,c6,c7,c8);
+        r2.setAlignment(Pos.CENTER);
+
+        VBox boardbg = new VBox(10,boardText,s1,s2,r1,r2);
         boardbg.setPrefSize(200,400);
         boardbg.setStyle("-fx-background-color: #00000070");
         boardbg.setLayoutY(ycoordinate);
@@ -368,6 +399,153 @@ public class NewPlayer extends SubScene {
         boardbg.setAlignment(Pos.TOP_CENTER);
 
         getContentRoot().getChildren().addAll(boardbg);
+
+        c1.setOnAction(event -> {
+            setTransparentr1();
+            isC1 = !isC1;
+            c1.setStyle("-fx-border-color: #20B2AA;"+
+                    "-fx-border-width: 5");
+            String c1CSS = "-fx-background-color: " + c1Str + ";";
+            c1.setStyle(c1CSS);
+            player.setColor1(Color.web(c1Str));
+        });
+
+        c2.setOnAction(event -> {
+            setTransparentr1();
+            isC1 = !isC1;
+            c2.setStyle("-fx-border-color: #20B2AA;"+
+                    "-fx-border-width: 5");
+            String c2CSS = "-fx-background-color: "+ c2Str + ";";
+            c2.setStyle(c2CSS);
+            player.setColor1(Color.web(c2Str));
+        });
+
+        c3.setOnAction(event -> {
+            setTransparentr1();
+            isC1 = !isC1;
+            c3.setStyle("-fx-border-color: #20B2AA;"+
+                    "-fx-border-width: 5");
+            String c3CSS = "-fx-background-color: "+ c3Str + ";";
+            c3.setStyle(c3CSS);
+            player.setColor1(Color.web(c3Str));
+        });
+
+        c4.setOnAction(event -> {
+            setTransparentr1();
+            isC1 = !isC1;
+            c4.setStyle("-fx-border-color: #20B2AA;"+
+                    "-fx-border-width: 5");
+            String c4CSS = "-fx-background-color: "+ c4Str + ";";
+            c4.setStyle(c4CSS);
+            player.setColor1(Color.web(c4Str));
+        });
+
+        c5.setOnAction(event -> {
+           setTransparentr2();
+            isC2 = !isC2;
+           c5.setStyle("-fx-border-color: #20B2AA;"+
+                   "-fx-border-width: 5");
+            String c5CSS = "-fx-background-color: "+ c5Str + ";";
+            c5.setStyle(c5CSS);
+           player.setColor2(Color.web(c5Str));
+           System.out.println(player.getColor2());
+        });
+
+        c6.setOnAction(event -> {
+            setTransparentr2();
+            isC2 = !isC2;
+            c6.setStyle("-fx-border-color: #20B2AA;"+
+                    "-fx-border-width: 5");
+            String c6CSS = "-fx-background-color: "+ c6Str + ";";
+            c6.setStyle(c6CSS);
+            player.setColor2(Color.web(c6Str));
+            System.out.println(player.getColor2());
+        });
+
+        c7.setOnAction(event -> {
+            setTransparentr2();
+            isC2 = !isC2;
+            c7.setStyle("-fx-border-color: #20B2AA;"+
+                    "-fx-border-width: 5");
+            String c7CSS = "-fx-background-color: "+ c7Str + ";";
+            c7.setStyle(c7CSS);
+            player.setColor2(Color.web(c7Str));
+            System.out.println(player.getColor2());
+        });
+
+        c8.setOnAction(event -> {
+            setTransparentr2();
+            isC2 = !isC2;
+            c8.setStyle("-fx-border-color: #20B2AA;"+
+                    "-fx-border-width: 5");
+            String c8CSS = "-fx-background-color: "+ c8Str + ";";
+            c8.setStyle(c8CSS);
+            player.setColor2(Color.web(c8Str));
+            System.out.println(player.getColor2());
+        });
+    }
+
+    @Override
+    protected void onUpdate(double tpf) {
+        int opacity1 = (int)s1.getValue();
+        int opacity2 = (int)s2.getValue();
+
+        if(!isC1) {
+            c1Str = "#000000" + opacity1;
+            String c1CSS = "-fx-background-color: #000000" + opacity1 + ";";
+            c1.setStyle(c1CSS);
+            c1.setPrefSize(40, 40);
+
+            c2Str = "#B27538" + opacity1;
+            String c2CSS = "-fx-background-color: #B27538" + opacity1 + ";";
+            c2.setStyle(c2CSS);
+            c2.setPrefSize(40, 40);
+
+            c3Str = "#00994C" + opacity1;
+            String c3CSS = "-fx-background-color: #00994C" + opacity1 + ";";
+            c3.setStyle(c3CSS);
+            c3.setPrefSize(40, 40);
+
+            c4Str = "#0000CD" + opacity1;
+            String c4CSS = "-fx-background-color: #0000CD" + opacity1 + ";";
+            c4.setStyle(c4CSS);
+            c4.setPrefSize(40, 40);
+        }
+
+        if(!isC2) {
+            c5Str = "#606060" + opacity2;
+            String c5CSS = "-fx-background-color: #606060" + opacity2 + ";";
+            c5.setStyle(c5CSS);
+            c5.setPrefSize(40, 40);
+
+            c6Str = "#FF66B2" + opacity2;
+            String c6CSS = "-fx-background-color:" + c6Str + ";";
+            c6.setStyle(c6CSS);
+            c6.setPrefSize(40, 40);
+
+            c7Str = "#FAFAD2" + opacity2;
+            String c7CSS = "-fx-background-color: #FAFAD2" + opacity2 + ";";
+            c7.setStyle(c7CSS);
+            c7.setPrefSize(40, 40);
+
+            c8Str = "#B0C4DE" + opacity2;
+            String c8CSS = "-fx-background-color: #B0C4DE" + opacity2 + ";";
+            c8.setStyle(c8CSS);
+            c8.setPrefSize(40, 40);
+        }
+    }
+
+    private void setTransparentr1(){
+        c1.setStyle("-fx-background-color: transparent");
+        c2.setStyle("-fx-background-color: transparent");
+        c3.setStyle("-fx-background-color: transparent");
+        c4.setStyle("-fx-background-color: transparent");
+    }
+    private void setTransparentr2(){
+        c5.setStyle("-fx-background-color: transparent");
+        c6.setStyle("-fx-background-color: transparent");
+        c7.setStyle("-fx-background-color: transparent");
+        c8.setStyle("-fx-background-color: transparent");
     }
 
     public void chooseBackground(Player player) {
