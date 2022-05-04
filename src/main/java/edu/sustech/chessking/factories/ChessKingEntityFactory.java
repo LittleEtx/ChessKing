@@ -96,7 +96,7 @@ public class ChessKingEntityFactory implements EntityFactory {
     public Entity newBackGround(SpawnData data){
 
         return FXGL.entityBuilder(data)
-                .view(texture("Background.png",1200,800))
+                .with(new BackGroundComponent(data.get("player")))
                 .build();
     }
 

@@ -19,6 +19,13 @@ import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
 
 public class NewPlayerName extends SubScene {
 
+    private String name;
+    private void setName(String name) {
+        this.name = name;
+    }
+    private String getName() {
+        return this.name;
+    }
     public NewPlayerName(Player player) {
 
         Rectangle rect = new Rectangle(1200,800,Color.web("#00000080"));
@@ -40,14 +47,7 @@ public class NewPlayerName extends SubScene {
 
         Button skinBtn = new Button("Skin");
         skinBtn.getStyleClass().add("newPlayer-subScene-button");
-        skinBtn.setOnAction(event ->{
-            player.setName(nameInput.getText());
-            if(!player.getName().equals("")) {
-                getSceneService().popSubScene();
-                SubScene newSkin = new NewPlayer(player);
-                getSceneService().pushSubScene(newSkin);
-            }
-        });
+
 
         HBox buttons = new HBox(20,skinBtn,doneBtn);
         buttons.setAlignment(Pos.TOP_CENTER);
@@ -65,8 +65,8 @@ public class NewPlayerName extends SubScene {
 
         getContentRoot().getChildren().addAll(rect,vb);
 
-        doneBtn.setOnAction(event ->{
-            String name = nameInput.getText();
+        skinBtn.setOnAction(event ->{
+            setName(nameInput.getText());
             if(name.contains(" ") ||
                     name.contains("\\") ||
                     name.contains("/") ||
@@ -76,7 +76,35 @@ public class NewPlayerName extends SubScene {
                     name.contains("\"") ||
                     name.contains("<") ||
                     name.contains(">") ||
-                    name.contains("|")){
+                    name.contains("|")||
+                    name.equals("")){
+                Label invalidName = new Label("Invalid Name");
+                invalidName.setTextFill(Color.WHITE);
+                invalidName.setLayoutY(410);
+                invalidName.setLayoutX(440);
+                invalidName.setStyle("-fx-font-size: 12;");
+                getContentRoot().getChildren().add(invalidName);
+            }else {
+                getSceneService().popSubScene();
+                player.setName(name);
+                SubScene newSkin = new NewPlayer(player);
+                getSceneService().pushSubScene(newSkin);
+            }
+        });
+
+        doneBtn.setOnAction(event ->{
+            setName(nameInput.getText());
+            if(name.contains(" ") ||
+                    name.contains("\\") ||
+                    name.contains("/") ||
+                    name.contains(":") ||
+                    name.contains("*") ||
+                    name.contains("?") ||
+                    name.contains("\"") ||
+                    name.contains("<") ||
+                    name.contains(">") ||
+                    name.contains("|")||
+                    name.equals("")){
                 Label invalidName = new Label("Invalid Name");
                 invalidName.setTextFill(Color.WHITE);
                 invalidName.setLayoutY(410);
@@ -86,7 +114,7 @@ public class NewPlayerName extends SubScene {
             }else {
                 player.setName(name);
                 getSceneService().popSubScene();
-                System.out.println(player.getName());
+                System.out.println(player);
             }
         });
     }

@@ -252,6 +252,26 @@
     -fx-background-color: #FFFFFF90;
 }
 
+.newPlayer-background-apple{
+    -fx-background-image: url("background/background-apple.png");
+    -fx-background-size: 180 120;
+}
+
+.newPlayer-background-apple:hover{
+    -fx-border-color: #20B2AA;
+    -fx-border-width: 5;
+}
+
+.newPlayer-background-lxh{
+    -fx-background-image: url("background/background-lxh.png");
+    -fx-background-size: 180 120;
+}
+
+.newPlayer-background-lxh:hover{
+    -fx-border-color: #20B2AA;
+    -fx-border-width: 5;
+}
+
 .game-fin-ap{
     -fx-background-color: #00808080;
 }

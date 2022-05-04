@@ -31,6 +31,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -173,9 +174,6 @@ public class ChessKingApp extends GameApplication {
 
 //        gameType = GameType.COMPUTER;
 //        set("gameType", gameType);
-
-
-        //spawn("backGround");
         FXGL.loopBGM("BGM1.mp3");
 
         betweenClickTimer = newLocalTimer();
@@ -221,6 +219,14 @@ public class ChessKingApp extends GameApplication {
 
         set("downChessSkin", downPlayer.getChessSkin());
         set("upChessSkin", upPlayer.getChessSkin());
+
+
+        if((random(0,1)%2==0)){
+            spawn("backGround", new SpawnData().put("player", upPlayer));
+        }else{
+            spawn("backGround", new SpawnData().put("player", downPlayer));
+        }
+
 
         initAvatar();
         initUI();

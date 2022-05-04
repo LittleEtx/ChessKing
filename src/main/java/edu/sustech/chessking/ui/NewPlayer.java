@@ -18,6 +18,7 @@ public class NewPlayer extends SubScene {
     public String[] skin = {"default","pixel"};
     private boolean hasAvatar = false;
     private boolean hasChessSkin = false;
+    private boolean hasBackground = false;
     
     public NewPlayer(Player player) {
 
@@ -36,11 +37,11 @@ public class NewPlayer extends SubScene {
         getName(name,player);
 
         Button newGameBtn = new Button("Done");
-        newGameBtn.setOnAction(event ->{
-            player.setName(name.getText());
-            getSceneService().popSubScene();
-            System.out.println(player.getName() + " " + player.getAvatar() + " " + player.getChessSkin());
-        });
+        newGameBtn.setOnAction(event -> {
+                    player.setName(name.getText());
+                    getSceneService().popSubScene();
+                    System.out.println(player);
+                });
         newGameBtn.getStyleClass().add("newPlayer-subScene-button");
         newGameBtn.setLayoutX(600-75);
         newGameBtn.setLayoutY(610);
@@ -378,7 +379,15 @@ public class NewPlayer extends SubScene {
             bgText.setEffect(new Bloom(0.8));
         }
 
-        VBox bgBg = new VBox(bgText);
+        Button appleBg = new Button();
+        appleBg.getStyleClass().add("newPlayer-background-apple");
+        appleBg.setPrefSize(180,120);
+
+        Button lxhBg = new Button();
+        lxhBg.getStyleClass().add("newPlayer-background-lxh");
+        lxhBg.setPrefSize(180,120);
+
+        VBox bgBg = new VBox(20,bgText,appleBg,lxhBg);
         bgBg.setPrefSize(200,400);
         bgBg.setStyle("-fx-background-color: #00000070");
         bgBg.setLayoutY(ycoordinate);
@@ -386,5 +395,39 @@ public class NewPlayer extends SubScene {
         bgBg.setAlignment(Pos.TOP_CENTER);
 
         getContentRoot().getChildren().addAll(bgBg);
+
+        appleBg.setOnAction(event -> {
+            if(!hasBackground){
+                appleBg.setStyle("-fx-border-color: #20B2AA;"+
+                        "-fx-border-width: 5");
+                player.setBackground("apple");
+                hasBackground = true;
+                System.out.println(player.getBackground());
+            }else{
+                appleBg.setStyle("-fx-background-color: transparent;");
+                lxhBg.setStyle("-fx-background-color: transparent;");
+                player.setBackground("apple");
+                appleBg.setStyle("-fx-border-color: #20B2AA;"+
+                        "-fx-border-width: 5");
+                System.out.println(player.getBackground());
+            }
+        });
+
+        lxhBg.setOnAction(event -> {
+            if(!hasBackground){
+                lxhBg.setStyle("-fx-border-color: #20B2AA;"+
+                        "-fx-border-width: 5");
+                player.setBackground("lxh");
+                hasBackground = true;
+                System.out.println(player.getBackground());
+            }else{
+                appleBg.setStyle("-fx-background-color: transparent;");
+                lxhBg.setStyle("-fx-background-color: transparent;");
+                player.setBackground("lxh");
+                lxhBg.setStyle("-fx-border-color: #20B2AA;"+
+                        "-fx-border-width: 5");
+                System.out.println(player.getBackground());
+            }
+        });
     }
 }

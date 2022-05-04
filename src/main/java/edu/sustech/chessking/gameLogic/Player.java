@@ -20,7 +20,7 @@ public class Player {
         avatar = "avatar7";
         chessSkin = "default";
         boardSkin = "default";
-        background = "default";
+        background = "apple";
         password = null;
     }
 
