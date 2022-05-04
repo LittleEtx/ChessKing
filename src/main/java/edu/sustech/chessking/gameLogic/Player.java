@@ -14,8 +14,8 @@ public class Player {
      * default constructor
      */
     public Player() {
-        name = "default name";
-        avatar = "default";
+        name = "";
+        avatar = "avatar7";
         chessSkin = "default";
         boardSkin = "default";
         background = "default";

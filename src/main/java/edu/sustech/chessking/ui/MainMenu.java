@@ -7,7 +7,9 @@ import com.almasb.fxgl.scene.SubScene;
 import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.GameType;
+import edu.sustech.chessking.gameLogic.Player;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.effect.Bloom;
@@ -19,8 +21,6 @@ import javafx.scene.paint.Color;
 import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class MainMenu extends FXGLMenu {
-    private SubScene newPlayer = new NewPlayer();
-
     public Button btn1 = new Button("Local Game");
 
     public MainMenu() {
@@ -57,7 +57,8 @@ public class MainMenu extends FXGLMenu {
             deleteMainMenuBtn();
 
             //if no initial player
-            getSceneService().pushSubScene(newPlayer);
+            SubScene newPlayerName = new NewPlayerName(ChessKingApp.getLocalPlayer());
+            getSceneService().pushSubScene(newPlayerName);
         });
 
         btn1.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
@@ -190,6 +191,9 @@ public class MainMenu extends FXGLMenu {
         Button viewGameBtn = new Button("Replay");
         viewGameBtn.getStyleClass().add("menu-button");
 
+        Button setSkinbtn = new Button("Customize Player");
+        setSkinbtn.getStyleClass().add("menu-button");
+
         Button connectLanBtn = new Button("Connect Lan");
         connectLanBtn.getStyleClass().add("menu-button");
 
@@ -198,19 +202,20 @@ public class MainMenu extends FXGLMenu {
         backBtn.setLayoutX(600-75);
         backBtn.setLayoutY(700);
 
-        VBox localGameBoxc1 = new VBox(20,localFight,localAIbtn,loadSaveBtn);
+        VBox localGameBoxc1 = new VBox(20,localAIbtn,localFight,viewGameBtn);
         localGameBoxc1.setLayoutY(420);
         localGameBoxc1.setLayoutX(600 - 170);
 
-        VBox localGameBoxc2 = new VBox(20,viewGameBtn,connectLanBtn);
+        VBox localGameBoxc2 = new VBox(20,loadSaveBtn,connectLanBtn,setSkinbtn);
         localGameBoxc2.setLayoutY(420);
         localGameBoxc2.setLayoutX(600 + 20);
 
-        getContentRoot().getChildren().addAll(localGameBoxc1,localGameBoxc2,localGameTitle,backBtn);
-
+        getContentRoot().getChildren().addAll(localGameBoxc1,localGameBoxc2,backBtn);
 
         localFight.setOnAction(event -> {
-            getSceneService().pushSubScene(newPlayer);
+            Player p2 = ChessKingApp.getLocalPlayer2();
+            SubScene ss = new ChoosePlayer(p2);
+            getSceneService().pushSubScene(ss);
         });
 
         localAIbtn.setOnAction(event -> {
@@ -226,9 +231,14 @@ public class MainMenu extends FXGLMenu {
            //method to connect to LAN
         });
 
+        setSkinbtn.setOnAction(event -> {
+            SubScene newPlayer = new NewPlayer(ChessKingApp.getLocalPlayer());
+            getSceneService().pushSubScene(newPlayer);
+        });
+
         backBtn.setOnAction(event -> {
            getContentRoot().getChildren().removeAll(localGameBoxc1,
-                   localGameBoxc2,localGameTitle,backBtn);
+                   localGameBoxc2,localGameTitle,viewGameBtn,backBtn);
            setMainMenuBtn();
         });
     }

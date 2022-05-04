@@ -15,13 +15,11 @@ import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class NewPlayer extends SubScene {
 
-//    Player player = new Player("p1");
-    Player player = ChessKingApp.getLocalPlayer();
     public String[] skin = {"default","pixel"};
     private boolean hasAvatar = false;
     private boolean hasChessSkin = false;
     
-    public NewPlayer() {
+    public NewPlayer(Player player) {
 
         //maybe don't use a rectangle
         Rectangle rect = new Rectangle(1200,800,Color.web("#00000090"));
@@ -35,7 +33,7 @@ public class NewPlayer extends SubScene {
 
         //for input names
         TextField name = new TextField();
-        getName(name);
+        getName(name,player);
 
         Button newGameBtn = new Button("Done");
         newGameBtn.setOnAction(event ->{
@@ -44,35 +42,29 @@ public class NewPlayer extends SubScene {
             System.out.println(player.getName() + " " + player.getAvatar() + " " + player.getChessSkin());
         });
         newGameBtn.getStyleClass().add("newPlayer-subScene-button");
+        newGameBtn.setLayoutX(600-75);
+        newGameBtn.setLayoutY(610);
 
-        Button backBtn = new Button("Back");
-        backBtn.setOnAction(event ->{
-           getSceneService().popSubScene();
-        });
-        backBtn.getStyleClass().add("newPlayer-subScene-button");
+//        Button backBtn = new Button("Back");
+//        backBtn.setOnAction(event ->{
+//           getSceneService().popSubScene();
+//
+//        });
+//        backBtn.getStyleClass().add("newPlayer-subScene-button");
+//
+//        HBox buttons = new HBox(50,backBtn,newGameBtn);
+//        buttons.setLayoutX(600-175);
+//        buttons.setLayoutY(620);
 
-        HBox buttons = new HBox(50,backBtn,newGameBtn);
-        buttons.setLayoutX(600-175);
-        buttons.setLayoutY(620);
+        getContentRoot().getChildren().addAll(newGameBtn);
 
-        getContentRoot().getChildren().addAll(buttons);
-//        StackPane newGame = new StackPane(buttons);
-//        newGame.setMaxSize(400,400);
-//        newGame.getStyleClass().add("subScene");
-//
-//
-//        StackPane newGameBackGround = new StackPane(newGame);
-//        newGameBackGround.setPrefSize(getAppWidth(),getAppHeight());
-//        newGameBackGround.setStyle("-fx-background-color: #0007;");
-//
-//        getContentRoot().getChildren().add(newGameBackGround);
-        chooseAvatar();
-        chooseSkin();
-        chooseBoard();
-        chooseBackground();
+        chooseAvatar(player);
+        chooseSkin(player);
+        chooseBoard(player);
+        chooseBackground(player);
     }
 
-    public void getName(TextField name){
+    public void getName(TextField name,Player player){
         var nameText = getUIFactoryService().newText("Name",Color.BROWN,35);
         nameText.setStroke(Color.WHITE);
         nameText.setStrokeWidth(3);
@@ -80,13 +72,7 @@ public class NewPlayer extends SubScene {
             nameText.setEffect(new Bloom(0.8));
         }
 
-        name.setPromptText("Your name here plz");
-//        name.setOnKeyPressed(e->{
-//            if(e.getCode()==KeyCode.ENTER){
-//                player.setName(name.getText());
-//                name.setPromptText(player.getName());
-//            }
-//        });
+        name.setText(player.getName());
 
         HBox nameBox = new HBox(20,nameText,name);
         nameBox.setAlignment(Pos.CENTER);
@@ -98,7 +84,7 @@ public class NewPlayer extends SubScene {
 
     public final int xcoordinate = 170;
     public final int ycoordinate =180;
-    public void chooseAvatar(){
+    public void chooseAvatar(Player player){
 
 
         var avatarText = getUIFactoryService().newText("Avatar",Color.BROWN,35);
@@ -300,7 +286,7 @@ public class NewPlayer extends SubScene {
         avatar8btn.setStyle("-fx-border-color: transparent");
     }
 
-    public void chooseSkin() {
+    public void chooseSkin(Player player) {
 
         var skinText = getUIFactoryService().newText("Chess Skin",Color.BROWN,35);
         skinText.setStroke(Color.WHITE);
@@ -364,7 +350,7 @@ public class NewPlayer extends SubScene {
 
         getContentRoot().getChildren().addAll(skinbg,skins);
     }
-    public void chooseBoard() {
+    public void chooseBoard(Player player) {
 
         var boardText = getUIFactoryService().newText("Board Skin",Color.BROWN,35);
         boardText.setStroke(Color.WHITE);
@@ -383,7 +369,7 @@ public class NewPlayer extends SubScene {
         getContentRoot().getChildren().addAll(boardbg);
     }
 
-    public void chooseBackground() {
+    public void chooseBackground(Player player) {
 
         var bgText = getUIFactoryService().newText("Background",Color.BROWN,35);
         bgText.setStroke(Color.WHITE);
