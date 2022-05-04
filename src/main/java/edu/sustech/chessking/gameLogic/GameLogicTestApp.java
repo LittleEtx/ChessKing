@@ -5,6 +5,7 @@ import com.almasb.fxgl.app.GameSettings;
 import edu.sustech.chessking.gameLogic.ai.AiEnemy;
 import edu.sustech.chessking.gameLogic.ai.AiType;
 
+import static edu.sustech.chessking.gameLogic.SaveLoader.*;
 import static edu.sustech.chessking.gameLogic.enumType.ColorType.BLACK;
 import static edu.sustech.chessking.gameLogic.enumType.ColorType.WHITE;
 
@@ -48,6 +49,24 @@ public class GameLogicTestApp extends GameApplication {
                     break;
                 }
             }
+
+            Player player1 = new Player();
+            player1.setScore(10);
+            player1.setName("player1");
+            player1.setBoardSkin("pixel");
+            player1.setAvatar("avatar3");
+
+            Player player2 = new Player();
+            player2.setScore(20);
+            player2.setName("player2");
+
+            Save save = new Save(player1, player2, WHITE,
+                    gameCore.getGameHistory());
+
+            System.out.println(savePlayer(player1));
+            System.out.println(savePlayer(player2));
+            System.out.println(addLocalSave(save, player1));
+            System.out.println(addServerSave("localhost", save, player2));
         }
     }
 

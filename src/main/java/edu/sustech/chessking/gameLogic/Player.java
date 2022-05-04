@@ -3,17 +3,19 @@ package edu.sustech.chessking.gameLogic;
 import edu.sustech.chessking.gameLogic.exception.ConstructorException;
 
 public class Player {
-    String name;
-    String avatar;
-    String chessSkin;
-    String boardSkin;
-    String background;
-    String password;
+    private int score;
+    private String name;
+    private String avatar;
+    private String chessSkin;
+    private String boardSkin;
+    private String background;
+    private String password;
 
     /**
      * default constructor
      */
     public Player() {
+        score = 0;
         name = "";
         avatar = "avatar7";
         chessSkin = "default";
@@ -24,20 +26,24 @@ public class Player {
 
     public Player(String playerMessage) {
         String[] data = playerMessage.split(" ");
-        if (data.length < 5)
+        if (data.length < 6)
             throw new ConstructorException("Invalid message number");
 
-        name = data[0];
-        avatar = data[1];
-        chessSkin = data[2];
-        boardSkin = data[3];
-        background = data[4];
-        if (data.length == 6)
-            password = data[5];
+        score = Integer.parseInt(data[0]);
+        name = data[1];
+        avatar = data[2];
+        chessSkin = data[3];
+        boardSkin = data[4];
+        background = data[5];
+        if (data.length == 7)
+            password = data[6];
         else
             password = null;
     }
 
+    public void setScore(int score) {
+        this.score = score;
+    }
     public void setName(String name) {
         this.name = name;
     }
@@ -63,6 +69,11 @@ public class Player {
     }
 
     //getter method
+
+    public int getScore() {
+        return score;
+    }
+
     public String getName() {
         return name;
     }
@@ -90,6 +101,7 @@ public class Player {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append(score).append(" ");
         sb.append(name).append(" ");
         sb.append(avatar).append(" ");
         sb.append(chessSkin).append(" ");
