@@ -45,26 +45,50 @@ public class Player {
         this.score = score;
     }
     public void setName(String name) {
+        if (name == null || name.isEmpty() ||
+                name.contains(" ") ||
+                name.contains("\\") ||
+                name.contains("/") ||
+                name.contains(":") ||
+                name.contains("*") ||
+                name.contains("?") ||
+                name.contains("\"") ||
+                name.contains("<") ||
+                name.contains(">") ||
+                name.contains("|"))
+            throw new IllegalArgumentException("Name should not contains" +
+                    " the blank and \\/:*?\"<>|");
         this.name = name;
     }
 
     public void setChessSkin(String chessSkin) {
+        if (chessSkin == null)
+            throw new IllegalArgumentException("chessSkin can't be null!");
         this.chessSkin = chessSkin;
     }
 
     public void setBoardSkin(String boardSkin) {
+        if (chessSkin == null)
+            throw new IllegalArgumentException("boardSkin can't be null!");
         this.boardSkin = boardSkin;
     }
 
     public void setBackground(String background) {
+        if (chessSkin == null)
+            throw new IllegalArgumentException("background can't be null!");
         this.background = background;
     }
 
     public void setAvatar(String avatar) {
+        if (chessSkin == null)
+            throw new IllegalArgumentException("avatar can't be null!");
         this.avatar = avatar;
     }
 
     public void setPassword(String password) {
+        if (password.isEmpty() || password.contains(" "))
+            throw new IllegalArgumentException("password should not " +
+                    "contains the blank");
         this.password = password;
     }
 

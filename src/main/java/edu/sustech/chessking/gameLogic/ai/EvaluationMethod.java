@@ -25,12 +25,12 @@ public class EvaluationMethod {
 
     private static final int ShortCastleScore = 2500;
     private static final int LongCastleScore = 2400;
-    private static final int PromptQueenScore = 8000;
-    private static final int PromptRookScore = 4000;
-    private static final int PromptKnightScore = 2500;
-    private static final int PromptBishopScore = 2500;
+    private static final int PromoteQueenScore = 8000;
+    private static final int PromoteRookScore = 4000;
+    private static final int PromoteKnightScore = 2500;
+    private static final int PromoteBishopScore = 2500;
 
-    private static final int DrawnScore = 0;
+    private static final int DrawnScore = -1000;
 
     private static final int TargetRate = 5;
 
@@ -67,30 +67,30 @@ public class EvaluationMethod {
                     return ShortCastleScore;
             }
             case PROMOTE -> {
-                return getPromptScore((ChessType) move.getMoveTarget()[0]);
+                return getPromoteScore((ChessType) move.getMoveTarget()[0]);
             }
             case EAT_PROMOTE -> {
                 Chess chess = (Chess) move.getMoveTarget()[0];
                 return getChessScore(chess) +
-                        getPromptScore((ChessType) move.getMoveTarget()[1]);
+                        getPromoteScore((ChessType) move.getMoveTarget()[1]);
             }
         }
         return 0;
     }
 
-    private static int getPromptScore(ChessType chessType) {
+    private static int getPromoteScore(ChessType chessType) {
         switch (chessType) {
             case KNIGHT -> {
-                return PromptKnightScore;
+                return PromoteKnightScore;
             }
             case BISHOP -> {
-                return PromptBishopScore;
+                return PromoteBishopScore;
             }
             case ROOK -> {
-                return PromptRookScore;
+                return PromoteRookScore;
             }
             case QUEEN -> {
-                return PromptQueenScore;
+                return PromoteQueenScore;
             }
         }
         return 0;

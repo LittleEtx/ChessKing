@@ -75,7 +75,7 @@ public class Move {
                 if (moveInfo.length != 5)
                     throw new ConstructorException("Not valid number of parameter");
                 moveTarget = new Object[1];
-
+                moveTarget[0] = CastleType.toEnum(moveInfo[4]);
             }
             case MoveType.Promote -> {
                 moveType = MoveType.PROMOTE;

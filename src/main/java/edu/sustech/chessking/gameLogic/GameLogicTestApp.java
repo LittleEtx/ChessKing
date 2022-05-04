@@ -14,6 +14,10 @@ public class GameLogicTestApp extends GameApplication {
     private final AiEnemy whiteAi = new AiEnemy(AiType.NORMAL, gameCore);
     private final AiEnemy blackAi = new AiEnemy(AiType.NORMAL, gameCore);
     private boolean beginTest = false;
+
+    private Player player1;
+    private Player player2;
+    private Save save = null;
     private void setChess() {
         gameCore.initialGame();
     }
@@ -32,42 +36,89 @@ public class GameLogicTestApp extends GameApplication {
     protected void onUpdate(double tpf) {
         if (!beginTest) {
             beginTest = true;
-            Move move;
-            for (int i = 0; i < 100; i++) {
-                move = whiteAi.getNextMove();
-                gameCore.moveChess(move);
-                System.out.println(move.toString());
-                if (gameCore.hasGameEnd()) {
-                    printResult();
-                    break;
-                }
-                move = blackAi.getNextMove();
-                System.out.println(move.toString());
-                gameCore.moveChess(move);
-                if (gameCore.hasGameEnd()) {
-                    printResult();
-                    break;
-                }
-            }
 
-            Player player1 = new Player();
+            player1 = new Player();
             player1.setScore(10);
             player1.setName("player1");
             player1.setBoardSkin("pixel");
             player1.setAvatar("avatar3");
 
-            Player player2 = new Player();
+            player2 = new Player();
             player2.setScore(20);
             player2.setName("player2");
 
-            Save save = new Save(player1, player2, WHITE,
-                    gameCore.getGameHistory());
-
-            System.out.println(savePlayer(player1));
-            System.out.println(savePlayer(player2));
-            System.out.println(addLocalSave(save, player1));
-            System.out.println(addServerSave("localhost", save, player2));
+            simulateMove();
+            testSaveAndRead();
+            //testChangeName();
+            testDelete();
         }
+    }
+
+    private void simulateMove() {
+        Move move;
+        for (int i = 0; i < 50; i++) {
+            move = whiteAi.getNextMove();
+            gameCore.moveChess(move);
+            System.out.println(move.toString());
+            if (gameCore.hasGameEnd()) {
+                printResult();
+                break;
+            }
+            move = blackAi.getNextMove();
+            System.out.println(move.toString());
+            gameCore.moveChess(move);
+            if (gameCore.hasGameEnd()) {
+                printResult();
+                break;
+            }
+        }
+
+        save = new Save(player1, player2, WHITE,
+                gameCore.getGameHistory());
+    }
+
+    private void testSaveAndRead() {
+        System.out.println("GameLogicTestApp.testSaveAndRead");
+        System.out.println(writePlayer(player1));
+        System.out.println(writePlayer(player2));
+        if (save != null) {
+            System.out.println(writeLocalSave(save, player1));
+            System.out.println(writeServerSave("localhost", save, player2));
+        }
+
+        for (Player player : readPlayerList()) {
+            System.out.println(player);
+        }
+        System.out.println();
+
+        for (Save save1 : readLocalSaveList(player1)) {
+            if (save1 instanceof Replay replay)
+                System.out.print(replay.getEndGameType() + ": ");
+            System.out.println(save1.getUuid());
+        }
+        System.out.println();
+
+        for (Save save1 : readServerSaveList("localhost", player2)) {
+            if (save1 instanceof Replay replay)
+                System.out.print(replay.getEndGameType() + ": ");
+            System.out.println(save1.getUuid());
+        }
+
+    }
+
+    private void testChangeName() {
+        System.out.println("GameLogicTestApp.testChangeName");
+        System.out.println(changeLocalPlayerName("player1", "new player1"));
+        player1.setName("new player1");
+        writePlayer(player1);
+        System.out.println(changeServerPlayerName("localhost", "player2", "new player2"));
+    }
+
+    private void testDelete() {
+        System.out.println("GameLogicTestApp.testDelete");
+        System.out.println(deleteLocalSave(player1, save));
+        System.out.println(deleteServerSave("localhost", player2, save));
+        System.out.println(deletePlayer(player1));
     }
 
     public void printResult() {

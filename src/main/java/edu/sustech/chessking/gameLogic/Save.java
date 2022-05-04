@@ -77,6 +77,21 @@ public class Save {
                 gameHistory);
     }
 
+    /**
+     * creates a new save by existing save.
+     * only copy the reference
+     */
+    public Save(Save save) {
+        this(save.uuid, save.saveDate,
+            save.whitePlayer,
+            save.blackPlayer,
+            save.defaultDownColor,
+            save.gameTime,
+            save.turnTime,
+            save.remainingTime,
+            save.gameHistory);
+    }
+
     public Player getWhitePlayer() {
         return whitePlayer;
     }

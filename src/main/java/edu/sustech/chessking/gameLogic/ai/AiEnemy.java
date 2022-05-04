@@ -17,15 +17,15 @@ public class AiEnemy {
     private static final Player normalAiPlayer = new Player();
     private static final Player hardAiPlayer = new Player();
     static {
-        easyAiPlayer.setName("Easy Computer");
+        easyAiPlayer.setName("Easy_Computer");
         easyAiPlayer.setChessSkin("default");
         easyAiPlayer.setAvatar("aiAvatar");
 
-        normalAiPlayer.setName("Normal Computer");
+        normalAiPlayer.setName("Normal_Computer");
         normalAiPlayer.setChessSkin("pixel");
         normalAiPlayer.setAvatar("aiAvatar");
 
-        hardAiPlayer.setName("Hard Computer");
+        hardAiPlayer.setName("Hard_Computer");
         hardAiPlayer.setChessSkin("default");
         hardAiPlayer.setAvatar("aiAvatar");
     }

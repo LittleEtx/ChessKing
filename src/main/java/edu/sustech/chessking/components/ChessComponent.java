@@ -297,16 +297,16 @@ public class ChessComponent extends Component {
         if (pos != null && gameCore.isMoveAvailable(chess, pos)) {
             Move move = gameCore.castToMove(chess, pos);
             if (move == null) {
-                ChessType promptType = ChessType.QUEEN;
+                ChessType promoteType = ChessType.QUEEN;
                 String skin;
                 if(chess.getColorType().equals(geto("downSideColor"))) {
                     skin = gets("downChessSkin");
                 }else{
                     skin = gets("upChessSkin");
                 }
-                SubScene promote = new PawnPromote(promptType,skin,chess.getColorType());
+                SubScene promote = new PawnPromote(promoteType,skin,chess.getColorType());
                 FXGL.getSceneService().pushSubScene(promote);
-                move = gameCore.castToMove(chess, pos, promptType);
+                move = gameCore.castToMove(chess, pos, promoteType);
             }
 
             //if case danger
@@ -354,7 +354,7 @@ public class ChessComponent extends Component {
             eatChess(targetChess.getPosition());
         }
 
-        //if prompt
+        //if promote
         if (move.getMoveType() == MoveType.PROMOTE) {
                 ChessType chessType = (ChessType) move.getMoveTarget()[0];
             chess = chess.promoteTo(chessType);
