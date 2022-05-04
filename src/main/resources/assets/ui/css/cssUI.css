@@ -273,3 +273,131 @@
 .endGame-text{
     -fx-alignment: center;
 }
+
+.promote-bishop-default-black{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/default/defaultbishop-black.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-queen-default-black{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/default/defaultqueen-black.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-knight-default-black{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/default/defaultknight-black.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-rook-default-black{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/default/defaultrook-black.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-bishop-default-white{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/default/defaultbishop-white.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-queen-default-white{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/default/defaultqueen-white.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-knight-default-white{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/default/defaultknight-white.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-rook-default-white{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/default/defaultrook-white.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-bishop-pixel-black{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/pixel/pixelbishop-black.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-queen-pixel-black{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/pixel/pixelqueen-black.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-knight-pixel-black{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/pixel/pixelknight-black.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-rook-pixel-black{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/pixel/pixelrook-black.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-bishop-pixel-white{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/pixel/pixelbishop-white.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-queen-pixel-white{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/pixel/pixelqueen-white.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-knight-pixel-white{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/pixel/pixelknight-white.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}
+
+.promote-rook-pixel-white{
+    -fx-background-color: #00000080;
+    -fx-background-image: url("chessskin/pixel/pixelrook-white.png");
+    -fx-background-size: 80 80;
+    -fx-pref-height: 80;
+    -fx-pref-width: 80;
+}

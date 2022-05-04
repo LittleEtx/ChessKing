@@ -10,6 +10,7 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.input.UserAction;
+import com.almasb.fxgl.scene.SubScene;
 import com.almasb.fxgl.time.LocalTimer;
 import com.almasb.fxgl.time.Timer;
 import edu.sustech.chessking.components.ChessComponent;
@@ -17,10 +18,12 @@ import edu.sustech.chessking.factories.ChessKingEntityFactory;
 import edu.sustech.chessking.gameLogic.*;
 import edu.sustech.chessking.gameLogic.ai.AiEnemy;
 import edu.sustech.chessking.gameLogic.ai.AiType;
+import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
+import edu.sustech.chessking.ui.PawnPromote;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -417,13 +420,6 @@ public class ChessKingApp extends GameApplication {
                 endGame(EndGameType.LOST);
             }
         }, KeyCode.L);
-
-        getInput().addAction(new UserAction("Player Info") {
-            @Override
-            protected void onActionBegin() {
-                System.out.println(localPlayer.toString());
-            }
-        }, KeyCode.P);
 
         //left click action
         getInput().addAction(new UserAction("LeftClick") {

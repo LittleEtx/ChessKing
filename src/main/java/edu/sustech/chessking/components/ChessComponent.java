@@ -1,10 +1,12 @@
 package edu.sustech.chessking.components;
 
 
+import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.entity.components.ViewComponent;
+import com.almasb.fxgl.scene.SubScene;
 import com.almasb.fxgl.texture.Texture;
 import com.almasb.fxgl.time.LocalTimer;
 import edu.sustech.chessking.EntityType;
@@ -14,6 +16,7 @@ import edu.sustech.chessking.gameLogic.enumType.CastleType;
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
+import edu.sustech.chessking.ui.PawnPromote;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -292,13 +295,17 @@ public class ChessComponent extends Component {
 
         Position pos = getMousePos();
         if (pos != null && gameCore.isMoveAvailable(chess, pos)) {
-            //if is to promote, show a panel
             Move move = gameCore.castToMove(chess, pos);
             if (move == null) {
-                //========================
-                //    show a panel here
-                //=========================
                 ChessType promptType = ChessType.QUEEN;
+                String skin;
+                if(chess.getColorType().equals(geto("downSideColor"))) {
+                    skin = gets("downChessSkin");
+                }else{
+                    skin = gets("upChessSkin");
+                }
+                SubScene promote = new PawnPromote(promptType,skin,chess.getColorType());
+                FXGL.getSceneService().pushSubScene(promote);
                 move = gameCore.castToMove(chess, pos, promptType);
             }
 
