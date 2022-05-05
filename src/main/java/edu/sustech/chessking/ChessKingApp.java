@@ -26,9 +26,11 @@ import javafx.scene.control.Label;
 import javafx.scene.effect.Bloom;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.time.LocalDateTime;
@@ -491,6 +493,68 @@ public class ChessKingApp extends GameApplication {
     protected void initUI() {
         initButtons();
         initLabels();
+        initMark();
+    }
+
+    /**
+     * this is the method to generate the marks around the chess board
+     * and also make it turn with the white side player
+     */
+    private void initMark(){
+        var c1 = getUIFactoryService().newText("1",Color.BLACK,35);
+        var c2 = getUIFactoryService().newText("2",Color.BLACK,35);
+        var c3 = getUIFactoryService().newText("3",Color.BLACK,35);
+        var c4 = getUIFactoryService().newText("4",Color.BLACK,35);
+        var c5 = getUIFactoryService().newText("5",Color.BLACK,35);
+        var c6 = getUIFactoryService().newText("6",Color.BLACK,35);
+        var c7 = getUIFactoryService().newText("7",Color.BLACK,35);
+        var c8 = getUIFactoryService().newText("8",Color.BLACK,35);
+        setStyleText(c1);
+        setStyleText(c2);
+        setStyleText(c3);
+        setStyleText(c4);
+        setStyleText(c5);
+        setStyleText(c6);
+        setStyleText(c7);
+        setStyleText(c8);
+        var rA = getUIFactoryService().newText("A",Color.BLACK,35);
+        var rB = getUIFactoryService().newText("B",Color.BLACK,35);
+        var rC = getUIFactoryService().newText("C",Color.BLACK,35);
+        var rD = getUIFactoryService().newText("D",Color.BLACK,35);
+        var rE = getUIFactoryService().newText("E",Color.BLACK,35);
+        var rF = getUIFactoryService().newText("F",Color.BLACK,35);
+        var rG = getUIFactoryService().newText("G",Color.BLACK,35);
+        var rH = getUIFactoryService().newText("H",Color.BLACK,35);
+        setStyleText(rA);
+        setStyleText(rB);
+        setStyleText(rC);
+        setStyleText(rD);
+        setStyleText(rE);
+        setStyleText(rF);
+        setStyleText(rG);
+        setStyleText(rH);
+        VBox r;
+        HBox c;
+        int spacingR = 80-42;
+        int spacingC = 80-25;
+        if(downSide==ColorType.WHITE){
+            r = new VBox(spacingR,c8,c7,c6,c5,c4,c3,c2,c1);
+            c = new HBox(spacingC,rA,rB,rC,rD,rE,rF,rG,rH);
+        }else{
+            r = new VBox(spacingR,c1,c2,c3,c4,c5,c6,c7,c8);
+            c = new HBox(spacingC,rH,rG,rF,rE,rD,rC,rB,rA);
+        }
+        addUINode(r,60,75);
+        addUINode(c,80,720);
+    }
+
+    private void setStyleText(Text text){
+        text.setStroke(Color.WHITE);
+        text.setStrokeWidth(1);
+        if(!FXGL.isMobile()){
+            text.setEffect(new Bloom(0.3));
+        }
+        text.setStyle("-fx-background-size: 35 35;");
     }
 
     public void initLabels(){
