@@ -72,9 +72,10 @@ public class MainMenu extends FXGLMenu {
                     SubScene newPlayerName = new NewPlayerName(ChessKingApp.getLocalPlayer());
                     getSceneService().pushSubScene(newPlayerName);
                 }
-                if(keyEvent.getCode().equals(KeyCode.P)){
-                    SubScene promote = new PawnPromote("default", ColorType.WHITE, chessType -> {});
-                    getSceneService().pushSubScene(promote);
+                if(keyEvent.getCode().equals(KeyCode.N)){
+                    Player testLocalPlayer = new Player();
+                    SubScene chooseLocalPlayer = new ChooseLocalPlayer(testLocalPlayer);
+                    getSceneService().pushSubScene(chooseLocalPlayer);
                 }
             }
         });
@@ -223,7 +224,7 @@ public class MainMenu extends FXGLMenu {
 
         localFight.setOnAction(event -> {
             Player p2 = ChessKingApp.getLocalPlayer2();
-            SubScene ss = new ChoosePlayer(p2);
+            SubScene ss = new ChoosePlayer2(p2);
             getSceneService().pushSubScene(ss);
         });
 

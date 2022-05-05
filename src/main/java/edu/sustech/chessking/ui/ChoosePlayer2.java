@@ -19,8 +19,8 @@ import static com.almasb.fxgl.dsl.FXGL.getSceneService;
 import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameController;
 
-public class ChoosePlayer extends SubScene {
-    public ChoosePlayer(Player player){
+public class ChoosePlayer2 extends SubScene {
+    public ChoosePlayer2(Player player){
         Rectangle bg = new Rectangle(1200,800, Color.web("#00000080"));
         getContentRoot().getChildren().add(bg);
 

@@ -21,8 +21,8 @@ public class BoardComponent extends Component {
     private TwinkleComponent twinkleComponent;
 
     private boolean transState = false;
-    private Color color1;
-    private Color color2;
+    private final Color color1;
+    private final Color color2;
 
     public BoardComponent(Position position,Color color1,Color color2) {
         this.position = position;

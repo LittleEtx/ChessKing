@@ -29,7 +29,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
@@ -65,9 +64,6 @@ public class ChessKingApp extends GameApplication {
     private Player downPlayer;
     private Player upPlayer;
     private Long saveUuid = null;
-
-    private String boardTheme;
-    private String backgroundTheme;
 
     private AiEnemy ai;
     private boolean isEnemyFirst = false;
@@ -177,7 +173,6 @@ public class ChessKingApp extends GameApplication {
 
 //        gameType = GameType.COMPUTER;
 //        set("gameType", gameType);
-        FXGL.loopBGM("BGM1.mp3");
 
         betweenClickTimer = newLocalTimer();
 
@@ -535,7 +530,7 @@ public class ChessKingApp extends GameApplication {
         setStyleText(rH);
         VBox r;
         HBox c;
-        int spacingR = 80-42;
+        int spacingR = 80-43;
         int spacingC = 80-25;
         if(downSide==ColorType.WHITE){
             r = new VBox(spacingR,c8,c7,c6,c5,c4,c3,c2,c1);
@@ -544,8 +539,8 @@ public class ChessKingApp extends GameApplication {
             r = new VBox(spacingR,c1,c2,c3,c4,c5,c6,c7,c8);
             c = new HBox(spacingC,rH,rG,rF,rE,rD,rC,rB,rA);
         }
-        addUINode(r,60,75);
-        addUINode(c,80,720);
+        addUINode(r,56,75+25);
+        addUINode(c,80+30,720);
     }
 
     private void setStyleText(Text text){
