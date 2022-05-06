@@ -865,10 +865,14 @@ public class GameCore {
         for (Chess chess : possibleList) {
             //simply to see after the chess move to the protection area,
             //will the king in danger
-            chessboard.setNull(chess.getPosition());
-            if (!isChecked(turn))
+            if (chess.getChessType() != KING) {
+                chessboard.setNull(chess.getPosition());
+                if (!isChecked(turn))
+                    targetChessList.add(chess);
+                chessboard.setChess(chess);
+            }
+            else
                 targetChessList.add(chess);
-            chessboard.setChess(chess);
         }
         return targetChessList;
     }

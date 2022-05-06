@@ -32,9 +32,9 @@ public class AiEnemy {
     private final AiType ai;
     private final GameCore gameCore;
     private final int maxSearchNum;
-    private static final int EasySearchNumber = 1;
+    private static final int EasySearchNumber = 2;
     private static final int NormalSearchNumber = 4;
-    private static final int HardSearchNumber = 7;
+    private static final int HardSearchNumber = 6;
     private static final int positiveInfinite = Integer.MAX_VALUE / 4;
     private static final int negativeInfinite = Integer.MIN_VALUE / 4;
 

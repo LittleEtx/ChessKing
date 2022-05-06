@@ -338,9 +338,10 @@ public class ChessComponent extends Component {
                                 set("isEndTurn", true);
                             } else {
                                 entity.setPosition(toPoint(chess.getPosition()));
-                                setTargetKingList();
                             }
+                            setTargetKingList();
                         });
+                return;
             }
             else {
                 executeMove(move);
@@ -350,8 +351,8 @@ public class ChessComponent extends Component {
         else {
             //reset the chess's position
             entity.setPosition(toPoint(chess.getPosition()));
-            setTargetKingList();
         }
+        setTargetKingList();
     }
 
     public void computerExecuteMove(Move move) {
@@ -484,6 +485,8 @@ public class ChessComponent extends Component {
             set("targetList", chessList[1]);
             //update king state
             ArrayList<Chess> kingList = new ArrayList<>();
+
+            //TO DO: when moving other chess, set targetKing
             for (Chess chess : chessList[1]) {
                 //if target enemy chess
                 if (chess.getChessType() == ChessType.KING && !gameCore.isInTurn(chess))

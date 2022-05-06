@@ -198,7 +198,7 @@ public class ChessKingApp extends GameApplication {
             upPlayer = localPlayer2;
         }
         else if (gameType == GameType.COMPUTER) {
-            ai = new AiEnemy(AiType.NORMAL, gameCore);
+            ai = new AiEnemy(AiType.HARD, gameCore);
             upPlayer = ai.getPlayer();
             upPlayer.setBackground(downPlayer.getBackground());
             upPlayer.setColor1(downPlayer.getColor1());
