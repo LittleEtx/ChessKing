@@ -8,6 +8,7 @@ import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.GameType;
 import edu.sustech.chessking.gameLogic.Player;
+import edu.sustech.chessking.gameLogic.SaveLoader;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
@@ -73,8 +74,7 @@ public class MainMenu extends FXGLMenu {
                     getSceneService().pushSubScene(newPlayerName);
                 }
                 if(keyEvent.getCode().equals(KeyCode.N)){
-                    Player testLocalPlayer = new Player();
-                    SubScene chooseLocalPlayer = new ChooseLocalPlayer(testLocalPlayer);
+                    SubScene chooseLocalPlayer = new ChooseLocalPlayer(SaveLoader.readPlayerList());
                     getSceneService().pushSubScene(chooseLocalPlayer);
                 }
             }

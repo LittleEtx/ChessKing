@@ -238,7 +238,7 @@ public class SaveLoader {
     /**
      * save a player's information.
      * override the information of the player with the same name.
-     * Note: if the player also change his name, use changeName method first
+     * Note: if the player also changed his name, use changeName method first
      * @return if save success
      */
     public static boolean writePlayer(Player player) {

@@ -3,6 +3,7 @@ package edu.sustech.chessking.ui;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.gameLogic.Player;
+import edu.sustech.chessking.gameLogic.SaveLoader;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -85,10 +86,19 @@ public class NewPlayerName extends SubScene {
                 invalidName.setStyle("-fx-font-size: 12;");
                 getContentRoot().getChildren().add(invalidName);
             }else {
-                getSceneService().popSubScene();
                 player.setName(name);
-                SubScene newSkin = new NewPlayer(player);
-                getSceneService().pushSubScene(newSkin);
+                if(SaveLoader.writePlayer(player)) {
+                    getSceneService().popSubScene();
+                    SubScene newSkin = new NewPlayer(player);
+                    getSceneService().pushSubScene(newSkin);
+                }else{
+                    Label invalidName = new Label("Unable to save Player");
+                    invalidName.setTextFill(Color.WHITE);
+                    invalidName.setLayoutY(410);
+                    invalidName.setLayoutX(440);
+                    invalidName.setStyle("-fx-font-size: 12;");
+                    getContentRoot().getChildren().add(invalidName);
+                }
             }
         });
 
@@ -113,8 +123,17 @@ public class NewPlayerName extends SubScene {
                 getContentRoot().getChildren().add(invalidName);
             }else {
                 player.setName(name);
-                getSceneService().popSubScene();
-                System.out.println(player);
+                if(SaveLoader.writePlayer(player)) {
+                    getSceneService().popSubScene();
+                    System.out.println(player);
+                }else{
+                    Label invalidName = new Label("Unable to save Player");
+                    invalidName.setTextFill(Color.WHITE);
+                    invalidName.setLayoutY(410);
+                    invalidName.setLayoutX(440);
+                    invalidName.setStyle("-fx-font-size: 12;");
+                    getContentRoot().getChildren().add(invalidName);
+                }
             }
         });
     }

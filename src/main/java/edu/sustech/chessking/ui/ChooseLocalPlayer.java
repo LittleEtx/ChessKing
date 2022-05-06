@@ -25,7 +25,7 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameController;
 
 public class ChooseLocalPlayer extends SubScene {
 
-    public ChooseLocalPlayer(Player player){
+    public ChooseLocalPlayer(ArrayList<Player> players){
         Rectangle bg = new Rectangle(1200,800, Color.web("#00000080"));
         getContentRoot().getChildren().add(bg);
 
@@ -37,14 +37,12 @@ public class ChooseLocalPlayer extends SubScene {
         }
 
 
-        Player testPlayer1 = new Player();
-        Player testPlayer2 = new Player();
-        testPlayer1.setName("test1");
-        testPlayer2.setName("test2");
-
-        ArrayList<Player> players = SaveLoader.readPlayerList();
-        players.add(testPlayer1);
-        players.add(testPlayer2);
+//        Player testPlayer1 = new Player();
+//        Player testPlayer2 = new Player();
+//        testPlayer1.setName("test1");
+//        testPlayer2.setName("test2");
+//        players.add(testPlayer1);
+//        players.add(testPlayer2);
 
         ArrayList<Button> playersBtn = new ArrayList<>();
         for(Player existedPlayer : players){
@@ -86,8 +84,9 @@ public class ChooseLocalPlayer extends SubScene {
         Button newPlayerBtn = new Button("New Player");
         newPlayerBtn.getStyleClass().add("newPlayer-subScene-button");
         newPlayerBtn.setOnAction(event -> {
-            SubScene newPlayer = new NewPlayerName(player);
-            getSceneService().pushSubScene(newPlayer);
+            Player newPlayer = ChessKingApp.getLocalPlayer();
+            SubScene newPlayerSS = new NewPlayerName(newPlayer);
+            getSceneService().pushSubScene(newPlayerSS);
         });
 
         Button doneBtn = new Button("Done");
@@ -98,7 +97,7 @@ public class ChooseLocalPlayer extends SubScene {
                 ChessKingApp.setGameType(GameType.LOCAL);
                 getGameController().startNewGame();
             }else{
-                System.out.println("no player2 detected");
+                System.out.println("no local player detected");
             }
         });
 
