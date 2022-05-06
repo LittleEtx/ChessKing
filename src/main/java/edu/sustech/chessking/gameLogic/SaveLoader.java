@@ -13,6 +13,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import static edu.sustech.chessking.gameLogic.enumType.EndGameType.NOT_FINISH;
+import static edu.sustech.chessking.gameLogic.enumType.EndGameType.toEnum;
+
 public class SaveLoader {
     private static final File localSavePath = new File("saves\\localSaves");
     private static final File serverSavePath = new File("saves\\serverSaves");
@@ -99,12 +102,16 @@ public class SaveLoader {
             testGameCore.initialGame();
             Move move;
             Save save;
+            EndGameType endGameType = NOT_FINISH;
             //time limit is off
             if (gameTime < 0) {
-                for (int i = 4; i < lines.size(); i++) {
+                for (int i = 4; i < lines.size() - 1; i++) {
                     move = new Move(lines.get(i));
                     if (!testGameCore.moveChess(move))
                         return null;
+                    endGameType = checkEndGame(testGameCore);
+                    if (endGameType != NOT_FINISH)
+                        break;
                 }
 
                 save = new Save(uuid, saveDate,
@@ -115,11 +122,14 @@ public class SaveLoader {
             //time limit is on
             else {
                 ArrayList<Double> remainingTime = new ArrayList<>();
-                for (int i = 4; i < lines.size(); i++) {
+                for (int i = 4; i < lines.size() - 1; i++) {
                     String[] moveData = lines.get(i).split(" ");
                     move = new Move(Arrays.copyOf(moveData, moveData.length - 1));
                     testGameCore.moveChess(move);
                     remainingTime.add(Double.valueOf(moveData[moveData.length - 1]));
+                    endGameType = checkEndGame(testGameCore);
+                    if (endGameType != NOT_FINISH)
+                        break;
                 }
 
                 save = new Save(uuid, saveDate,
@@ -129,21 +139,30 @@ public class SaveLoader {
                         testGameCore.getGameHistory()
                 );
             }
-
-            if (testGameCore.hasGameEnd()) {
-                if (testGameCore.hasDrawn())
-                    return new Replay(save, EndGameType.DRAWN);
-                else if (testGameCore.hasWin(ColorType.WHITE))
-                    return new Replay(save, EndGameType.WHITE_WIN);
-                else
-                    return new Replay(save, EndGameType.BLACK_WIN);
-            }
+            EndGameType markEndGameType = toEnum(lines.get(lines.size() - 1));
+            if (endGameType != NOT_FINISH)
+                return new Replay(save, endGameType);
+            else if (markEndGameType != NOT_FINISH)
+                return new Replay(save, markEndGameType);
             else
                 return save;
         }
         catch (Exception e) {
             return null;
         }
+    }
+
+    private static EndGameType checkEndGame(GameCore gameCore) {
+        if (gameCore.hasGameEnd()) {
+            if (gameCore.hasDrawn())
+                return EndGameType.DRAWN;
+            else if (gameCore.hasWin(ColorType.WHITE))
+                return EndGameType.WHITE_WIN;
+            else
+                return EndGameType.BLACK_WIN;
+        }
+        else
+            return NOT_FINISH;
     }
 
     /**
@@ -197,6 +216,11 @@ public class SaveLoader {
                             timeList.get(i).toString() + "\n");
                 }
             }
+            //write game end type
+            if (save instanceof Replay replay)
+                writer.write(replay.getEndGameType().toString());
+            else
+                writer.write(NOT_FINISH.toString());
             return true;
         }
         catch (Exception e) {

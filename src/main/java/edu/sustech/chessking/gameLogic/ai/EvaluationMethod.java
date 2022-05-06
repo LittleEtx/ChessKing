@@ -23,8 +23,8 @@ public class EvaluationMethod {
     private static final int KnightScore = 3000;
     private static final int PawnScore = 500;
 
-    private static final int ShortCastleScore = 2500;
-    private static final int LongCastleScore = 2400;
+    private static final int ShortCastleScore = 2000;
+    private static final int LongCastleScore = 1800;
     private static final int PromoteQueenScore = 8000;
     private static final int PromoteRookScore = 4000;
     private static final int PromoteKnightScore = 2500;

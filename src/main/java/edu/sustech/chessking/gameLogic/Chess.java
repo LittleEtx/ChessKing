@@ -110,4 +110,17 @@ public class Chess{
         return String.format("%s %s %s",
                 colorType.toString(), chessType.toString(), position.toString());
     }
+
+    public char toShortString() {
+        char shortName;
+        if (chessType != ChessType.KNIGHT)
+            shortName = chessType.toString().charAt(0);
+        else
+            shortName = 'n';
+
+        if (colorType == ColorType.BLACK)
+            return Character.toUpperCase(shortName);
+        else
+            return shortName;
+    }
 }
