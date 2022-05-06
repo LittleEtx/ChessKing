@@ -17,13 +17,13 @@ import static edu.sustech.chessking.gameLogic.enumType.EndGameType.NOT_FINISH;
 import static edu.sustech.chessking.gameLogic.enumType.EndGameType.toEnum;
 
 public class SaveLoader {
-    private static final File localSavePath = new File("saves\\localSaves");
-    private static final File serverSavePath = new File("saves\\serverSaves");
+    private static final File localSavePath = new File("saves/localSaves");
+    private static final File serverSavePath = new File("saves/serverSaves");
 
-    private static final File playerPath = new File("saves\\player");
+    private static final File playerPath = new File("saves/player");
 
     private static File getPlayerFile(String playerName) {
-        return new File(playerPath.toString() + "\\" +
+        return new File(playerPath.toString() + "/" +
                 playerName + ".data");
     }
     private static File getExistPlayerFile(String playerName) {
@@ -48,7 +48,7 @@ public class SaveLoader {
      * @return all available saves of a player, in order of time
      */
     public static ArrayList<Save> readServerSaveList(String serverIdentifier, Player player) {
-        return getSaves(new File(serverSavePath + "\\" + serverIdentifier), player);
+        return getSaves(new File(serverSavePath + "/" + serverIdentifier), player);
     }
 
 
@@ -170,7 +170,7 @@ public class SaveLoader {
      * @return if save success
      */
     public static boolean writeLocalSave(Player player, Save save) {
-        return writeSave(new File(localSavePath + "\\" +
+        return writeSave(new File(localSavePath + "/" +
                 player.getName()), save);
     }
 
@@ -180,8 +180,8 @@ public class SaveLoader {
      * @return if save success
      */
     public static boolean writeServerSave(String serverIdentifier, Player player, Save save) {
-        return writeSave(new File(serverSavePath + "\\" +
-                serverIdentifier + "\\" + player.getName()), save);
+        return writeSave(new File(serverSavePath + "/" +
+                serverIdentifier + "/" + player.getName()), save);
     }
 
     private static boolean writeSave(File saveDic, Save save) {
@@ -191,7 +191,7 @@ public class SaveLoader {
                 return false;
         }
 
-        File file = new File(saveDic + "\\" + save.getUuid() + ".save");
+        File file = new File(saveDic + "/" + save.getUuid() + ".save");
 
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(save.getUuid() + " " + save.getSaveDate().toString() + "\n");
@@ -272,7 +272,7 @@ public class SaveLoader {
                 return false;
         }
 
-        File playerFile = new File(playerPath + "\\" + player.getName() + ".data");
+        File playerFile = new File(playerPath + "/" + player.getName() + ".data");
         try (FileWriter writer = new FileWriter(playerFile)) {
             writer.write(player.toString());
         } catch (Exception e) {
@@ -298,7 +298,7 @@ public class SaveLoader {
             return false;
         }
         //if change name not succeed
-        if (!playerFile.renameTo(new File(playerPath + "\\" +
+        if (!playerFile.renameTo(new File(playerPath + "/" +
                 newName + ".data")))
             return false;
 
@@ -311,7 +311,7 @@ public class SaveLoader {
      * @return if change succeed
      */
     public static boolean changeServerPlayerName(String serverIdentifier, String oldName, String newName) {
-        return mergeSaves(new File(serverSavePath + "\\" +
+        return mergeSaves(new File(serverSavePath + "/" +
                 serverIdentifier), oldName ,newName);
     }
 
@@ -320,7 +320,7 @@ public class SaveLoader {
         File oldSaveDic = getPlayerSaveDic(rootDic.toString(), oldName);
         if (oldSaveDic == null)
             return false;
-        File newSaveDic = new File(rootDic + "\\" + newName);
+        File newSaveDic = new File(rootDic + "/" + newName);
 
         //if not exist, simply change name
         if (!newSaveDic.exists() || !newSaveDic.isDirectory()) {
@@ -335,7 +335,7 @@ public class SaveLoader {
             for (File oldSaveFile : oldSaveFiles) {
                 if (oldSaveFile.isFile()) {
                     newSaveFile = new File(newSaveDic
-                            + "\\" + oldSaveFile.getName());
+                            + "/" + oldSaveFile.getName());
 
                     mergeSave(oldSaveFile, newSaveFile);
                 }
@@ -365,7 +365,7 @@ public class SaveLoader {
     }
 
     private static File getPlayerSaveDic(String rootFile, String identifier) {
-        File playerSaveFile = new File(rootFile + "\\" + identifier);
+        File playerSaveFile = new File(rootFile + "/" + identifier);
         //no save: no need to change
         if (!playerSaveFile.exists() || !playerSaveFile.isDirectory())
             return null;
@@ -385,7 +385,7 @@ public class SaveLoader {
             return false;
 
         File playerSaveFile = new File(
-                 localSavePath + "\\" + player.getName());
+                 localSavePath + "/" + player.getName());
 
         if (playerSaveFile.exists() && playerSaveFile.isDirectory())
             playerSaveFile.delete();
@@ -398,13 +398,13 @@ public class SaveLoader {
     }
 
     public static boolean deleteServerSave(String serverIdentifier, Player player, Save save) {
-        return deleteSave(new File(serverSavePath + "\\" +
+        return deleteSave(new File(serverSavePath + "/" +
                 serverIdentifier), player, save);
     }
 
     private static boolean deleteSave(File rootFile, Player player,Save save) {
-        File saveFile = new File(rootFile + "\\" + player.getName() +
-                "\\" + save.getUuid() + ".save");
+        File saveFile = new File(rootFile + "/" + player.getName() +
+                "/" + save.getUuid() + ".save");
 
         if (!saveFile.exists() || !saveFile.isFile())
             return false;

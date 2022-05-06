@@ -259,8 +259,10 @@ public class ChessKingApp extends GameApplication {
                     chess.getComponent(ChessComponent.class).computerExecuteMove(move);
                 }
                 case LAN -> {
+
                 }
                 case NET -> {
+
                 }
                 case REPLAY -> {
 
