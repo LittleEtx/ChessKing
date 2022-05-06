@@ -42,7 +42,6 @@ public class GameLogicTestApp extends GameApplication {
             player1 = new Player();
             player1.setScore(10);
             player1.setName("player1");
-            player1.setBoardSkin("pixel");
             player1.setAvatar("avatar3");
 
             player2 = new Player();

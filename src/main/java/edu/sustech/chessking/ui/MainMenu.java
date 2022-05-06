@@ -58,8 +58,8 @@ public class MainMenu extends FXGLMenu {
             deleteMainMenuBtn();
 
             //if no initial player
-            SubScene newPlayerName = new NewPlayerName(ChessKingApp.getLocalPlayer());
-            getSceneService().pushSubScene(newPlayerName);
+            SubScene chooseLocalPlayer = new ChooseLocalPlayer(SaveLoader.readPlayerList());
+            getSceneService().pushSubScene(chooseLocalPlayer);
         });
 
         btn1.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {

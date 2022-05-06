@@ -2,6 +2,7 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
+import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.SaveLoader;
 import javafx.geometry.Pos;
@@ -91,6 +92,7 @@ public class NewPlayerName extends SubScene {
                     getSceneService().popSubScene();
                     SubScene newSkin = new NewPlayer(player);
                     getSceneService().pushSubScene(newSkin);
+                    ChessKingApp.setLocalPlayer(player);
                 }else{
                     Label invalidName = new Label("Unable to save Player");
                     invalidName.setTextFill(Color.WHITE);
@@ -126,6 +128,7 @@ public class NewPlayerName extends SubScene {
                 if(SaveLoader.writePlayer(player)) {
                     getSceneService().popSubScene();
                     System.out.println(player);
+                    ChessKingApp.setLocalPlayer(player);
                 }else{
                     Label invalidName = new Label("Unable to save Player");
                     invalidName.setTextFill(Color.WHITE);

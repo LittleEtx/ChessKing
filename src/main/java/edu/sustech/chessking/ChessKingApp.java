@@ -58,6 +58,9 @@ public class ChessKingApp extends GameApplication {
     public static Player getLocalPlayer(){
         return localPlayer;
     }
+    public static void setLocalPlayer(Player player){
+        localPlayer = player;
+    }
 
     private static Player localPlayer2 = new Player();
     public static Player getLocalPlayer2(){ return localPlayer2; }
@@ -192,7 +195,7 @@ public class ChessKingApp extends GameApplication {
             upPlayer = localPlayer2;
         }
         else if (gameType == GameType.COMPUTER) {
-            ai = new AiEnemy(AiType.HARD, gameCore);
+            ai = new AiEnemy(AiType.EASY, gameCore);
             upPlayer = ai.getPlayer();
             upPlayer.setBackground(downPlayer.getBackground());
             upPlayer.setColor1(downPlayer.getColor1());

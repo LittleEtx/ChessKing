@@ -4,6 +4,7 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.GameType;
+import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.SaveLoader;
 import javafx.geometry.Pos;
@@ -69,6 +70,8 @@ public class ChooseLocalPlayer extends SubScene {
                 playerBtn.setStyle("-fx-border-color: #20B2AA;"+
                         "-fx-border-width: 5;"+
                         "-fx-background-color: transparent;");
+
+                ChessKingApp.setLocalPlayer(players.get(playersBtn.indexOf(playerBtn)));
             });
         }
 
@@ -84,18 +87,19 @@ public class ChooseLocalPlayer extends SubScene {
         Button newPlayerBtn = new Button("New Player");
         newPlayerBtn.getStyleClass().add("newPlayer-subScene-button");
         newPlayerBtn.setOnAction(event -> {
-            Player newPlayer = ChessKingApp.getLocalPlayer();
+//            Player newPlayer = ChessKingApp.getLocalPlayer();
+            Player newPlayer = new Player();
             SubScene newPlayerSS = new NewPlayerName(newPlayer);
+            getSceneService().popSubScene();
             getSceneService().pushSubScene(newPlayerSS);
         });
 
         Button doneBtn = new Button("Done");
         doneBtn.getStyleClass().add("newPlayer-subScene-button");
         doneBtn.setOnAction(event ->{
-            if(!Objects.equals(ChessKingApp.getLocalPlayer2().getName(), "")) {
+            if(!Objects.equals(ChessKingApp.getLocalPlayer().getName(), "")) {
                 getSceneService().popSubScene();
                 ChessKingApp.setGameType(GameType.LOCAL);
-                getGameController().startNewGame();
             }else{
                 System.out.println("no local player detected");
             }
