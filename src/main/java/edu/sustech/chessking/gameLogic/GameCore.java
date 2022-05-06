@@ -33,7 +33,6 @@ public class GameCore {
     //    ChessBoard Setting Method
     //===============================
 
-
     /**
      * This method will set all chess to the beginning position
      * Game History will be cleaned

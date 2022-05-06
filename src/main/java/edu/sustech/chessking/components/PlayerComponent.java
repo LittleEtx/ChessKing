@@ -9,8 +9,8 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
 
 public class PlayerComponent extends Component {
 
-    private Player player;
-    private String avatar;
+    private final Player player;
+    private final String avatar;
 
     public PlayerComponent(Player player){
         String str = "avatar/"+player.getAvatar()+".png";

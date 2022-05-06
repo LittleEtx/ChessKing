@@ -251,6 +251,7 @@ public class SaveLoader {
             try {
                 player = new Player(Files.readString(playerFile.toPath()));
             } catch (Exception e) {
+                System.out.println("Fail to read " + playerFile.getName());
                 continue;
             }
 

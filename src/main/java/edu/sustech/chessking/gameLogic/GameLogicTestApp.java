@@ -4,6 +4,7 @@ import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import edu.sustech.chessking.gameLogic.ai.AiEnemy;
 import edu.sustech.chessking.gameLogic.ai.AiType;
+import javafx.scene.paint.Color;
 
 import java.time.LocalDateTime;
 
@@ -42,6 +43,8 @@ public class GameLogicTestApp extends GameApplication {
             player1 = new Player();
             player1.setScore(10);
             player1.setName("player1");
+            player1.setColor1(Color.WHITE);
+            player1.setColor1(Color.BLACK);
             player1.setAvatar("avatar3");
 
             player2 = new Player();

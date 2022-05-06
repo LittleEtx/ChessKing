@@ -36,9 +36,10 @@ public class Player {
      */
     public Player(String playerMessage) {
         String[] data = playerMessage.split(" ");
-        if (data.length < 6)
+        System.out.println(data.length);
+        if (data.length < 7) {
             throw new ConstructorException("Invalid message number");
-
+        }
         setScore(Integer.parseInt(data[0]));
         setName(data[1]);
         setAvatar(data[2]);
@@ -73,7 +74,7 @@ public class Player {
     }
 
     public void setAvatar(String avatar) {
-        if (chessSkin == null)
+        if (avatar == null)
             throw new IllegalArgumentException("avatar can't be null!");
         this.avatar = avatar;
     }

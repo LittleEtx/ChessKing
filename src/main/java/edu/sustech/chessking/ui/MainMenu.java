@@ -9,7 +9,6 @@ import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.GameType;
 import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.SaveLoader;
-import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
@@ -18,6 +17,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+
+import java.util.ArrayList;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 
@@ -58,7 +59,9 @@ public class MainMenu extends FXGLMenu {
             deleteMainMenuBtn();
 
             //if no initial player
-            SubScene chooseLocalPlayer = new ChooseLocalPlayer(SaveLoader.readPlayerList());
+            ArrayList<Player> playerArrayList = SaveLoader.readPlayerList();
+            SubScene chooseLocalPlayer = new ChooseLocalPlayer(playerArrayList);
+            System.out.println("read player list" + playerArrayList.size());
             getSceneService().pushSubScene(chooseLocalPlayer);
         });
 

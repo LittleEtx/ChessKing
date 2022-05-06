@@ -102,8 +102,6 @@ public class ChessKingApp extends GameApplication {
         vars.put("targetKingList", new ArrayList<Chess>());
         vars.put("availablePosition", new ArrayList<Position>());
 
-        //vars.put("localPlayer",localPlayer);
-
         vars.put("openAllyVisual", true);
         vars.put("openEnemyVisual", true);
         vars.put("openTargetVisual", true);
@@ -177,7 +175,6 @@ public class ChessKingApp extends GameApplication {
 
         //deal with end turn method, check if end game
         initialEndTurnListener();
-
 
         //random downside color
         int side = FXGL.random(0,1);
