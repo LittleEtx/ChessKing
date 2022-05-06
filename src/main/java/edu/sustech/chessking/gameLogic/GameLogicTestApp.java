@@ -5,6 +5,8 @@ import com.almasb.fxgl.app.GameSettings;
 import edu.sustech.chessking.gameLogic.ai.AiEnemy;
 import edu.sustech.chessking.gameLogic.ai.AiType;
 
+import java.time.LocalDateTime;
+
 import static edu.sustech.chessking.gameLogic.SaveLoader.*;
 import static edu.sustech.chessking.gameLogic.enumType.ColorType.BLACK;
 import static edu.sustech.chessking.gameLogic.enumType.ColorType.WHITE;
@@ -48,9 +50,9 @@ public class GameLogicTestApp extends GameApplication {
             player2.setName("player2");
 
             simulateMove();
-            testSaveAndRead();
+            //testSaveAndRead();
             //testChangeName();
-            testDelete();
+            //testDelete();
         }
     }
 
@@ -59,14 +61,18 @@ public class GameLogicTestApp extends GameApplication {
         for (int i = 0; i < 50; i++) {
             move = whiteAi.getNextMove();
             gameCore.moveChess(move);
+            System.out.println(LocalDateTime.now());
             System.out.println(move.toString());
+            System.out.println(gameCore.getChessBoardString());
             if (gameCore.hasGameEnd()) {
                 printResult();
                 break;
             }
             move = blackAi.getNextMove();
-            System.out.println(move.toString());
             gameCore.moveChess(move);
+            System.out.println(LocalDateTime.now());
+            System.out.println(move.toString());
+            System.out.println(gameCore.getChessBoardString());
             if (gameCore.hasGameEnd()) {
                 printResult();
                 break;
