@@ -41,7 +41,6 @@ public class AiEnemy {
 
     /**
      * @param ai the difficulty of AI
-     * @param gameCore the gameCore that the game to prompt
      */
     public AiEnemy(AiType ai, GameCore gameCore) {
         this.ai = ai;
@@ -73,6 +72,7 @@ public class AiEnemy {
     }
 
     /**
+     * Note that when this method is calculating, gameCore will be updated
      * @return the predicted best move
      */
     public Move getNextMove() {

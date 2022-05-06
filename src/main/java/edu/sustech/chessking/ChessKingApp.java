@@ -17,7 +17,9 @@ import edu.sustech.chessking.factories.ChessKingEntityFactory;
 import edu.sustech.chessking.gameLogic.*;
 import edu.sustech.chessking.gameLogic.ai.AiEnemy;
 import edu.sustech.chessking.gameLogic.ai.AiType;
+import edu.sustech.chessking.gameLogic.enumType.CastleType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
+import edu.sustech.chessking.gameLogic.enumType.MoveType;
 import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
@@ -43,16 +45,19 @@ import static edu.sustech.chessking.VisualLogic.*;
 public class ChessKingApp extends GameApplication {
 
     private final GameCore gameCore = new GameCore();
-    public ColorType downSide;
+    //use to store the current history when computer simulate move
+    private MoveHistory tempHistory;
+    public ColorType downSideColor;
     private Entity movingChess;
     private LocalTimer betweenClickTimer;
     private String serverIP = "localhost";
     private boolean cursorDefault = true;
+    private int reverseCount;
     private Timer whiteTimer;
     private Timer blackTimer;
     private static double gameTimeInSecond = -1;
     private static double turnTimeInSecond = -1;
-    private static ArrayList<Double> remainingTime = new ArrayList<>();
+    private static final ArrayList<Double> remainingTime = new ArrayList<>();
 
     private static Player localPlayer = new Player();
     public static Player getLocalPlayer(){
@@ -173,32 +178,37 @@ public class ChessKingApp extends GameApplication {
         getGameWorld().addEntityFactory(new ChessKingEntityFactory());
         betweenClickTimer = newLocalTimer();
 
-        //deal with end turn method, check if end game
+        //deal with end turn method that check if end game
         initialEndTurnListener();
 
         //random downside color
         int side = FXGL.random(0,1);
         if (side == 0) {
-            downSide = ColorType.WHITE;
+            downSideColor = ColorType.WHITE;
         }
         else {
-            downSide = ColorType.BLACK;
+            downSideColor = ColorType.BLACK;
         }
-        set("downSideColor", downSide);
+        set("downSideColor", downSideColor);
 
         //Set player and theme
+        set("gameType", gameType);
         downPlayer = localPlayer;
         if (gameType == GameType.LOCAL) {
             upPlayer = localPlayer2;
         }
         else if (gameType == GameType.COMPUTER) {
-            ai = new AiEnemy(AiType.EASY, gameCore);
+            ai = new AiEnemy(AiType.NORMAL, gameCore);
             upPlayer = ai.getPlayer();
             upPlayer.setBackground(downPlayer.getBackground());
             upPlayer.setColor1(downPlayer.getColor1());
             upPlayer.setColor2(downPlayer.getColor2());
-            isEnemyFirst = downSide != ColorType.WHITE;
+            isEnemyFirst = downSideColor != ColorType.WHITE;
         }
+        set("downChessSkin", downPlayer.getChessSkin());
+        set("upChessSkin", upPlayer.getChessSkin());
+
+        spawn("backGround", new SpawnData().put("player", downPlayer));
 
         //Timer method
         gameTimeInSecond = -1;
@@ -210,17 +220,8 @@ public class ChessKingApp extends GameApplication {
             whiteTimer.runOnceAfter(this::resetWhiteTurnClock, Duration.seconds(gameTimeInSecond));
             blackTimer.runOnceAfter(this::resetBlackTurnClock, Duration.seconds(gameTimeInSecond));
         }
-
-        set("downChessSkin", downPlayer.getChessSkin());
-        set("upChessSkin", upPlayer.getChessSkin());
-
-
-        if((random(0,1)%2==0)){
-            spawn("backGround", new SpawnData().put("player", upPlayer));
-        }else{
-            spawn("backGround", new SpawnData().put("player", downPlayer));
-        }
-
+        //set reverse count, -1 for forever
+        reverseCount = -1;
 
         //initialize gameCore
         if (saveUuid == null)
@@ -251,12 +252,17 @@ public class ChessKingApp extends GameApplication {
                 //set computer's turn
                 case COMPUTER -> {
                     set("isEnemyMovingChess", true);
-                    Move move = ai.getNextMove();
-                    Entity chess = getChessEntity(
-                            toPoint(move.getChess().getPosition()));
-                    if (chess == null)
-                        throw new RuntimeException("Cannot find chess!");
-                    chess.getComponent(ChessComponent.class).computerExecuteMove(move);
+                    Thread thread = new Thread(() -> {
+                        Move move = ai.getNextMove();
+                        Entity chess = getChessEntity(
+                                toPoint(move.getChess().getPosition()));
+                        if (chess == null)
+                            throw new RuntimeException("Cannot find chess!");
+                        //set("computerMove", move.toString());
+                        chess.getComponent(ChessComponent.class).computerExecuteMove(move);
+                    });
+                    thread.start();
+                    thread.interrupt();
                 }
                 case LAN -> {
 
@@ -272,10 +278,12 @@ public class ChessKingApp extends GameApplication {
         });
 
         getbp("isEnemyMovingChess").addListener((ob, ov, nv) -> {
-            //After enemy end moving chess
-            if (nv)
+            //begin moving chess
+            if (nv) {
+                tempHistory = gameCore.getGameHistory();
                 return;
-
+            }
+            //After enemy end moving chess
             checkIfEndGame();
             set("turn", gameCore.getTurn());
         });
@@ -291,7 +299,7 @@ public class ChessKingApp extends GameApplication {
                     endGame(EndGameType.BLACK_WIN);
             }
             else {
-                if (winSide == downSide)
+                if (winSide == downSideColor)
                     endGame(EndGameType.WIN);
                 else
                     endGame(EndGameType.LOST);
@@ -402,9 +410,9 @@ public class ChessKingApp extends GameApplication {
 
         if (isEnemyFirst) {
             set("isEnemyMovingChess", true);
-            //for computer, only begin to move after 3 sec
+            //for computer, only begin to move after 2 sec
             if (gameType == GameType.COMPUTER)
-                if (whiteTimer.getNow() < 3.0)
+                if (whiteTimer.getNow() < 2.0)
                     return;
 
             set("isEndTurn", true);
@@ -451,6 +459,12 @@ public class ChessKingApp extends GameApplication {
                     if (movingChess == null) {
                         return;
                     }
+
+                    //for none local chess, clicking at enemy chess will do nothing
+                    if (gameType != GameType.LOCAL &&
+                        geto("turn") != downSideColor)
+                        return;
+
                     if (movingChess.getComponent(ChessComponent.class).moveChess()) {
                         set("isMovingChess", true);
                     }
@@ -516,7 +530,7 @@ public class ChessKingApp extends GameApplication {
         HBox c;
         int spacingR = 80-43;
         int spacingC = 80-25;
-        if(downSide==ColorType.WHITE){
+        if(downSideColor ==ColorType.WHITE){
             r = new VBox(spacingR,c8,c7,c6,c5,c4,c3,c2,c1);
             c = new HBox(spacingC,rA,rB,rC,rD,rE,rF,rG,rH);
         }else{
@@ -592,17 +606,22 @@ public class ChessKingApp extends GameApplication {
             }
 
             Save save;
+            MoveHistory moveHistory;
+            if (getb("isEnemyMovingChess"))
+                moveHistory = tempHistory;
+            else
+                moveHistory = gameCore.getGameHistory();
+
             if (gameTimeInSecond < 0)
                 save = new Save(saveUuid, LocalDateTime.now(),
                         whitePlayer, blackPlayer, downColor,
-                        gameCore.getGameHistory());
+                        moveHistory);
             else
                 save = new Save(saveUuid, LocalDateTime.now(),
                         whitePlayer, blackPlayer, downColor,
                         gameTimeInSecond, turnTimeInSecond,
-                        remainingTime, gameCore.getGameHistory());
+                        remainingTime, moveHistory);
 
-           //add save method here
             if (gameType != GameType.NET)
                 SaveLoader.writeLocalSave(localPlayer, save);
             else
@@ -614,8 +633,27 @@ public class ChessKingApp extends GameApplication {
         undo.setPrefSize(60,60);
         undo.getStyleClass().add("undo-box");
         undo.setOnMouseClicked(event->{
-            //add undo method here
-            System.out.println("undo");
+            //local game can always undo
+            if (gameType == GameType.LOCAL) {
+                reverseMove(1);
+                return;
+            }
+
+            //only in your turn can you undo
+            if (geto("turn") != downSideColor) {
+                FXGL.getNotificationService().pushNotification(
+                        "Your can only reverse move in your turn!"
+                );
+                return;
+            }
+
+            if (gameType == GameType.COMPUTER) {
+                if (reverseCount == -1 || reverseCount > 0) {
+                    reverseMove(2);
+                    if (reverseCount != -1)
+                        --reverseCount;
+                }
+            }
 
         });
 
@@ -673,6 +711,49 @@ public class ChessKingApp extends GameApplication {
         addUINode(saveBox,90,10);
         addUINode(undo,170,10);
 
+    }
+
+    private void reverseMove(int times) {
+        Move move;
+        for (int i = 0; i < times; i++) {
+            move = gameCore.reverseMove();
+            if (move == null)
+                return;
+            Entity chess = getChessEntity(toPoint(move.getPosition()));
+            if (chess == null)
+                throw new RuntimeException("Can't find chess!");
+
+            Position afterPos = move.getPosition();
+            Chess originChess = move.getChess();
+            chess.setPosition(toPoint(originChess.getPosition()));
+            //set back eaten chess
+            if (move.getMoveType() == MoveType.EAT ||
+                    move.getMoveType() == MoveType.EAT_PROMOTE)
+                spawn("chess", new SpawnData().put("chess",
+                        move.getMoveTarget()[0]));
+
+            //set rook back to castle origin
+            if (move.getMoveType() == MoveType.CASTLE) {
+                Entity rook;
+                Position rookOriginPos;
+                if (move.getMoveTarget()[0] == CastleType.LONG) {
+                    rook = getChessEntity(toPoint(afterPos.getRight()));
+                    if (rook == null)
+                        throw new RuntimeException("Can't find rook!");
+                    rookOriginPos = new Position(afterPos.getRow(), 0);
+                }
+                else {
+                    rook = getChessEntity(toPoint(afterPos.getLeft()));
+                    if (rook == null)
+                        throw new RuntimeException("Can't find rook!");
+                    rookOriginPos = new Position(afterPos.getRow(), 7);
+                }
+                rook.getComponent(ChessComponent.class).moveTo(rookOriginPos);
+            }
+
+            chess.getComponent(ChessComponent.class).reverseMove(move);
+            set("turn", ((ColorType)geto("turn")).reverse());
+        }
     }
 
 
