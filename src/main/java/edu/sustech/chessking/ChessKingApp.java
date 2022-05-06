@@ -170,10 +170,6 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void initGame() {
         getGameWorld().addEntityFactory(new ChessKingEntityFactory());
-
-//        gameType = GameType.COMPUTER;
-//        set("gameType", gameType);
-
         betweenClickTimer = newLocalTimer();
 
         //deal with end turn method, check if end game
@@ -191,16 +187,12 @@ public class ChessKingApp extends GameApplication {
         set("downSideColor", downSide);
 
         //Set player and theme
-//        localPlayer = new Player("local player");
-//        localPlayer.setChessSkin("pixel");
-//        localPlayer.setBoardSkin("");
-//        localPlayer.setBackground("");
         downPlayer = localPlayer;
         if (gameType == GameType.LOCAL) {
             upPlayer = localPlayer2;
         }
         else if (gameType == GameType.COMPUTER) {
-            ai = new AiEnemy(AiType.NORMAL, gameCore);
+            ai = new AiEnemy(AiType.HARD, gameCore);
             upPlayer = ai.getPlayer();
             upPlayer.setBackground(downPlayer.getBackground());
             upPlayer.setColor1(downPlayer.getColor1());
@@ -344,25 +336,15 @@ public class ChessKingApp extends GameApplication {
     private void endGame(EndGameType endGameType) {
         String str = " ";
         switch (endGameType) {
-            case WIN -> /*getDialogService().showMessageBox("You win the game!",
-                    () -> getGameController().startNewGame())*/
-                        str = "You win the game!";
+            case WIN -> str = "You win the game!";
 
-            case LOST -> /*getDialogService().showMessageBox("You lost the game!",
-                    () -> getGameController().startNewGame())*/
-                        str = "You lose the game...";
+            case LOST -> str = "You lose the game...";
 
-            case DRAWN -> /*getDialogService().showMessageBox("The game is drawn!",
-                    () -> getGameController().startNewGame())*/
-                        str = "It's a Drawn game!";
+            case DRAWN -> str = "It's a Drawn game!";
 
-            case WHITE_WIN -> /*getDialogService().showMessageBox("White win the game!",
-                    () -> getGameController().startNewGame())*/
-                        str = "The White side wins";
+            case WHITE_WIN -> str = "The White side wins";
 
-            case BLACK_WIN -> /*getDialogService().showMessageBox("Black win the game!",
-                    () -> getGameController().startNewGame())*/
-                        str = "The Black side wins";
+            case BLACK_WIN -> str = "The Black side wins";
         }
         getSceneService().pushSubScene(new EndGameScene(str));
     }
