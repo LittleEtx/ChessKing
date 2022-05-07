@@ -1,0 +1,5 @@
+
+1. If I create a new player inside new Duel, both the upside player and
+    the downside player's names change to the new player's name. But
+    the downside player's name should be chosen in the local player
+    subScene.
