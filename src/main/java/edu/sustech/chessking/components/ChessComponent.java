@@ -61,6 +61,22 @@ public class ChessComponent extends Component {
         this.chess = chess;
     }
 
+    public void reverseMove(Move move) {
+        Chess originChess = move.getChess();
+        //set promote chess back to pawn
+        if (move.getMoveType() == MoveType.PROMOTE ||
+                move.getMoveType() == MoveType.EAT_PROMOTE) {
+            setPic(entity, originChess);
+        }
+        entity.setPosition(toPoint(originChess.getPosition()));
+        this.chess = originChess;
+        setTargetKingList();
+    }
+
+    public Chess getChess() {
+        return chess;
+    }
+
     @Override
     public void onAdded() {
         setPic(entity, chess);
@@ -322,9 +338,10 @@ public class ChessComponent extends Component {
                                 set("isEndTurn", true);
                             } else {
                                 entity.setPosition(toPoint(chess.getPosition()));
-                                setTargetKingList();
                             }
+                            setTargetKingList();
                         });
+                return;
             }
             else {
                 executeMove(move);
@@ -334,14 +351,14 @@ public class ChessComponent extends Component {
         else {
             //reset the chess's position
             entity.setPosition(toPoint(chess.getPosition()));
-            setTargetKingList();
         }
+        setTargetKingList();
     }
 
     public void computerExecuteMove(Move move) {
+        System.out.println("execute move");
         targetPos = move.getPosition();
         computerMove = move;
-        setToTop(entity);
         set("availablePosition", gameCore.getAvailablePosition(chess));
         isComputerMove = true;
     }
@@ -450,8 +467,6 @@ public class ChessComponent extends Component {
             else
                 removeRedCross();
 
-            setToTop(entity);
-
             //if not moving king, set allay list
             if (chess.getChessType() != ChessType.KING) {
                 ArrayList<Chess> allyList = gameCore.getAlly(pos);
@@ -470,6 +485,8 @@ public class ChessComponent extends Component {
             set("targetList", chessList[1]);
             //update king state
             ArrayList<Chess> kingList = new ArrayList<>();
+
+            //TO DO: when moving other chess, set targetKing
             for (Chess chess : chessList[1]) {
                 //if target enemy chess
                 if (chess.getChessType() == ChessType.KING && !gameCore.isInTurn(chess))
@@ -480,6 +497,8 @@ public class ChessComponent extends Component {
                 kingList.add(gameCore.getChessKing(gameCore.getTurn()));
             }
             set("targetKingList", kingList);
+
+            setToTop(entity);
         }
         else {
             clearVisualEffect();
@@ -544,7 +563,7 @@ public class ChessComponent extends Component {
             getGameWorld().removeEntity(chess);
     }
 
-    private void moveTo(Position pos) {
+    public void moveTo(Position pos) {
         entity.setPosition(toPoint(pos));
         this.chess = chess.moveTo(pos);
     }

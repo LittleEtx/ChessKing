@@ -137,18 +137,21 @@ public class EvaluationMethod {
         int exchangeScore = 0;
         Chess enemyChess, allyChess = chess;
         int i = 0, j = 0;
-        while (i < enemyList.size() && j < allyList.size()) {
+        while (i < enemyList.size()) {
             enemyChess = enemyList.get(i);
-            //if enemy chess is weaker or no chess to eat it
-            if (getChessScore(enemyChess) <= getChessScore(allyChess) ||
-                j >= allyList.size())
+            //if no chess to eat the enemyChess, or it is weaker, then eat
+            if (j >= allyList.size() ||
+                    getChessScore(enemyChess) <= getChessScore(allyChess))
                 exchangeScore -= getChessScore(allyChess);
             else
                 break;
 
+            if (j >= allyList.size())
+                break;
             allyChess = allyList.get(j);
-            if (getChessScore(allyChess) <= getChessScore(enemyChess) ||
-                i + 1 >= enemyList.size())
+            //If no enemy chess can eat, or allayChess is weaker, then eat
+            if (i + 1 >= enemyList.size() ||
+                    getChessScore(allyChess) <= getChessScore(enemyChess))
                 exchangeScore += getChessScore(enemyChess);
             else
                 break;

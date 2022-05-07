@@ -32,16 +32,15 @@ public class AiEnemy {
     private final AiType ai;
     private final GameCore gameCore;
     private final int maxSearchNum;
-    private static final int EasySearchNumber = 1;
+    private static final int EasySearchNumber = 2;
     private static final int NormalSearchNumber = 4;
-    private static final int HardSearchNumber = 7;
+    private static final int HardSearchNumber = 6;
     private static final int positiveInfinite = Integer.MAX_VALUE / 4;
     private static final int negativeInfinite = Integer.MIN_VALUE / 4;
 
 
     /**
      * @param ai the difficulty of AI
-     * @param gameCore the gameCore that the game to prompt
      */
     public AiEnemy(AiType ai, GameCore gameCore) {
         this.ai = ai;
@@ -73,6 +72,7 @@ public class AiEnemy {
     }
 
     /**
+     * Note that when this method is calculating, gameCore will be updated
      * @return the predicted best move
      */
     public Move getNextMove() {
