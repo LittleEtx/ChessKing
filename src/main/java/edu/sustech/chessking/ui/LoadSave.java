@@ -12,16 +12,19 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import java.util.ArrayList;
+
+import static com.almasb.fxgl.dsl.FXGL.getSceneService;
 import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
 
 public class LoadSave extends SubScene {
+    private Save wantedSave;
 
     public LoadSave(ArrayList<Save> saves) {
         Rectangle rect = new Rectangle(1200,800, Color.web("#00000090"));
 
         getContentRoot().getChildren().addAll(rect);
 
-        var loadSaveText = getUIFactoryService().newText("Choose Local Player", Color.BROWN,35);
+        var loadSaveText = getUIFactoryService().newText("Load Save", Color.BROWN,35);
         loadSaveText.setStroke(Color.WHITE);
         loadSaveText.setStrokeWidth(3);
         if(!FXGL.isMobile()){
@@ -30,7 +33,10 @@ public class LoadSave extends SubScene {
 
         ArrayList<Button> savesBtn = new ArrayList<>();
         for(Save existedSave : saves){
-            savesBtn.add(new Button(existedSave.getSaveDate().toString()));
+            String str = existedSave.getSaveDate().toString();
+            str = str.replace('T',' ');
+            str = str.substring(0,19);
+            savesBtn.add(new Button(str));
         }
 
         VBox saveBtnVB = new VBox();
@@ -57,7 +63,8 @@ public class LoadSave extends SubScene {
                 *
                 *
                 */
-
+                wantedSave = saves.get(savesBtn.indexOf(saveBtn));
+                System.out.println(wantedSave.toString());
             });
 
         }
@@ -71,11 +78,12 @@ public class LoadSave extends SubScene {
         Button doneBtn = new Button("Done");
         doneBtn.getStyleClass().add("newPlayer-subScene-button");
         doneBtn.setOnAction(event ->{
-
+            getSceneService().popSubScene();
             /*
             load the save data
             start a new game with saved data
              */
+
 
         });
 

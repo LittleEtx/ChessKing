@@ -3,3 +3,7 @@
     the downside player's names change to the new player's name. But
     the downside player's name should be chosen in the local player
     subScene.
+
+2. Load save UI have a white outline which shouldn't be there when the
+    VBox is shown.
+
