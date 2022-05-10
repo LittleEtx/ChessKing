@@ -26,7 +26,7 @@ public class SaveLoader {
     private static final File playerPath = new File("saves/player");
 
     private static File getPlayerFile(String playerName) {
-        return new File(playerPath.toString() + "/" +
+        return new File(playerPath + "/" +
                 playerName + ".data");
     }
     private static File getExistPlayerFile(String playerName) {
@@ -212,7 +212,7 @@ public class SaveLoader {
             else {
                 ArrayList<Double> timeList = save.getRemainingTime();
                 if (moveHistory.getMoveNum() != timeList.size())
-                    throw new RuntimeException("Move history num abd remaining time not match!");
+                    throw new RuntimeException("Move history num and remaining time not match!");
 
                 for (int i = 0; i < moveHistory.getMoveNum(); i++) {
                     writer.write(moveHistory.getMove(i).toString() + " " +
@@ -254,7 +254,6 @@ public class SaveLoader {
             try {
                 player = new Player(Files.readString(playerFile.toPath()));
             } catch (Exception e) {
-                System.out.println("Fail to read " + playerFile.getName());
                 continue;
             }
 

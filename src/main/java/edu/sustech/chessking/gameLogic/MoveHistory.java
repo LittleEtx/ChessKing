@@ -46,6 +46,8 @@ public class MoveHistory {
      * remove a move step
      */
     public Move popMove() {
+        if (moveHistory.isEmpty())
+            return null;
         return moveHistory.remove(moveHistory.size() - 1);
     }
 

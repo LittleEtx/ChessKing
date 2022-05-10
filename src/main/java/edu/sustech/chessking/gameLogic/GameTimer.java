@@ -3,10 +3,12 @@ package edu.sustech.chessking.gameLogic;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+import java.util.Objects;
+
 public class GameTimer {
-    private double currentGameTime;
-    private final double turnTime;
-    private double currentTurnTime;
+    private Double currentGameTime;
+    private final Double turnTime;
+    private Double currentTurnTime;
     private final Runnable timeOutAction;
 
     private static final String DefaultTime = "--:--";
@@ -14,59 +16,92 @@ public class GameTimer {
     private final StringProperty turnTimeSp = new SimpleStringProperty(DefaultTime);
 
     /**
-     * GameTime and TurnTime in seconds. -1 for not setting
+     * GameTime and TurnTime in seconds. null or negative for not setting
      */
     public GameTimer(double gameTime, double turnTime, Runnable timeOutActionAction) {
-        this.currentGameTime = gameTime;
-        this.turnTime = turnTime;
+        if (gameTime < 0)
+            this.currentGameTime = null;
+        else
+            this.currentGameTime = gameTime;
+
+        if (turnTime < 0)
+            this.turnTime = null;
+        else
+            this.turnTime = turnTime;
+
+        currentTurnTime = this.turnTime;
         this.timeOutAction = timeOutActionAction;
+        gameTimeSp.set(getTimeStr(this.currentGameTime));
+        turnTimeSp.set(getTimeStr(this.turnTime));
     }
 
     /**
      * advance the timer by the given second.
      * will execute the end game method when time is run out
-     * @param dt th
+     * @param dt the time to advance
      */
     public void advance(double dt) {
-        if (currentGameTime > 0) {
+        if (currentGameTime != null && currentGameTime > 0) {
             currentGameTime -= dt;
-            gameTimeSp.set(getTimeString(currentGameTime));
+            gameTimeSp.set(getTimeStr(currentGameTime));
+            return;
+        }
+
+        //if didn't set turn Time
+        if (turnTime == null) {
+            if (currentGameTime != null)
+                timeOutAction.run();
             return;
         }
 
         currentTurnTime -= dt;
-        turnTimeSp.set(getTimeString(turnTime));
+        turnTimeSp.set(getTimeStr(currentTurnTime));
 
         if (currentTurnTime < 0)
             timeOutAction.run();
-
     }
 
     public void resetTurnTime() {
         currentTurnTime = turnTime;
-        turnTimeSp.set(getTimeString(currentTurnTime));
+        turnTimeSp.set(getTimeStr(currentTurnTime));
     }
 
     public void setCurrentGameTime(double currentGameTime) {
-        this.currentGameTime = currentGameTime;
-        gameTimeSp.set(getTimeString(currentGameTime));
+        if (currentGameTime < 0)
+            this.currentGameTime = null;
+        else
+            this.currentGameTime = currentGameTime;
+        gameTimeSp.set(getTimeStr(currentGameTime));
     }
 
-    public StringProperty getGameTime() {
+    public StringProperty getGameTimeStr() {
         return gameTimeSp;
     }
 
-    public StringProperty getTurnTime() {
+    public StringProperty getTurnTimeStr() {
         return turnTimeSp;
     }
 
+    /**
+     * @return remaining gameTime in sec, -1 if not set
+     */
+    public double getRemainingGameTime() {
+        return Objects.requireNonNullElse(currentGameTime, -1.0);
+    }
 
-    private String getTimeString(double second) {
-        if (second < 0)
+
+    private String getTimeStr(Double second) {
+        if (second == null)
             return DefaultTime;
-        int seconds = (int) Math.floor(second);
-        int sec = seconds / 60;
-        int min = seconds % 60;
+
+        int timeInSec;
+        if (second > 0)
+           timeInSec = (int) Math.floor(second);
+        else
+            timeInSec = 0;
+
+        int sec = timeInSec / 60;
+        int min = timeInSec % 60;
         return String.format("%02d:%02d", min, sec);
     }
 }

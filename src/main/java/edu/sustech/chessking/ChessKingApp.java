@@ -11,7 +11,6 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.input.UserAction;
 import com.almasb.fxgl.time.LocalTimer;
-import com.almasb.fxgl.time.Timer;
 import edu.sustech.chessking.components.ChessComponent;
 import edu.sustech.chessking.factories.ChessKingEntityFactory;
 import edu.sustech.chessking.gameLogic.*;
@@ -55,14 +54,15 @@ public class ChessKingApp extends GameApplication {
     public ColorType downSideColor;
     private Entity movingChess;
     private LocalTimer betweenClickTimer;
+    private LocalTimer aiBeginningTimer;
     private String serverIP = "localhost";
     private boolean cursorDefault = true;
     private int reverseCount;
-    private Timer whiteTimer;
-    private Timer blackTimer;
-    private static double gameTimeInSecond = -1;
-    private static double turnTimeInSecond = -1;
-    private static final ArrayList<Double> remainingTime = new ArrayList<>();
+    private GameTimer whiteTimer;
+    private GameTimer blackTimer;
+    private static double gameTimeInSec = -1;
+    private static double turnTimeInSec = -1;
+    private static final ArrayList<Double> remainTime = new ArrayList<>();
 
     private static Player localPlayer = new Player();
     public static Player getLocalPlayer(){
@@ -182,9 +182,7 @@ public class ChessKingApp extends GameApplication {
     protected void initGame() {
         getGameWorld().addEntityFactory(new ChessKingEntityFactory());
         betweenClickTimer = newLocalTimer();
-
-        //deal with end turn method that check if end game
-        initialEndTurnListener();
+        aiBeginningTimer = newLocalTimer();
 
         //random downside color
         int side = FXGL.random(0,1);
@@ -194,6 +192,7 @@ public class ChessKingApp extends GameApplication {
         else {
             downSideColor = ColorType.BLACK;
         }
+
         set("downSideColor", downSideColor);
 
         //Set player and theme
@@ -209,6 +208,7 @@ public class ChessKingApp extends GameApplication {
             upPlayer.setColor1(downPlayer.getColor1());
             upPlayer.setColor2(downPlayer.getColor2());
             isEnemyFirst = downSideColor != ColorType.WHITE;
+            aiBeginningTimer = newLocalTimer();
         }
         set("downChessSkin", downPlayer.getChessSkin());
         set("upChessSkin", upPlayer.getChessSkin());
@@ -216,15 +216,31 @@ public class ChessKingApp extends GameApplication {
         spawn("backGround", new SpawnData().put("player", downPlayer));
 
         //Timer method
-        gameTimeInSecond = -1;
-        turnTimeInSecond = -1;
+        gameTimeInSec = 60;
+        turnTimeInSec = 3;
 
-        whiteTimer = new Timer();
-        blackTimer = new Timer();
-        if (gameTimeInSecond > 0) {
-            whiteTimer.runOnceAfter(this::resetWhiteTurnClock, Duration.seconds(gameTimeInSecond));
-            blackTimer.runOnceAfter(this::resetBlackTurnClock, Duration.seconds(gameTimeInSecond));
-        }
+        whiteTimer = new GameTimer(gameTimeInSec, turnTimeInSec, () -> {
+            if (gameType == GameType.LOCAL)
+                endGame(ClientEndGameType.BLACK_WIN);
+            else {
+                if (downSideColor == ColorType.WHITE)
+                    endGame(ClientEndGameType.LOST);
+                else
+                    endGame(ClientEndGameType.WIN);
+            }
+        });
+
+        blackTimer = new GameTimer(gameTimeInSec, turnTimeInSec, () -> {
+            if (gameType == GameType.LOCAL)
+                endGame(ClientEndGameType.WHITE_WIN);
+            else {
+                if (downSideColor == ColorType.BLACK)
+                    endGame(ClientEndGameType.LOST);
+                else
+                    endGame(ClientEndGameType.WIN);
+            }
+        });
+
         //set reverse count, -1 for forever
         reverseCount = -1;
 
@@ -238,6 +254,8 @@ public class ChessKingApp extends GameApplication {
         initUI();
         initBoard();
         initChess();
+
+        initialEndTurnListener();
     }
 
     /**
@@ -250,6 +268,8 @@ public class ChessKingApp extends GameApplication {
                 return;
 
             //when downSide finish moving chess
+            if (!isEnemyFirst)
+                timerSwitchTurn();
             checkIfEndGame();
             set("turn", gameCore.getTurn());
 
@@ -264,7 +284,6 @@ public class ChessKingApp extends GameApplication {
                                 toPoint(move.getChess().getPosition()));
                         if (chess == null)
                             throw new RuntimeException("Cannot find chess!");
-                        //set("computerMove", move.toString());
                         chess.getComponent(ChessComponent.class).computerExecuteMove(move);
                     });
                     thread.start();
@@ -289,9 +308,21 @@ public class ChessKingApp extends GameApplication {
                 return;
             }
             //After enemy end moving chess
+            timerSwitchTurn();
             checkIfEndGame();
             set("turn", gameCore.getTurn());
         });
+    }
+
+    private void timerSwitchTurn() {
+        if (geto("turn") == ColorType.WHITE) {
+            remainTime.add(whiteTimer.getRemainingGameTime());
+            whiteTimer.resetTurnTime();
+        }
+        else {
+            remainTime.add(blackTimer.getRemainingGameTime());
+            blackTimer.resetTurnTime();
+        }
     }
 
     private void checkIfEndGame() {
@@ -314,38 +345,6 @@ public class ChessKingApp extends GameApplication {
         if (gameCore.hasDrawn()) {
             endGame(ClientEndGameType.DRAWN);
         }
-    }
-
-    private void resetWhiteTurnClock() {
-        whiteTimer.clear();
-        whiteTimer.runOnceAfter(() -> {
-            //white use all his time, lost
-            if (gameType == GameType.LOCAL) {
-                endGame(ClientEndGameType.BLACK_WIN);
-            }
-            else {
-                if (geto("turn") == ColorType.WHITE)
-                    endGame(ClientEndGameType.LOST);
-                else
-                    endGame(ClientEndGameType.WIN);
-            }
-        }, Duration.seconds(turnTimeInSecond));
-    }
-
-    private void resetBlackTurnClock() {
-        blackTimer.clear();
-        blackTimer.runOnceAfter(() -> {
-            //white use all his time, lost
-            if (gameType == GameType.LOCAL) {
-                endGame(ClientEndGameType.WHITE_WIN);
-            }
-            else {
-                if (geto("turn") == ColorType.BLACK)
-                    endGame(ClientEndGameType.LOST);
-                else
-                    endGame(ClientEndGameType.WIN);
-            }
-        }, Duration.seconds(turnTimeInSecond));
     }
 
     private void endGame(ClientEndGameType clientEndGameType) {
@@ -389,11 +388,11 @@ public class ChessKingApp extends GameApplication {
         getSceneService().pushSubScene(new EndGameScene(str));
     }
 
-    private void saveGame(Save save) {
+    private boolean saveGame(Save save) {
         if (gameType != GameType.NET)
-            SaveLoader.writeLocalSave(localPlayer, save);
+            return SaveLoader.writeLocalSave(localPlayer, save);
         else
-            SaveLoader.writeServerSave(serverIP, localPlayer, save);
+            return SaveLoader.writeServerSave(serverIP, localPlayer, save);
     }
 
     /**
@@ -412,15 +411,15 @@ public class ChessKingApp extends GameApplication {
         }
 
         Save save;
-        if (gameTimeInSecond < 0)
+        if (gameTimeInSec < 0)
             save = new Save(saveUuid, LocalDateTime.now(),
                     whitePlayer, blackPlayer, downSideColor,
                     moveHistory);
         else
             save = new Save(saveUuid, LocalDateTime.now(),
                     whitePlayer, blackPlayer, downSideColor,
-                    gameTimeInSecond, turnTimeInSecond,
-                    remainingTime, moveHistory);
+                    gameTimeInSec, turnTimeInSec,
+                    remainTime, moveHistory);
         return save;
     }
 
@@ -467,19 +466,18 @@ public class ChessKingApp extends GameApplication {
     protected void onUpdate(double tpf) {
         //advance the time
         if (geto("turn") == ColorType.WHITE) {
-            whiteTimer.update(tpf);
+            whiteTimer.advance(tpf);
         }
         else {
-            blackTimer.update(tpf);
+            blackTimer.advance(tpf);
         }
 
         if (isEnemyFirst) {
             set("isEnemyMovingChess", true);
             //for computer, only begin to move after 2 sec
             if (gameType == GameType.COMPUTER)
-                if (whiteTimer.getNow() < 2.0)
+                if (!aiBeginningTimer.elapsed(Duration.seconds(2)))
                     return;
-
             set("isEndTurn", true);
             isEnemyFirst = false;
         }
@@ -658,14 +656,17 @@ public class ChessKingApp extends GameApplication {
         saveBox.setPrefSize(65,65);
         saveBox.getStyleClass().add("save-box");
         saveBox.setOnMouseClicked(event -> {
+            //save game method
             MoveHistory moveHistory;
             if (getb("isEnemyMovingChess"))
                 moveHistory = tempHistory;
             else
                 moveHistory = gameCore.getGameHistory();
 
-            saveGame(getSave(moveHistory));
-            getDialogService().showMessageBox("Save successful");
+            if (saveGame(getSave(moveHistory)))
+                getNotificationService().pushNotification("Save successful");
+            else
+                getDialogService().showMessageBox("Unable to save!");
         });
 
         VBox undo = new VBox();
@@ -790,9 +791,36 @@ public class ChessKingApp extends GameApplication {
                 rook.getComponent(ChessComponent.class).moveTo(rookOriginPos);
             }
 
+            //reset turnTime
+            if (gameTimeInSec > 0) {
+                if (geto("turn") == ColorType.WHITE)
+                    reverseTimer(whiteTimer, blackTimer);
+                else
+                    reverseTimer(blackTimer, whiteTimer);
+            }
+
             chess.getComponent(ChessComponent.class).reverseMove(move);
             set("turn", ((ColorType)geto("turn")).reverse());
         }
+    }
+
+    private void reverseTimer(GameTimer nowPlayerTimer, GameTimer formerPlayerTimer) {
+        nowPlayerTimer.resetTurnTime();
+
+        //both time trace back once
+        if (remainTime.size() >= 3)
+            formerPlayerTimer.setCurrentGameTime(
+                    remainTime.get(remainTime.size() - 3));
+        else
+            formerPlayerTimer.setCurrentGameTime(gameTimeInSec);
+
+        if (remainTime.size() >= 2)
+            nowPlayerTimer.setCurrentGameTime(
+                    remainTime.get(remainTime.size() - 2));
+        else
+            nowPlayerTimer.setCurrentGameTime(gameTimeInSec);
+
+        remainTime.remove(remainTime.size() - 1);
     }
 
 

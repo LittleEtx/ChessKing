@@ -1,7 +1,9 @@
-package edu.sustech.chessking.gameLogic;
+package edu.sustech.chessking.gameLogic.test;
 
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
+import edu.sustech.chessking.gameLogic.GameCore;
+import edu.sustech.chessking.gameLogic.Move;
 import edu.sustech.chessking.gameLogic.ai.AiEnemy;
 import edu.sustech.chessking.gameLogic.ai.AiType;
 import edu.sustech.chessking.gameLogic.gameSave.Player;
