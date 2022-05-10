@@ -2,7 +2,7 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
-import edu.sustech.chessking.gameLogic.Save;
+import edu.sustech.chessking.gameLogic.gameSave.Save;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+
 import java.util.ArrayList;
 
 import static com.almasb.fxgl.dsl.FXGL.getSceneService;

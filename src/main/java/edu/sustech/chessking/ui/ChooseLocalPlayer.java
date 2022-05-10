@@ -4,7 +4,7 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.GameType;
-import edu.sustech.chessking.gameLogic.Player;
+import edu.sustech.chessking.gameLogic.gameSave.Player;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -21,7 +21,6 @@ import java.util.Objects;
 
 import static com.almasb.fxgl.dsl.FXGL.getSceneService;
 import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
-import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameController;
 
 public class ChooseLocalPlayer extends SubScene{
 
