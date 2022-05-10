@@ -9,6 +9,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.Bloom;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -22,7 +23,7 @@ import static com.almasb.fxgl.dsl.FXGL.getSceneService;
 import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameController;
 
-public class ChooseLocalPlayer extends SubScene {
+public class ChooseLocalPlayer extends SubScene{
 
     public ChooseLocalPlayer(ArrayList<Player> players){
         Rectangle bg = new Rectangle(1200,800, Color.web("#00000080"));
@@ -62,7 +63,17 @@ public class ChooseLocalPlayer extends SubScene {
             playerBtn.setTextFill(Color.WHITE);
             playerBtn.setFont(new Font(20));
             playerBtnVB.getChildren().add(playerBtn);
-            playerBtn.setOnAction(event -> {
+//            playerBtn.setOnAction(event -> {
+//                setTransparent(playersBtn);
+//                System.out.println(players.get(playersBtn.indexOf(playerBtn)));
+//                playerBtn.setStyle("-fx-border-color: #20B2AA;"+
+//                        "-fx-border-width: 5;"+
+//                        "-fx-background-color: transparent;");
+//
+//                ChessKingApp.setLocalPlayer(players.get(playersBtn.indexOf(playerBtn)));
+//            });
+
+            playerBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, event ->{
                 setTransparent(playersBtn);
                 System.out.println(players.get(playersBtn.indexOf(playerBtn)));
                 playerBtn.setStyle("-fx-border-color: #20B2AA;"+
@@ -70,6 +81,10 @@ public class ChooseLocalPlayer extends SubScene {
                         "-fx-background-color: transparent;");
 
                 ChessKingApp.setLocalPlayer(players.get(playersBtn.indexOf(playerBtn)));
+                if(event.getClickCount()==2){
+                    getSceneService().popSubScene();
+                    ChessKingApp.setGameType(GameType.LOCAL);
+                }
             });
         }
 

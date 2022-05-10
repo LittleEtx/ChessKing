@@ -55,6 +55,14 @@ public class ChoosePlayer2 extends SubScene {
         HBox buttons = new HBox(20,newPlayerBtn,doneBtn);
         buttons.setAlignment(Pos.BOTTOM_CENTER);
 
+        Button backBtn = new Button();
+        backBtn.getStyleClass().add("backBtn");
+        backBtn.setOnAction(event -> {
+            getSceneService().popSubScene();
+        });
+        backBtn.setLayoutX(350);
+        backBtn.setLayoutY(100);
+
         VBox vb = new VBox(20,choosePlayerText,players,buttons);
         vb.setAlignment(Pos.CENTER);
         vb.setStyle("-fx-background-radius: 10;" +
@@ -64,5 +72,6 @@ public class ChoosePlayer2 extends SubScene {
         vb.setLayoutX(350);
         vb.setLayoutY(100);
         getContentRoot().getChildren().add(vb);
+        getContentRoot().getChildren().add(backBtn);
     }
 }

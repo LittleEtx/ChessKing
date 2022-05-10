@@ -87,6 +87,14 @@ public class LoadSave extends SubScene {
 
         });
 
+        Button backBtn = new Button();
+        backBtn.getStyleClass().add("backBtn");
+        backBtn.setOnAction(event -> {
+            getSceneService().popSubScene();
+        });
+        backBtn.setLayoutX(350);
+        backBtn.setLayoutY(100);
+
         VBox vb = new VBox(20,loadSaveText,saveSP,doneBtn);
         vb.setAlignment(Pos.CENTER);
         vb.setStyle("-fx-background-radius: 10;" +
@@ -96,6 +104,7 @@ public class LoadSave extends SubScene {
         vb.setLayoutX(350);
         vb.setLayoutY(100);
         getContentRoot().getChildren().add(vb);
+        getContentRoot().getChildren().add(backBtn);
     }
 
     private void setTransparent(ArrayList<Button> buttons){

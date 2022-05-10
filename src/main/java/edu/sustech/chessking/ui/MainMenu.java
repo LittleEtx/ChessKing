@@ -58,8 +58,6 @@ public class MainMenu extends FXGLMenu {
         btn1.setOnAction(event -> {
             setLocalGameBtn();
             deleteMainMenuBtn();
-
-            //if no initial player
             ArrayList<Player> playerArrayList = SaveLoader.readPlayerList();
             SubScene chooseLocalPlayer = new ChooseLocalPlayer(playerArrayList);
             System.out.println("read player list" + playerArrayList.size());
