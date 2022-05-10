@@ -19,7 +19,12 @@ import edu.sustech.chessking.gameLogic.ai.AiEnemy;
 import edu.sustech.chessking.gameLogic.ai.AiType;
 import edu.sustech.chessking.gameLogic.enumType.CastleType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
+import edu.sustech.chessking.gameLogic.enumType.EndGameType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
+import edu.sustech.chessking.gameLogic.gameSave.Player;
+import edu.sustech.chessking.gameLogic.gameSave.Replay;
+import edu.sustech.chessking.gameLogic.gameSave.Save;
+import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
 import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
@@ -76,7 +81,7 @@ public class ChessKingApp extends GameApplication {
     private AiEnemy ai;
     private boolean isEnemyFirst = false;
 
-    private enum EndGameType {
+    private enum ClientEndGameType {
         LOST, WIN, DRAWN, BLACK_WIN, WHITE_WIN
     }
 
@@ -198,7 +203,7 @@ public class ChessKingApp extends GameApplication {
             upPlayer = localPlayer2;
         }
         else if (gameType == GameType.COMPUTER) {
-            ai = new AiEnemy(AiType.HARD, gameCore);
+            ai = new AiEnemy(AiType.NORMAL, gameCore);
             upPlayer = ai.getPlayer();
             upPlayer.setBackground(downPlayer.getBackground());
             upPlayer.setColor1(downPlayer.getColor1());
@@ -252,6 +257,7 @@ public class ChessKingApp extends GameApplication {
                 //set computer's turn
                 case COMPUTER -> {
                     set("isEnemyMovingChess", true);
+                    //set a new thread in case the game be paused
                     Thread thread = new Thread(() -> {
                         Move move = ai.getNextMove();
                         Entity chess = getChessEntity(
@@ -262,7 +268,6 @@ public class ChessKingApp extends GameApplication {
                         chess.getComponent(ChessComponent.class).computerExecuteMove(move);
                     });
                     thread.start();
-                    thread.interrupt();
                 }
                 case LAN -> {
 
@@ -294,20 +299,20 @@ public class ChessKingApp extends GameApplication {
         if (winSide != null) {
             if (gameType == GameType.LOCAL) {
                 if (winSide == ColorType.WHITE)
-                    endGame(EndGameType.WHITE_WIN);
+                    endGame(ClientEndGameType.WHITE_WIN);
                 else
-                    endGame(EndGameType.BLACK_WIN);
+                    endGame(ClientEndGameType.BLACK_WIN);
             }
             else {
                 if (winSide == downSideColor)
-                    endGame(EndGameType.WIN);
+                    endGame(ClientEndGameType.WIN);
                 else
-                    endGame(EndGameType.LOST);
+                    endGame(ClientEndGameType.LOST);
             }
         }
 
         if (gameCore.hasDrawn()) {
-            endGame(EndGameType.DRAWN);
+            endGame(ClientEndGameType.DRAWN);
         }
     }
 
@@ -316,13 +321,13 @@ public class ChessKingApp extends GameApplication {
         whiteTimer.runOnceAfter(() -> {
             //white use all his time, lost
             if (gameType == GameType.LOCAL) {
-                endGame(EndGameType.BLACK_WIN);
+                endGame(ClientEndGameType.BLACK_WIN);
             }
             else {
                 if (geto("turn") == ColorType.WHITE)
-                    endGame(EndGameType.LOST);
+                    endGame(ClientEndGameType.LOST);
                 else
-                    endGame(EndGameType.WIN);
+                    endGame(ClientEndGameType.WIN);
             }
         }, Duration.seconds(turnTimeInSecond));
     }
@@ -332,31 +337,91 @@ public class ChessKingApp extends GameApplication {
         blackTimer.runOnceAfter(() -> {
             //white use all his time, lost
             if (gameType == GameType.LOCAL) {
-                endGame(EndGameType.WHITE_WIN);
+                endGame(ClientEndGameType.WHITE_WIN);
             }
             else {
                 if (geto("turn") == ColorType.BLACK)
-                    endGame(EndGameType.LOST);
+                    endGame(ClientEndGameType.LOST);
                 else
-                    endGame(EndGameType.WIN);
+                    endGame(ClientEndGameType.WIN);
             }
         }, Duration.seconds(turnTimeInSecond));
     }
 
-    private void endGame(EndGameType endGameType) {
-        String str = " ";
-        switch (endGameType) {
-            case WIN -> str = "You win the game!";
-
-            case LOST -> str = "You lose the game...";
-
-            case DRAWN -> str = "It's a Drawn game!";
-
-            case WHITE_WIN -> str = "The White side wins";
-
-            case BLACK_WIN -> str = "The Black side wins";
+    private void endGame(ClientEndGameType clientEndGameType) {
+        String str;
+        EndGameType endGameType;
+        switch (clientEndGameType) {
+            case WIN -> {
+                str = "You win the game!";
+                if (downSideColor == ColorType.WHITE)
+                    endGameType = EndGameType.WHITE_WIN;
+                else
+                    endGameType = EndGameType.BLACK_WIN;
+            }
+            case LOST -> {
+                str = "You lose the game...";
+                if (downSideColor == ColorType.WHITE)
+                    endGameType = EndGameType.BLACK_WIN;
+                else
+                    endGameType = EndGameType.WHITE_WIN;
+            }
+            case DRAWN ->  {
+                str = "It's a Drawn game!";
+                endGameType = EndGameType.DRAWN;
+            }
+            case WHITE_WIN -> {
+                str = "The White side wins";
+                endGameType = EndGameType.WHITE_WIN;
+            }
+            case BLACK_WIN -> {
+                str = "The Black side wins";
+                endGameType = EndGameType.BLACK_WIN;
+            }
+            default -> {
+                str = "Wrong end game type!";
+                endGameType = EndGameType.NOT_FINISH;
+            }
         }
+
+        saveGame(new Replay(
+                getSave(gameCore.getGameHistory()), endGameType));
         getSceneService().pushSubScene(new EndGameScene(str));
+    }
+
+    private void saveGame(Save save) {
+        if (gameType != GameType.NET)
+            SaveLoader.writeLocalSave(localPlayer, save);
+        else
+            SaveLoader.writeServerSave(serverIP, localPlayer, save);
+    }
+
+    /**
+     * get players, 0 for white, 1 for black
+     */
+    private Save getSave(MoveHistory moveHistory) {
+        Player whitePlayer;
+        Player blackPlayer;
+        if (downSideColor == ColorType.WHITE) {
+            whitePlayer = downPlayer;
+            blackPlayer = upPlayer;
+        }
+        else {
+            whitePlayer = upPlayer;
+            blackPlayer = downPlayer;
+        }
+
+        Save save;
+        if (gameTimeInSecond < 0)
+            save = new Save(saveUuid, LocalDateTime.now(),
+                    whitePlayer, blackPlayer, downSideColor,
+                    moveHistory);
+        else
+            save = new Save(saveUuid, LocalDateTime.now(),
+                    whitePlayer, blackPlayer, downSideColor,
+                    gameTimeInSecond, turnTimeInSecond,
+                    remainingTime, moveHistory);
+        return save;
     }
 
     public void initAvatar(){
@@ -428,14 +493,14 @@ public class ChessKingApp extends GameApplication {
         getInput().addAction(new UserAction("Win") {
             @Override
             protected void onActionBegin() {
-                endGame(EndGameType.WIN);
+                endGame(ClientEndGameType.WIN);
             }
         }, KeyCode.W);
 
         getInput().addAction(new UserAction("Lose") {
             @Override
             protected void onActionBegin() {
-                endGame(EndGameType.LOST);
+                endGame(ClientEndGameType.LOST);
             }
         }, KeyCode.L);
 
@@ -593,40 +658,14 @@ public class ChessKingApp extends GameApplication {
         saveBox.setPrefSize(65,65);
         saveBox.getStyleClass().add("save-box");
         saveBox.setOnMouseClicked(event -> {
-            Player whitePlayer;
-            Player blackPlayer;
-            ColorType downColor = geto("downSideColor");
-            if (downColor == ColorType.WHITE) {
-                whitePlayer = downPlayer;
-                blackPlayer = upPlayer;
-            }
-            else {
-                whitePlayer = upPlayer;
-                blackPlayer = downPlayer;
-            }
-
-            Save save;
             MoveHistory moveHistory;
             if (getb("isEnemyMovingChess"))
                 moveHistory = tempHistory;
             else
                 moveHistory = gameCore.getGameHistory();
 
-            if (gameTimeInSecond < 0)
-                save = new Save(saveUuid, LocalDateTime.now(),
-                        whitePlayer, blackPlayer, downColor,
-                        moveHistory);
-            else
-                save = new Save(saveUuid, LocalDateTime.now(),
-                        whitePlayer, blackPlayer, downColor,
-                        gameTimeInSecond, turnTimeInSecond,
-                        remainingTime, moveHistory);
-
-            if (gameType != GameType.NET)
-                SaveLoader.writeLocalSave(localPlayer, save);
-            else
-                SaveLoader.writeServerSave(serverIP, localPlayer, save);
-
+            saveGame(getSave(moveHistory));
+            getDialogService().showMessageBox("Save successful");
         });
 
         VBox undo = new VBox();

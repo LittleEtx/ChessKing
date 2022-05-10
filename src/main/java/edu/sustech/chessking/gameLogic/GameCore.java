@@ -138,7 +138,10 @@ public class GameCore {
             return true;
 
         //if no move can lead to safety, then indeed lost
-        for (Chess chess : getChessList(turn)) {
+        for (Chess chess : chessboard) {
+            if (!isInTurn(chess))
+                continue;
+
             for (Move move : getAvailableMove(chess)) {
                 //if any move will save the king
                 if (!isMoveCauseDanger(move))
@@ -184,7 +187,9 @@ public class GameCore {
         
         //check if no move to go
         boolean noAvailableMove = true;
-        for (Chess chess : getChessList(turn)) {
+        for (Chess chess : chessboard) {
+            if (!isInTurn(chess))
+                continue;
             if (!getAvailableMove(chess).isEmpty()) {
                 noAvailableMove = false;
                 break;
@@ -547,7 +552,9 @@ public class GameCore {
      */
     public ArrayList<Chess> getChess(ColorType side, ChessType chessType) {
         ArrayList<Chess> list =  new ArrayList<>();
-        for (Chess chess : getChessList(side)) {
+        for (Chess chess : chessboard) {
+            if (chess.getColorType() != side)
+                continue;
             if (chess.getChessType() == chessType)
                 list.add(chess);
         }
@@ -568,12 +575,12 @@ public class GameCore {
     /**
      * Get a list of all the chess copy in game
      */
-    public Chess[] getChessList() {
-        return chessboard.getChessList();
-    }
-
-    public Chess[] getChessList(ColorType side) {
-        return chessboard.getChessList(side);
+    public List<Chess> getChessList() {
+        ArrayList<Chess> chessList= new ArrayList<>();
+        for (Chess chess : chessboard) {
+            chessList.add(chess);
+        }
+        return chessList;
     }
 
     /**
@@ -719,7 +726,9 @@ public class GameCore {
      */
     public ArrayList<Move> getAvailableMove() {
         ArrayList<Move> moveList = new ArrayList<>();
-        for (Chess chess : getChessList(turn)) {
+        for (Chess chess : chessboard) {
+            if (!isInTurn(chess))
+                continue;
             moveList.addAll(getAvailableMove(chess));
         }
         return moveList;
@@ -733,7 +742,9 @@ public class GameCore {
     public ArrayList<Move> getSafeMove() {
         ArrayList<Move> safeMove = new ArrayList<>();
         //try each move for each chess
-        for (Chess chess : getChessList(turn)) {
+        for (Chess chess : chessboard) {
+            if (!isInTurn(chess))
+                continue;
             for (Move move : getAvailableMove(chess)) {
                 //if any move will save the king
                 if (!isMoveCauseDanger(move))
@@ -755,7 +766,9 @@ public class GameCore {
         ArrayList<Move> safeEatMove = new ArrayList<>();
         Position pos = targetChess.getPosition();
         Move move;
-        for (Chess chess : getChessList(turn)) {
+        for (Chess chess : chessboard) {
+            if (!isInTurn(chess))
+                continue;
             //if eat passant, need to change the move to chess and pos
             if (chess.getColorType() == WHITE &&
                     isEatPassantAvailable(chess, pos.getUp()))
@@ -783,7 +796,9 @@ public class GameCore {
      */
     public ArrayList<Chess> getEnemyChess(Position position, ColorType side) {
         ArrayList<Chess> list = new ArrayList<>();
-        for (Chess chess : getChessList(side.reverse())) {
+        for (Chess chess : chessboard) {
+            if (chess.getColorType() == side)
+                continue;
             if (chess.getChessType() == PAWN || chess.getChessType() == KING) {
                 if (isEatValid(chess, position))
                     list.add(chess);
@@ -839,9 +854,9 @@ public class GameCore {
 
         //get Allay target list
         ArrayList<Chess> targetAllyList = new ArrayList<>();
-        for (Chess ally : getChessList(turn.reverse())) {
+        for (Chess ally : chessboard) {
             //it is the turn of the enemy
-            if (ally.getChessType() == KING)
+            if (ally.getColorType() == turn || ally.getChessType() == KING)
                 continue;
 
             if (isEatValid(nowChess, ally.getPosition()) &&

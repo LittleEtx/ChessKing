@@ -4,25 +4,24 @@ import edu.sustech.chessking.gameLogic.enumType.CastleType;
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static edu.sustech.chessking.gameLogic.MoveRule.isEatPassant;
 import static edu.sustech.chessking.gameLogic.enumType.ChessType.PAWN;
 import static edu.sustech.chessking.gameLogic.enumType.ColorType.WHITE;
 
-public class Chessboard {
+public class Chessboard implements Iterable<Chess>{
     private final Chess[][] chessboard = new Chess[8][8];
-    private final LinkedList<Chess> whiteChessList = new LinkedList<>();
-    private final LinkedList<Chess> blackChessList = new LinkedList<>();
 
     public Chessboard() {}
 
     private void setChessboard(List<Chess> chessList) {
+        clear();
         for (Chess chess : chessList) {
             Position pos = chess.getPosition();
             chessboard[pos.getRow()][pos.getColumn()] = chess;
-            addListChess(chess);
         }
     }
 
@@ -31,33 +30,13 @@ public class Chessboard {
      */
     public void setChess(Chess chess) {
         Position pos = chess.getPosition();
-        Chess targetChess = getChess(pos);
-        removeLiseChess(targetChess);
         chessboard[pos.getRow()][pos.getColumn()] = chess;
-        addListChess(chess);
-    }
-
-    private void addListChess(Chess chess) {
-        if (chess.getColorType() == WHITE)
-            whiteChessList.add(chess);
-        else
-            blackChessList.add(chess);
-    }
-
-    private void removeLiseChess(Chess targetChess) {
-        if (targetChess != null) {
-            if (targetChess.getColorType() == WHITE)
-                whiteChessList.remove(targetChess);
-            else
-                blackChessList.remove(targetChess);
-        }
     }
 
     /**
      * set the position to null
      */
     public void setNull(Position pos) {
-        removeLiseChess(getChess(pos));
         chessboard[pos.getRow()][pos.getColumn()] = null;
     }
 
@@ -70,8 +49,6 @@ public class Chessboard {
                 chessboard[i][j] = null;
             }
         }
-        whiteChessList.clear();
-        blackChessList.clear();
     }
 
     /**
@@ -199,25 +176,6 @@ public class Chessboard {
         setChess(chess.moveTo(pos).promoteTo(promoteType));
     }
 
-    /**
-     * Get a list of all the chess in game
-     */
-    public Chess[] getChessList() {
-        LinkedList<Chess> newList = new LinkedList<>(whiteChessList);
-        newList.addAll(blackChessList);
-        return newList.toArray(new Chess[0]);
-    }
-
-    /**
-     * Get a list of all the chess of a certain color in game
-     */
-    public Chess[] getChessList(ColorType side) {
-        if (side == WHITE)
-            return whiteChessList.toArray(new Chess[0]);
-        else
-            return blackChessList.toArray(new Chess[0]);
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -233,5 +191,41 @@ public class Chessboard {
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+    /**
+     * Use Iterator to get all the chess on the chessboard
+     */
+    @Override
+    public Iterator<Chess> iterator() {
+        return new Iterator<>() {
+            private int x = 0;
+            private int y = 0;
+
+            @Override
+            public boolean hasNext() {
+                //Go through the chessboard
+                while (y < 8) {
+                    while (x < 8) {
+                        if (getChess(new Position(x, y)) != null)
+                            return true;
+                        ++x;
+                    }
+                    x = 0;
+                    ++y;
+                }
+                return false;
+            }
+
+            @Override
+            public Chess next() {
+                if (hasNext()) {
+                    //return the chess then plus x
+                    return getChess(new Position(x++, y));
+                }
+                else
+                    throw new NoSuchElementException();
+            }
+        };
     }
 }

@@ -4,18 +4,21 @@ import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import edu.sustech.chessking.gameLogic.ai.AiEnemy;
 import edu.sustech.chessking.gameLogic.ai.AiType;
+import edu.sustech.chessking.gameLogic.gameSave.Player;
+import edu.sustech.chessking.gameLogic.gameSave.Replay;
+import edu.sustech.chessking.gameLogic.gameSave.Save;
 import javafx.scene.paint.Color;
 
 import java.time.LocalDateTime;
 
-import static edu.sustech.chessking.gameLogic.SaveLoader.*;
 import static edu.sustech.chessking.gameLogic.enumType.ColorType.BLACK;
 import static edu.sustech.chessking.gameLogic.enumType.ColorType.WHITE;
+import static edu.sustech.chessking.gameLogic.gameSave.SaveLoader.*;
 
 public class GameLogicTestApp extends GameApplication {
     private final GameCore gameCore = new GameCore();
-    private final AiEnemy whiteAi = new AiEnemy(AiType.NORMAL, gameCore);
-    private final AiEnemy blackAi = new AiEnemy(AiType.NORMAL, gameCore);
+    private final AiEnemy whiteAi = new AiEnemy(AiType.HARD, gameCore);
+    private final AiEnemy blackAi = new AiEnemy(AiType.HARD, gameCore);
     private boolean beginTest = false;
 
     private Player player1;
@@ -65,7 +68,7 @@ public class GameLogicTestApp extends GameApplication {
             gameCore.moveChess(move);
             System.out.println(LocalDateTime.now());
             System.out.println(move.toString());
-            System.out.println(gameCore.getChessBoardString());
+            //System.out.println(gameCore.getChessBoardString());
             if (gameCore.hasGameEnd()) {
                 printResult();
                 break;
@@ -74,7 +77,7 @@ public class GameLogicTestApp extends GameApplication {
             gameCore.moveChess(move);
             System.out.println(LocalDateTime.now());
             System.out.println(move.toString());
-            System.out.println(gameCore.getChessBoardString());
+            //System.out.println(gameCore.getChessBoardString());
             if (gameCore.hasGameEnd()) {
                 printResult();
                 break;

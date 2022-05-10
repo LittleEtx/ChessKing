@@ -4,7 +4,7 @@ import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.dsl.FXGL;
 import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.gameLogic.Move;
-import edu.sustech.chessking.gameLogic.Player;
+import edu.sustech.chessking.gameLogic.gameSave.Player;
 
 import java.util.ArrayList;
 

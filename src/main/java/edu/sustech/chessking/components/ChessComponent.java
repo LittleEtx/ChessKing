@@ -356,7 +356,6 @@ public class ChessComponent extends Component {
     }
 
     public void computerExecuteMove(Move move) {
-        System.out.println("execute move");
         targetPos = move.getPosition();
         computerMove = move;
         set("availablePosition", gameCore.getAvailablePosition(chess));
