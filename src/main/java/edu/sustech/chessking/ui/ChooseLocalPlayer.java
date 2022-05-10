@@ -4,11 +4,12 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.GameType;
-import edu.sustech.chessking.gameLogic.gameSave.Player;
+import edu.sustech.chessking.gameLogic.Player;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.Bloom;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -20,8 +21,9 @@ import java.util.Objects;
 
 import static com.almasb.fxgl.dsl.FXGL.getSceneService;
 import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
+import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameController;
 
-public class ChooseLocalPlayer extends SubScene {
+public class ChooseLocalPlayer extends SubScene{
 
     public ChooseLocalPlayer(ArrayList<Player> players){
         Rectangle bg = new Rectangle(1200,800, Color.web("#00000080"));
@@ -33,7 +35,6 @@ public class ChooseLocalPlayer extends SubScene {
         if(!FXGL.isMobile()){
             choosePlayerText.setEffect(new Bloom(0.8));
         }
-
 
 //        Player testPlayer1 = new Player();
 //        Player testPlayer2 = new Player();
@@ -52,16 +53,27 @@ public class ChooseLocalPlayer extends SubScene {
 //        playerBtnVB.setMinWidth(500);
         playerBtnVB.setMinHeight(400);
 //        playerBtnVB.setMaxWidth(500);
-        playerBtnVB.setPrefSize(500,players.size()*20);
+        playerBtnVB.setPrefSize(500,players.size()*40);
         playerBtnVB.setStyle("-fx-background-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #193237ff 0.0%, #2e4e58ff 50.0%, #39687cff 100.0%);");
 
         for(Button playerBtn : playersBtn){
             playerBtn.setStyle("-fx-background-color: transparent");
-            playerBtn.setPrefSize(100,40);
+            playerBtn.setPrefSize(300,40);
+            playerBtn.setAlignment(Pos.CENTER);
             playerBtn.setTextFill(Color.WHITE);
             playerBtn.setFont(new Font(20));
             playerBtnVB.getChildren().add(playerBtn);
-            playerBtn.setOnAction(event -> {
+//            playerBtn.setOnAction(event -> {
+//                setTransparent(playersBtn);
+//                System.out.println(players.get(playersBtn.indexOf(playerBtn)));
+//                playerBtn.setStyle("-fx-border-color: #20B2AA;"+
+//                        "-fx-border-width: 5;"+
+//                        "-fx-background-color: transparent;");
+//
+//                ChessKingApp.setLocalPlayer(players.get(playersBtn.indexOf(playerBtn)));
+//            });
+
+            playerBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, event ->{
                 setTransparent(playersBtn);
                 System.out.println(players.get(playersBtn.indexOf(playerBtn)));
                 playerBtn.setStyle("-fx-border-color: #20B2AA;"+
@@ -69,6 +81,10 @@ public class ChooseLocalPlayer extends SubScene {
                         "-fx-background-color: transparent;");
 
                 ChessKingApp.setLocalPlayer(players.get(playersBtn.indexOf(playerBtn)));
+                if(event.getClickCount()==2){
+                    getSceneService().popSubScene();
+                    ChessKingApp.setGameType(GameType.LOCAL);
+                }
             });
         }
 
@@ -116,7 +132,7 @@ public class ChooseLocalPlayer extends SubScene {
         getContentRoot().getChildren().add(vb);
     }
 
-    public void setTransparent(ArrayList<Button> buttons){
+    private void setTransparent(ArrayList<Button> buttons){
         for (Button button : buttons){
             button.setStyle("-fx-border-color: transparent;"
             +"-fx-background-color: transparent");

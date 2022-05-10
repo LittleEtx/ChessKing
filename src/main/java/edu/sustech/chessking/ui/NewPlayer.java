@@ -2,19 +2,19 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
-import edu.sustech.chessking.gameLogic.gameSave.Player;
+import edu.sustech.chessking.ChessKingApp;
+import edu.sustech.chessking.gameLogic.Player;
+import edu.sustech.chessking.gameLogic.Save;
+import edu.sustech.chessking.gameLogic.SaveLoader;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.Bloom;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-
-import static com.almasb.fxgl.dsl.FXGL.getSceneService;
-import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
+import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class NewPlayer extends SubScene {
 
@@ -39,15 +39,17 @@ public class NewPlayer extends SubScene {
         TextField name = new TextField();
         getName(name,player);
 
-        Button newGameBtn = new Button("Done");
-        newGameBtn.setOnAction(event -> {
+        Button doneBtn = new Button("Done");
+        doneBtn.setOnAction(event -> {
+                    SaveLoader.changeLocalPlayerName(player.getName(),name.getText());
                     player.setName(name.getText());
+                    SaveLoader.writePlayer(player);
                     getSceneService().popSubScene();
                     System.out.println(player);
                 });
-        newGameBtn.getStyleClass().add("newPlayer-subScene-button");
-        newGameBtn.setLayoutX(600-75);
-        newGameBtn.setLayoutY(610);
+        doneBtn.getStyleClass().add("newPlayer-subScene-button");
+        doneBtn.setLayoutX(600-75);
+        doneBtn.setLayoutY(610);
 
 //        Button backBtn = new Button("Back");
 //        backBtn.setOnAction(event ->{
@@ -60,7 +62,7 @@ public class NewPlayer extends SubScene {
 //        buttons.setLayoutX(600-175);
 //        buttons.setLayoutY(620);
 
-        getContentRoot().getChildren().addAll(newGameBtn);
+        getContentRoot().getChildren().addAll(doneBtn);
 
         chooseAvatar(player);
         chooseSkin(player);

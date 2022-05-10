@@ -421,3 +421,16 @@
     -fx-pref-height: 80;
     -fx-pref-width: 80;
 }
+
+.backBtn {
+    -fx-background-color: transparent;
+    -fx-background-image: url("RedCross.png");
+    -fx-background-size: 40 40;
+    -fx-pref-height: 40;
+    -fx-pref-width: 40;
+}
+
+.backBtn:hover {
+    -fx-background-image: url("RedCross.png");
+    -fx-background-size: 45 45;
+}

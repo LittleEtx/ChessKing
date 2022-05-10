@@ -7,8 +7,9 @@ import com.almasb.fxgl.scene.SubScene;
 import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.GameType;
-import edu.sustech.chessking.gameLogic.gameSave.Player;
-import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
+import edu.sustech.chessking.gameLogic.Player;
+import edu.sustech.chessking.gameLogic.Save;
+import edu.sustech.chessking.gameLogic.SaveLoader;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
@@ -57,8 +58,6 @@ public class MainMenu extends FXGLMenu {
         btn1.setOnAction(event -> {
             setLocalGameBtn();
             deleteMainMenuBtn();
-
-            //if no initial player
             ArrayList<Player> playerArrayList = SaveLoader.readPlayerList();
             SubScene chooseLocalPlayer = new ChooseLocalPlayer(playerArrayList);
             System.out.println("read player list" + playerArrayList.size());
@@ -68,17 +67,10 @@ public class MainMenu extends FXGLMenu {
         btn1.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
-                if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-                    setLocalGameBtn();
-                    deleteMainMenuBtn();
-
-                    //if no initial player
-                    SubScene newPlayerName = new NewPlayerName(ChessKingApp.getLocalPlayer());
-                    getSceneService().pushSubScene(newPlayerName);
-                }
-                if(keyEvent.getCode().equals(KeyCode.N)){
-                    SubScene chooseLocalPlayer = new ChooseLocalPlayer(SaveLoader.readPlayerList());
-                    getSceneService().pushSubScene(chooseLocalPlayer);
+                if(keyEvent.getCode().equals(KeyCode.S)){
+                    ArrayList<Save> save = SaveLoader.readLocalSaveList(ChessKingApp.getLocalPlayer());
+                    SubScene loadSave = new LoadSave(save);
+                    getSceneService().pushSubScene(loadSave);
                 }
             }
         });
