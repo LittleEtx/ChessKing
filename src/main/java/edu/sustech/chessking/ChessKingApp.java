@@ -48,21 +48,21 @@ import static edu.sustech.chessking.VisualLogic.*;
 
 public class ChessKingApp extends GameApplication {
 
-    private final GameCore gameCore = new GameCore();
+    private static final GameCore gameCore = new GameCore();
     //use to store the current history when computer simulate move
     private MoveHistory tempHistory;
-    public ColorType downSideColor;
+    public static ColorType downSideColor;
     private Entity movingChess;
     private LocalTimer betweenClickTimer;
     private LocalTimer aiBeginningTimer;
-    private String serverIP = "localhost";
+    private static String serverIP = "localhost";
     private boolean cursorDefault = true;
-    private int reverseCount;
+    private static int reverseCount;
     private GameTimer whiteTimer;
     private GameTimer blackTimer;
-    private static double gameTimeInSec = -1;
-    private static double turnTimeInSec = -1;
-    private static final ArrayList<Double> remainTime = new ArrayList<>();
+    private static double gameTimeInSec;
+    private static double turnTimeInSec;
+    private static ArrayList<Double> remainTime = new ArrayList<>();
 
     private static Player localPlayer = new Player();
     public static Player getLocalPlayer(){
@@ -71,24 +71,18 @@ public class ChessKingApp extends GameApplication {
     public static void setLocalPlayer(Player player){
         localPlayer = player;
     }
+    private static Player downPlayer;
+    private static Player upPlayer;
+    private static long saveUuid;
 
-    private static Player localPlayer2 = new Player();
-    public static Player getLocalPlayer2(){ return localPlayer2; }
-    private Player downPlayer;
-    private Player upPlayer;
-    private Long saveUuid = null;
-
-    private AiEnemy ai;
-    private boolean isEnemyFirst = false;
+    private static AiEnemy ai;
+    private static boolean isEnemyFirst = false;
 
     private enum ClientEndGameType {
         LOST, WIN, DRAWN, BLACK_WIN, WHITE_WIN
     }
 
     private static GameType gameType;
-    public static void setGameType(GameType gt){
-        gameType = gt;
-    }
 
     // ===============================
     //initialize variables
@@ -184,40 +178,21 @@ public class ChessKingApp extends GameApplication {
         betweenClickTimer = newLocalTimer();
         aiBeginningTimer = newLocalTimer();
 
-        //random downside color
-        int side = FXGL.random(0,1);
-        if (side == 0) {
-            downSideColor = ColorType.WHITE;
-        }
-        else {
-            downSideColor = ColorType.BLACK;
+        if (gameType != GameType.LOCAL) {
+            isEnemyFirst = downSideColor != ColorType.WHITE;
+
+            if (gameType == GameType.COMPUTER)
+                aiBeginningTimer = newLocalTimer();
         }
 
         set("downSideColor", downSideColor);
-
         //Set player and theme
         set("gameType", gameType);
-        downPlayer = localPlayer;
-        if (gameType == GameType.LOCAL) {
-            upPlayer = localPlayer2;
-        }
-        else if (gameType == GameType.COMPUTER) {
-            ai = new AiEnemy(AiType.NORMAL, gameCore);
-            upPlayer = ai.getPlayer();
-            upPlayer.setBackground(downPlayer.getBackground());
-            upPlayer.setColor1(downPlayer.getColor1());
-            upPlayer.setColor2(downPlayer.getColor2());
-            isEnemyFirst = downSideColor != ColorType.WHITE;
-            aiBeginningTimer = newLocalTimer();
-        }
         set("downChessSkin", downPlayer.getChessSkin());
         set("upChessSkin", upPlayer.getChessSkin());
 
-        spawn("backGround", new SpawnData().put("player", downPlayer));
+        spawn("backGround", new SpawnData().put("player", localPlayer));
 
-        //Timer method
-        gameTimeInSec = 60;
-        turnTimeInSec = 3;
 
         whiteTimer = new GameTimer(gameTimeInSec, turnTimeInSec, () -> {
             if (gameType == GameType.LOCAL)
@@ -241,14 +216,6 @@ public class ChessKingApp extends GameApplication {
             }
         });
 
-        //set reverse count, -1 for forever
-        reverseCount = -1;
-
-        //initialize gameCore
-        if (saveUuid == null)
-            saveUuid = (new Date()).getTime();
-        gameCore.initialGame();
-
         //initialize entity
         initAvatar();
         initUI();
@@ -256,6 +223,142 @@ public class ChessKingApp extends GameApplication {
         initChess();
 
         initialEndTurnListener();
+    }
+
+    /**
+     * load game for the given save
+     * @param gameType choose from LOCAL, LAN, and NET
+     * @return false when failed to read save
+     */
+    public static boolean loadGame(GameType gameType, Save save, Player opponent) {
+        if (!readSave(save))
+            return false;
+        ChessKingApp.gameType = gameType;
+        upPlayer = opponent;
+        downPlayer = localPlayer;
+        getGameController().startNewGame();
+        return true;
+    }
+
+    /**
+     * load a game with opponent be AI
+     * @return false when failed to read save
+     */
+    public static boolean loadAiGame(Save save, AiType aiType) {
+        if (!readSave(save))
+            return false;
+
+        setAiPlayer(aiType);
+        downPlayer = localPlayer;
+        gameType = GameType.COMPUTER;
+        getGameController().startNewGame();
+        return true;
+    }
+
+    /**
+     * load a replay
+     */
+    public static boolean loadReplay(Replay replay) {
+        if (!readSave(replay))
+            return false;
+
+        //initial
+        setPlayerFromSave(replay);
+        gameType = GameType.REPLAY;
+        getGameController().startNewGame();
+        return true;
+    }
+
+    private static boolean readSave(Save save) {
+        if (!gameCore.setGame(save.getGameHistory())) {
+            return false;
+        }
+        saveUuid = save.getUuid();
+        downSideColor = save.getDefaultDownColor();
+        gameTimeInSec = save.getGameTime();
+        turnTimeInSec = save.getTurnTime();
+        remainTime = save.getRemainingTime();
+        return true;
+    }
+
+    private static void setPlayerFromSave(Save save) {
+        if (downSideColor == ColorType.WHITE) {
+            downPlayer = save.getWhitePlayer();
+            upPlayer = save.getBlackPlayer();
+        }
+        else {
+            downPlayer = save.getBlackPlayer();
+            upPlayer = save.getWhitePlayer();
+        }
+    }
+
+    /**
+     * start a new game
+     * @param gameType choose from LOCAL, LAN, and NET
+     * @param opponent the opponent player
+     */
+    public static void newGame(GameType gameType, Player opponent,
+                               double gameTime, double turnTime) {
+        createNewGame(gameType);
+        downPlayer = localPlayer;
+        upPlayer = opponent;
+        gameTimeInSec = gameTime;
+        turnTimeInSec = turnTime;
+        getGameController().startNewGame();
+    }
+
+    /**
+     * start a new game vs. computer
+     * @param aiType ai difficulty
+     */
+    public static void newAiGame(AiType aiType) {
+        createNewGame(GameType.COMPUTER);
+        downPlayer = localPlayer;
+        setAiPlayer(aiType);
+        getGameController().startNewGame();
+    }
+
+    private static void setAiPlayer(AiType aiType) {
+        //set reverse count, -1 for forever
+        reverseCount = -1;
+
+        //set time limit
+        switch (aiType) {
+            case EASY -> {
+                gameTimeInSec = AiEnemy.EasyGameTime;
+                turnTimeInSec = AiEnemy.EasyGameTime;
+            }
+            case NORMAL -> {
+                gameTimeInSec = AiEnemy.NormalGameTime;
+                turnTimeInSec = AiEnemy.NormalGameTime;
+            }
+            case HARD -> {
+                gameTimeInSec = AiEnemy.HardGameTime;
+                turnTimeInSec = AiEnemy.HardTurnTime;
+            }
+        }
+
+        ai = new AiEnemy(aiType, gameCore);
+        upPlayer = ai.getPlayer();
+    }
+
+    private static void createNewGame(GameType gameType) {
+        gameCore.initialGame();
+        saveUuid = (new Date()).getTime();
+        downPlayer = localPlayer;
+        ChessKingApp.gameType = gameType;
+        randomSide();
+    }
+
+    private static void randomSide() {
+        //random downside color
+        int side = FXGL.random(0,1);
+        if (side == 0) {
+            downSideColor = ColorType.WHITE;
+        }
+        else {
+            downSideColor = ColorType.BLACK;
+        }
     }
 
     /**
@@ -440,16 +543,9 @@ public class ChessKingApp extends GameApplication {
     }
 
     public void initBoard(){
-        Color color1;
-        Color color2;
-        int color = FXGL.random(0,1);
-        if(color==0) {
-            color1 = downPlayer.getColor1();
-            color2 = downPlayer.getColor2();
-        }else{
-            color1 = upPlayer.getColor1();
-            color2 = upPlayer.getColor2();
-        }
+        Color color1 = localPlayer.getColor1();
+        Color color2 = localPlayer.getColor2();
+
         for(int i = 0; i < 8; i++) {
             for (int f = 0; f < 8; f++) {
                 Position position = new Position(i, f);

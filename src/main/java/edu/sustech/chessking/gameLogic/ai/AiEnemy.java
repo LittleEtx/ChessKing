@@ -13,6 +13,13 @@ import static edu.sustech.chessking.gameLogic.ai.EvaluationMethod.getAccurateSco
 import static edu.sustech.chessking.gameLogic.ai.EvaluationMethod.getScore;
 
 public class AiEnemy {
+    public static final double EasyGameTime = -1;
+    public static final double EasyTurnTime = -1;
+    public static final double NormalGameTime = 90 * 60;
+    public static final double NormalTurnTime = 5 * 60;
+    public static final double HardGameTime = 60 * 60;
+    public static final double HardTurnTime = 3 * 60;
+
     private static final Player easyAiPlayer = new Player();
     private static final Player normalAiPlayer = new Player();
     private static final Player hardAiPlayer = new Player();
@@ -22,7 +29,7 @@ public class AiEnemy {
         easyAiPlayer.setAvatar("aiAvatar");
 
         normalAiPlayer.setName("Normal_Computer");
-        normalAiPlayer.setChessSkin("pixel");
+        normalAiPlayer.setChessSkin("default");
         normalAiPlayer.setAvatar("aiAvatar");
 
         hardAiPlayer.setName("Hard_Computer");

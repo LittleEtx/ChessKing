@@ -6,7 +6,7 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.ChessKingApp;
-import edu.sustech.chessking.GameType;
+import edu.sustech.chessking.gameLogic.ai.AiType;
 import edu.sustech.chessking.gameLogic.gameSave.Player;
 import edu.sustech.chessking.gameLogic.gameSave.Save;
 import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
@@ -218,14 +218,16 @@ public class MainMenu extends FXGLMenu {
         getContentRoot().getChildren().addAll(localGameBoxc1,localGameBoxc2,backBtn);
 
         localFight.setOnAction(event -> {
-            Player p2 = ChessKingApp.getLocalPlayer2();
-            SubScene ss = new ChoosePlayer2(p2);
+            SubScene ss = new ChoosePlayer2(ChessKingApp.getLocalPlayer());
             getSceneService().pushSubScene(ss);
         });
 
         localAIbtn.setOnAction(event -> {
-            ChessKingApp.setGameType(GameType.COMPUTER);
-            getGameController().startNewGame();
+
+            //add a panel here to choose difficulty
+
+            AiType aiType = AiType.NORMAL;
+            ChessKingApp.newAiGame(aiType);
         });
 
         viewGameBtn.setOnAction(event -> {

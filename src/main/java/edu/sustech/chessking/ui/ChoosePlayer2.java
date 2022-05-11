@@ -17,7 +17,6 @@ import java.util.Objects;
 
 import static com.almasb.fxgl.dsl.FXGL.getSceneService;
 import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
-import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameController;
 
 public class ChoosePlayer2 extends SubScene {
     public ChoosePlayer2(Player player){
@@ -43,10 +42,12 @@ public class ChoosePlayer2 extends SubScene {
         Button doneBtn = new Button("Done");
         doneBtn.getStyleClass().add("newPlayer-subScene-button");
         doneBtn.setOnAction(event ->{
-            if(!Objects.equals(ChessKingApp.getLocalPlayer2().getName(), "")) {
+            if(!Objects.equals(player.getName(), "player name you choose")) {
+                Player opponent = new Player();
+                opponent.setName("YourOpponent");
+                opponent.setAvatar("avatar5");
                 getSceneService().popSubScene();
-                ChessKingApp.setGameType(GameType.LOCAL);
-                getGameController().startNewGame();
+                ChessKingApp.newGame(GameType.LOCAL, opponent, -1, -1);
             }else{
                 System.out.println("no player2 detected");
             }

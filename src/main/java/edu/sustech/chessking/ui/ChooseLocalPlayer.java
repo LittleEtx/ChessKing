@@ -3,7 +3,6 @@ package edu.sustech.chessking.ui;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
-import edu.sustech.chessking.GameType;
 import edu.sustech.chessking.gameLogic.gameSave.Player;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -82,7 +81,6 @@ public class ChooseLocalPlayer extends SubScene{
                 ChessKingApp.setLocalPlayer(players.get(playersBtn.indexOf(playerBtn)));
                 if(event.getClickCount()==2){
                     getSceneService().popSubScene();
-                    ChessKingApp.setGameType(GameType.LOCAL);
                 }
             });
         }
@@ -111,7 +109,6 @@ public class ChooseLocalPlayer extends SubScene{
         doneBtn.setOnAction(event ->{
             if(!Objects.equals(ChessKingApp.getLocalPlayer().getName(), "")) {
                 getSceneService().popSubScene();
-                ChessKingApp.setGameType(GameType.LOCAL);
             }else{
                 System.out.println("no local player detected");
             }
