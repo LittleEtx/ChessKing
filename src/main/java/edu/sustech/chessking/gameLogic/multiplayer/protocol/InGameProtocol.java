@@ -22,6 +22,7 @@ public class InGameProtocol {
     public static final String Mouse = "mouse";
 
     //player action
-    public static final String LeftClick = "leftClick";
-    public static final String RightClick = "rightClick";
+    public static final String PickUpChess = "pickUpChess"; //Chess
+    public static final String PutDownChess = "putDownChess"; //none
+    public static final String MoveChess = "moveChess"; //Move
 }

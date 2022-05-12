@@ -1,12 +1,10 @@
 package edu.sustech.chessking.gameLogic.multiplayer;
 
 import com.almasb.fxgl.core.serialization.Bundle;
-import com.almasb.fxgl.dsl.FXGL;
-import com.almasb.fxgl.net.Client;
 import com.almasb.fxgl.net.Connection;
 import edu.sustech.chessking.gameLogic.Chess;
+import edu.sustech.chessking.gameLogic.Move;
 import edu.sustech.chessking.gameLogic.MoveHistory;
-import edu.sustech.chessking.gameLogic.Position;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.geometry.Point2D;
 
@@ -15,34 +13,28 @@ import java.util.function.Consumer;
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.*;
 
 public class ClientGameCore {
-    Client<Bundle> client;
-    Connection<Bundle> connection = null;
-    Point2D enemyMousePoint;
+    private final Connection<Bundle> connection;
+    private Point2D enemyMousePoint;
 
     ColorType side;
 
     /**
-     * @param serverIP ip of the server to connect
-     * @param port port to connect
+     * @param connection connection to the server
      * @param side the side of the client
      */
-    public ClientGameCore(String serverIP, int port, ColorType side) {
+    public ClientGameCore(Connection<Bundle> connection, ColorType side) {
         this.side = side;
-        client = FXGL.getNetService().newTCPClient(serverIP, port);
-        client.connectAsync();
-        client.setOnConnected(connection -> {
-            this.connection = connection;
-            connection.addMessageHandler((conn, msg) -> {
-                if (msg.get(Color) == side)
-                    return;
+        this.connection = connection;
+        connection.addMessageHandler((conn, msg) -> {
+            if (msg.get(Color) == side)
+                return;
 
-                //change position of mouse
-                if (msg.exists(Mouse))
-                    enemyMousePoint = toPoint2D(msg.get(Mouse));
+            //change position of mouse
+            if (msg.exists(Mouse))
+                enemyMousePoint = toPoint2D(msg.get(Mouse));
 
 
 
-            });
         });
     }
 
@@ -53,25 +45,31 @@ public class ClientGameCore {
         return connection.isConnected();
     }
 
+
+
+    public void setOnPickUpChess(Consumer<Chess> pickUpChessEvent) {
+
+    }
+
+    public void setOnPutDownChess(Runnable putDownChessEvent) {
+
+    }
+
     /**
-     * @param disconnectEvent the event to trigger when disconnected
+     * move chess
      */
-    public void setOnDisconnected(Consumer<Connection<Bundle>> disconnectEvent) {
-        client.setOnDisconnected(disconnectEvent);
-    }
-
-    public void setOnChessMoving(Consumer<Chess> chessMovingEvent) {
+    public void setOnMoveChess(Consumer<Move> moveChessEvent) {
 
     }
 
-    public void setOnPutChess(Consumer<Position> putChessEvent) {
+    public void setOnEndTurn(Consumer<Double> remainingTime) {
 
     }
 
     /**
      * when the enemy end his turn, trigger the event
      */
-    public void setOnEndTurn() {
+    public void setOnReachTimeLimit() {
 
     }
 
@@ -96,10 +94,6 @@ public class ClientGameCore {
 
     }
 
-    public void close() {
-        //cleat the disconnect event
-        client.setOnDisconnected(bundleConnection -> { });
-        client.disconnect();
-    }
+
 
 }
