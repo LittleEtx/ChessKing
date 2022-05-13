@@ -2,8 +2,8 @@ package edu.sustech.chessking.gameLogic.multiplayer;
 
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
+import com.almasb.fxgl.net.Client;
 import com.almasb.fxgl.net.Connection;
-import com.almasb.fxgl.net.MessageHandler;
 import com.almasb.fxgl.net.Server;
 import edu.sustech.chessking.gameLogic.gameSave.Player;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameInfo;
@@ -15,21 +15,33 @@ import java.util.function.Consumer;
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.*;
 
 public class LanServerCore {
-    private int port;
     private final Server<Bundle> server;
 
     private Player opponent = null;
-    private final Player player;
-    private Connection<Bundle> opponentConn;
-    private LinkedList<Connection<Bundle>> viewerConn = new LinkedList<>();
+    private Connection<Bundle> opponentConn = null;
+    private final Client<Bundle> localClient;
+    private final LinkedList<Connection<Bundle>> viewerConn = new LinkedList<>();
     private ServerGameCore serverGameCore;
 
     private Consumer<Player> onOpponentAddIn;
+    private Runnable onDisconnect;
+    private Runnable onReconnect;
+
+    private boolean isGameStart = false;
+
+
 
     LanServerCore(int port, WaitingGameInfo gameInfo, Player player) {
         server = FXGL.getNetService().newTCPServer(port);
-        this.port = port;
-        this.player = player;
+        server.startAsync();
+        this.localClient = FXGL.getNetService().newTCPClient("localhost", port);
+        localClient.connectAsync();
+        localClient.setOnConnected((msg) -> {
+            startBroadcast(gameInfo, player);
+        });
+    }
+
+    private void startBroadcast(WaitingGameInfo gameInfo, Player player) {
         server.setOnConnected(connection -> {
             connection.addMessageHandlerFX((conn, msg) -> {
                 //when client search for the game
@@ -47,63 +59,82 @@ public class LanServerCore {
 
                 //when opponent join in the game
                 if (msg.exists(JoinGame)) {
-                    conn.addMessageHandler(joinConnHandler);
-                    opponentConn = conn;
-                    opponent = msg.get(JoinGame);
-                    onOpponentAddIn.accept(opponent);
+                    Player opponent = msg.get(JoinGame);
+                    if (!isGameStart) {
+                        opponentConn = conn;
+                        this.opponent = opponent;
+                        onOpponentAddIn.accept(opponent);
+                    }
+                    //reconnect
+                    else {
+                        if (!opponent.getName().equals(this.opponent.getName()))
+                            return;
+
+                        opponentConn = conn;
+                        this.opponent = opponent;
+                        onReconnect.run();
+                        serverGameCore.rejoinIn(1, opponentConn);
+                    }
                     return;
                 }
 
                 //when viewer join the game
                 if (msg.exists(JoinView)) {
-                    conn.addMessageHandler(joinConnHandler);
                     viewerConn.add(conn);
                     return;
                 }
 
+                //when remote connection quit
                 if (msg.exists(Quit)) {
-                    if (conn.equals(opponentConn));
-
-
-
-
+                    if (conn.equals(opponentConn)) {
+                        opponent = null;
+                        opponentConn = null;
+                    }
+                    else
+                        viewerConn.remove(conn);
                 }
-
-
-
             });
-
-
-
-
-
-
-
         });
-        server.startAsync();
     }
 
-    private final MessageHandler<Bundle> joinConnHandler = (conn, msg) -> {
+    public Client<Bundle> getLocalClient() {
+        return localClient;
+    }
 
-    };
 
-
-    void setOnOpponentAddIn(Consumer<Player> onOpponentAddIn) {
+    public void setOnOpponentAddIn(Consumer<Player> onOpponentAddIn) {
         this.onOpponentAddIn = onOpponentAddIn;
     }
 
-    void setOnOpponentDisconnect(Runnable onDisconnect, Runnable onReconnect) {
-
+    public void setOnOpponentDisconnect(Runnable onDisconnect, Runnable onReconnect) {
+        this.onDisconnect = onDisconnect;
+        this.onReconnect = onReconnect;
     }
 
-
-    boolean startGame() {
-        if (opponent == null)
+    /**
+     * Start game. Ensure opponent join in first
+     * @return false when cannot start
+     */
+    public boolean startGame() {
+        //if disconnected
+        if (opponentConn == null || !opponentConn.isConnected()) {
+            opponentConn = null;
+            opponent = null;
             return false;
+        }
+        serverGameCore = new ServerGameCore(
+                localClient.getConnections().get(0), opponentConn, viewerConn);
+
+        serverGameCore.setOnDisconnecting((conn) -> {
+            if (conn.equals(opponentConn)) {
+                onDisconnect.run();
+            }
+        });
+
+        isGameStart = true;
         Bundle msg = new Bundle("");
         msg.put(StartGame, "");
         server.broadcast(msg);
-
         return true;
     }
 
