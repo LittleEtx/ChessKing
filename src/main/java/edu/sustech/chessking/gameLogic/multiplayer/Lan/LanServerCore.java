@@ -1,4 +1,4 @@
-package edu.sustech.chessking.gameLogic.multiplayer;
+package edu.sustech.chessking.gameLogic.multiplayer.Lan;
 
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
@@ -8,9 +8,15 @@ import com.almasb.fxgl.net.Server;
 import edu.sustech.chessking.gameLogic.MoveHistory;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.gameSave.Player;
-import edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameInfo;
-import edu.sustech.chessking.gameLogic.multiplayer.protocol.WaitingGameInfo;
+import edu.sustech.chessking.gameLogic.multiplayer.ServerGameCore;
+import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameInfo;
+import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameState;
+import edu.sustech.chessking.gameLogic.multiplayer.protocol.NewGameInfo;
 
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -20,8 +26,11 @@ import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.*
 
 public class LanServerCore {
     private final Server<Bundle> server;
+    private final GameInfo game;
+    private final int port;
 
-    private Player opponent = null;
+    private final LanServerBroadcaster lanServerBroadcaster;
+
     private Connection<Bundle> opponentConn = null;
     private final Client<Bundle> localClient;
     private final LinkedList<Connection<Bundle>> viewerConn = new LinkedList<>();
@@ -39,63 +48,86 @@ public class LanServerCore {
     private Function<ColorType, Player> onGetPlayer;
     private Function<ColorType, Double> onGetGameTime;
 
-    private boolean hasGameStart = false;
+    /**
+     * Creating a lan server will automatically open on a free port
+     * @throws FailToAccessLanException when unable to open lan
+     */
+    LanServerCore(NewGameInfo gameInfo) {
+        //get a new port
+        try (ServerSocket serverSocket = new ServerSocket(0)){
+            port = serverSocket.getLocalPort();
+        } catch (Exception e) {
+            throw new FailToAccessLanException("Fail to open lan server");
+        }
 
+        //creating the broadcaster
+        try {
+            String address = InetAddress.getLocalHost()
+                    .getHostAddress() + ":" + port;
+            lanServerBroadcaster = new LanServerBroadcaster(address);
+        } catch (UnknownHostException e) {
+            throw new FailToAccessLanException("Fail to get local host");
+        }
 
-    LanServerCore(int port, WaitingGameInfo gameInfo, Player player) {
+        game = new GameInfo(gameInfo);
         server = FXGL.getNetService().newTCPServer(port);
+        localClient = FXGL.getNetService().newTCPClient("localhost", port);
+
         server.startAsync();
-        this.localClient = FXGL.getNetService().newTCPClient("localhost", port);
         localClient.connectAsync();
+
         localClient.setOnConnected((msg) -> {
-            startBroadcast(gameInfo, player);
+            startBroadcast();
+            lanServerBroadcaster.start();
         });
     }
 
-    private void startBroadcast(WaitingGameInfo gameInfo, Player player) {
+    public int getPort() {
+        return port;
+    }
+
+    private void startBroadcast() {
         server.setOnConnected(connection -> {
             connection.addMessageHandlerFX((conn, msg) -> {
                 //when client search for the game
                 if (msg.exists(HasGame)) {
-                    Bundle info = new Bundle("");
-                    if (opponent == null)
-                        info.put(SendGameInfo, gameInfo);
-                    else
-                        info.put(SendGameInfo,
-                                new InGameInfo(player, opponent));
-
-                    conn.send(info);
+                    send(conn, SendGameInfo, game);
                     return;
                 }
 
                 //when opponent join in the game
                 if (msg.exists(JoinGame)) {
                     Player opponent = msg.get(JoinGame);
-                    if (!hasGameStart) {
+                    if (game.getState() == GameState.WAITING_JOIN) {
                         opponentConn = conn;
-                        this.opponent = opponent;
+                        game.setPlayer2(opponent);
+                        game.setGameState(GameState.WAITING_START);
                         onOpponentAddIn.accept(opponent);
                     }
                     //reconnect
-                    else {
-                        if (!opponent.getName().equals(this.opponent.getName()))
+                    else if (game.getState() == GameState.RECONNECTING) {
+                        if (!opponent.getName().equals(game.getPlayer2().getName())) {
+                            send(conn, FailToJoinInfo, "");
                             return;
+                        }
 
                         opponentConn = conn;
-                        this.opponent = opponent;
-                        onReconnect.run();
+                        game.setGameState(GameState.ON_GOING);
                         serverGameCore.rejoinIn(1, opponentConn);
+                        onReconnect.run();
+                    }
+                    else {
+                        send(conn, FailToJoinInfo, "");
+                        return;
                     }
 
-                    Bundle bundle = new Bundle("");
-                    bundle.put(SuccessfullyJoinIn, "");
-                    opponentConn.send(bundle);
+                    send(opponentConn, SuccessfullyJoinIn, "");
                     return;
                 }
 
                 //when viewer join the game
                 if (msg.exists(JoinView)) {
-                    if (!hasGameStart)
+                    if (!game.getState().isGameStart())
                         viewerConn.add(conn);
                     else
                         serverGameCore.joinView(conn);
@@ -105,8 +137,9 @@ public class LanServerCore {
                 //when remote connection quit
                 if (msg.exists(Quit)) {
                     if (conn.equals(opponentConn)) {
-                        if (!hasGameStart) {
-                            opponent = null;
+                        if (game.getState() == GameState.WAITING_START) {
+                            game.setPlayer2(null);
+                            game.setGameState(GameState.WAITING_JOIN);
                             opponentConn = null;
                             onOpponentDropOut.run();
                         }
@@ -114,7 +147,7 @@ public class LanServerCore {
                             onOpponentLeaveGame.run();
                     }
                     else {
-                        if (!hasGameStart)
+                        if (!game.getState().isGameStart())
                             viewerConn.remove(conn);
                         else
                             serverGameCore.quitView(conn);
@@ -122,6 +155,12 @@ public class LanServerCore {
                 }
             });
         });
+    }
+
+    private void send(Connection<Bundle> conn, String key, Serializable msg) {
+        Bundle info = new Bundle("");
+        info.put(key, msg);
+        conn.send(info);
     }
 
     public Client<Bundle> getLocalClient() {
@@ -174,7 +213,8 @@ public class LanServerCore {
         //if disconnected
         if (opponentConn == null || !opponentConn.isConnected()) {
             opponentConn = null;
-            opponent = null;
+            game.setGameState(GameState.WAITING_JOIN);
+            game.setPlayer2(null);
             return false;
         }
         serverGameCore = new ServerGameCore(
@@ -182,6 +222,7 @@ public class LanServerCore {
 
         serverGameCore.setOnDisconnecting((conn) -> {
             if (conn.equals(opponentConn)) {
+                game.setGameState(GameState.RECONNECTING);
                 onDisconnect.run();
             }
         });
@@ -192,21 +233,20 @@ public class LanServerCore {
         serverGameCore.setOnGetGameTime(onGetGameTime);
         serverGameCore.startGame();
 
-        hasGameStart = true;
+        game.setGameState(GameState.ON_GOING);
         Bundle msg = new Bundle("");
         msg.put(StartGame, "");
         server.broadcast(msg);
         return true;
     }
 
-
     /**
      * this method must be called after the game ended
      */
     public void stop() {
-        if (hasGameStart)
+        lanServerBroadcaster.interrupt();
+        if (game.getState().isGameStart())
             serverGameCore.endGame();
         server.stop();
     }
-
 }

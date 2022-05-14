@@ -16,15 +16,15 @@ public class GameEventListener {
     private final Connection<Bundle> connection;
     private ColorType side;
 
-    private Consumer<Chess> pickUpChessEvent = chess -> {};
-    private Runnable putDownChessEvent = () -> {};
-    private Consumer<Move> moveChessEvent = move -> {};
-    private Consumer<Double> endTurnEvent = time -> {};
-    private Runnable onReachTimeLimit = () -> {};
-    private Runnable onReceiveReverseRequest = () -> {};
-    private Runnable onReceiveDrawnRequest = () -> {};
-    private Runnable onAllowReverseRequest = () -> {};
-    private Runnable onAllowDrawnRequest = () -> {};
+    private Consumer<Chess> pickUpChessEvent;
+    private Runnable putDownChessEvent;
+    private Consumer<Move> moveChessEvent;
+    private Consumer<Double> endTurnEvent;
+    private Runnable onReachTimeLimit;
+    private Runnable onReceiveReverseRequest;
+    private Runnable onReceiveDrawnRequest;
+    private Runnable onAllowReverseRequest;
+    private Runnable onAllowDrawnRequest;
 
     private Point2D mousePt;
 

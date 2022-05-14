@@ -17,7 +17,7 @@ public class GameInfoGetter {
     private Consumer<ColorType> getTurnCallback;
     private Consumer<Player> getPlayerCallback;
     private Consumer<Double> getGameTimeCallBack;
-    private Connection<Bundle> connection;
+    private final Connection<Bundle> connection;
     private Runnable onDisconnecting;
 
     public GameInfoGetter(Connection<Bundle> connection) {

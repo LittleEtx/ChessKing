@@ -24,8 +24,8 @@ public class ClientGameCore extends GameEventListener{
      */
     public ClientGameCore(Connection<Bundle> connection, ColorType side) {
         super(connection, side.reverse());
-        this.side = side;
         this.connection = connection;
+        this.side = side;
     }
 
     /**

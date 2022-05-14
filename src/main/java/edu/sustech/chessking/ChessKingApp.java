@@ -391,10 +391,10 @@ public class ChessKingApp extends GameApplication {
                     });
                     thread.start();
                 }
-                case LAN -> {
+                case LAN_SERVER -> {
 
                 }
-                case NET -> {
+                case CLIENT -> {
 
                 }
                 case REPLAY -> {
@@ -492,7 +492,7 @@ public class ChessKingApp extends GameApplication {
     }
 
     private boolean saveGame(Save save) {
-        if (gameType != GameType.NET)
+        if (gameType != GameType.CLIENT)
             return SaveLoader.writeLocalSave(localPlayer, save);
         else
             return SaveLoader.writeServerSave(serverIP, localPlayer, save);
