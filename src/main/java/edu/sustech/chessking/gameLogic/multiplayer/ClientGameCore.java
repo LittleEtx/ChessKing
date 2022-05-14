@@ -4,79 +4,86 @@ import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.net.Connection;
 import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.Move;
-import edu.sustech.chessking.gameLogic.MoveHistory;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.geometry.Point2D;
 
-import java.util.function.Consumer;
+import java.io.Serializable;
 
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.*;
 
-public class ClientGameCore {
+public class ClientGameCore extends GameEventListener{
     private final Connection<Bundle> connection;
-    private Point2D enemyMousePoint;
 
-    ColorType side;
+    private final ColorType side;
+
+    private Runnable onDisconnect;
 
     /**
      * @param connection connection to the server
      * @param side the side of the client
      */
     public ClientGameCore(Connection<Bundle> connection, ColorType side) {
+        super(connection, side.reverse());
         this.side = side;
         this.connection = connection;
-        connection.addMessageHandler((conn, msg) -> {
-            if (msg.get(Color) == side)
-                return;
-
-            //change position of mouse
-            if (msg.exists(Mouse))
-                enemyMousePoint = toPoint2D(msg.get(Mouse));
-
-
-
-        });
     }
 
     /**
-     * @return whether the client has connected to the server
+     * set method to run when not connected
      */
-    public boolean isConnected() {
-        return connection.isConnected();
+    public void setOnDisconnect(Runnable onDisconnect) {
+        this.onDisconnect = onDisconnect;
     }
 
+    //=============================================
+    //   Methods for sending msg to the opponent
+    //=============================================
+    private void sendMsg(String key, Serializable info) {
+        if (!connection.isConnected()) {
+            onDisconnect.run();
+            return;
+        }
 
-
-    public void setOnPickUpChess(Consumer<Chess> pickUpChessEvent) {
-
+        Bundle bundle = new Bundle("");
+        bundle.put(Color, side);
+        bundle.put(key, info);
+        connection.send(bundle);
     }
 
-    public void setOnPutDownChess(Runnable putDownChessEvent) {
-
+    public void pickUpChess(Chess chess) {
+        sendMsg(PickUpChess, chess);
     }
 
-    /**
-     * move chess
-     */
-    public void setOnMoveChess(Consumer<Move> moveChessEvent) {
-
+    public void putDownChess() {
+        sendMsg(PutDownChess, "");
     }
 
-    public void setOnEndTurn(Consumer<Double> remainingTime) {
-
+    public void moveChess(Move move) {
+        sendMsg(MoveChess, move);
     }
 
-    /**
-     * when the enemy end his turn, trigger the event
-     */
-    public void setOnReachTimeLimit() {
-
+    public void endTurn(double remainGameTime) {
+        sendMsg(EndTurn, remainGameTime);
+    }
+    
+    public void reachTimeLimit() {
+        sendMsg(ReachTimeLimit, "");
     }
 
+    public void requestReverse() {
+        sendMsg(RequestReverse, "");
+    }
 
+    public void allowReverse() {
+        sendMsg(AllowReverse, "");
+    }
 
-    public Point2D getMousePt() {
-        return enemyMousePoint;
+    public void requestDrawn() {
+        sendMsg(RequestDrawn, "");
+    }
+
+    public void allowDrawn() {
+        sendMsg(AllowDrawn, "");
     }
 
     public void sentMousePt(Point2D pt) {
@@ -85,15 +92,4 @@ public class ClientGameCore {
         data.put(Mouse, toDouble(pt));
         connection.send(data);
     }
-
-    /**
-     * reconnect the information of
-     * @param callBack actions after reconnect to the game
-     */
-    public void reconnect(Consumer<MoveHistory> callBack) {
-
-    }
-
-
-
 }

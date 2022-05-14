@@ -1,8 +1,12 @@
 package edu.sustech.chessking.gameLogic;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class MoveHistory {
+public class MoveHistory implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 5L;
 
     private final ArrayList<Move> moveHistory;
 

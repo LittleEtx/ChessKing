@@ -11,6 +11,7 @@ public class LanProtocol {
 
     //server side
     public static final String SendGameInfo = "sendGameInfo"; //GameInfo
+    public static final String SuccessfullyJoinIn = "successfullyJoinIn"; //empty
     public static final String FailToJoinInfo = "failToJoinIn"; //String msg
     public static final String StartGame = "startGame"; //
 }

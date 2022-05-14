@@ -6,6 +6,8 @@ import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
 import edu.sustech.chessking.gameLogic.exception.ConstructorException;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
@@ -13,7 +15,9 @@ import java.util.Arrays;
  * A move should contain only necessary data
  * The record constructor guarantees that all moves are valid regardless of other Chess
  */
-public class Move {
+public class Move implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 3L;
     private final Chess chess;
     private final MoveType moveType;
     private final Object[] moveTarget;

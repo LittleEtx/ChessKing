@@ -3,7 +3,13 @@ package edu.sustech.chessking.gameLogic.gameSave;
 import edu.sustech.chessking.gameLogic.exception.ConstructorException;
 import javafx.scene.paint.Color;
 
-public class Player {
+import java.io.Serial;
+import java.io.Serializable;
+
+public class Player implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private int score;
     private String name;
     private String avatar;
@@ -27,7 +33,7 @@ public class Player {
         color1 = defaultColor1;
         color2 = defaultColor2;
         background = "apple";
-        password = null;
+        password = "";
     }
 
     /**
@@ -49,8 +55,6 @@ public class Player {
         setBackground(data[6]);
         if (data.length == 8)
             setPassword(data[7]);
-        else
-            password = null;
     }
 
     public void setScore(int score) {
@@ -151,7 +155,7 @@ public class Player {
         sb.append(color1.toString()).append(" ");
         sb.append(color2.toString()).append(" ");
         sb.append(background);
-        if (password != null)
+        if (!password.isEmpty())
             sb.append(" ").append(password);
         return sb.toString();
     }

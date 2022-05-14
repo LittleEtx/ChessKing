@@ -4,11 +4,16 @@ import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.exception.ConstructorException;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Chess Class
  * Do not provide equal method
  */
-public class Chess{
+public class Chess implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 2L;
     private final ColorType colorType;
     private final ChessType chessType;
     private final Position position;

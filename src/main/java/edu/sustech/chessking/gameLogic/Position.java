@@ -2,10 +2,16 @@ package edu.sustech.chessking.gameLogic;
 
 import edu.sustech.chessking.gameLogic.exception.ConstructorException;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Immutable
  */
-public class Position {
+public class Position implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 4L;
+
     //rows and columns are from 0 to 7
     private final short row;
     private final short column;

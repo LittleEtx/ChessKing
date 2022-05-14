@@ -5,12 +5,16 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.net.Client;
 import com.almasb.fxgl.net.Connection;
 import com.almasb.fxgl.net.Server;
+import edu.sustech.chessking.gameLogic.MoveHistory;
+import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.gameSave.Player;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameInfo;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.WaitingGameInfo;
 
 import java.util.LinkedList;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.*;
 
@@ -23,12 +27,19 @@ public class LanServerCore {
     private final LinkedList<Connection<Bundle>> viewerConn = new LinkedList<>();
     private ServerGameCore serverGameCore;
 
+    //add in and drop out for game not started yet
     private Consumer<Player> onOpponentAddIn;
+    private Runnable onOpponentDropOut;
     private Runnable onDisconnect;
     private Runnable onReconnect;
+    private Runnable onOpponentLeaveGame;
 
-    private boolean isGameStart = false;
+    private Supplier<MoveHistory> onGetMoveHistory;
+    private Supplier<ColorType> onGetTurn;
+    private Function<ColorType, Player> onGetPlayer;
+    private Function<ColorType, Double> onGetGameTime;
 
+    private boolean hasGameStart = false;
 
 
     LanServerCore(int port, WaitingGameInfo gameInfo, Player player) {
@@ -60,7 +71,7 @@ public class LanServerCore {
                 //when opponent join in the game
                 if (msg.exists(JoinGame)) {
                     Player opponent = msg.get(JoinGame);
-                    if (!isGameStart) {
+                    if (!hasGameStart) {
                         opponentConn = conn;
                         this.opponent = opponent;
                         onOpponentAddIn.accept(opponent);
@@ -75,23 +86,39 @@ public class LanServerCore {
                         onReconnect.run();
                         serverGameCore.rejoinIn(1, opponentConn);
                     }
+
+                    Bundle bundle = new Bundle("");
+                    bundle.put(SuccessfullyJoinIn, "");
+                    opponentConn.send(bundle);
                     return;
                 }
 
                 //when viewer join the game
                 if (msg.exists(JoinView)) {
-                    viewerConn.add(conn);
+                    if (!hasGameStart)
+                        viewerConn.add(conn);
+                    else
+                        serverGameCore.joinView(conn);
                     return;
                 }
 
                 //when remote connection quit
                 if (msg.exists(Quit)) {
                     if (conn.equals(opponentConn)) {
-                        opponent = null;
-                        opponentConn = null;
+                        if (!hasGameStart) {
+                            opponent = null;
+                            opponentConn = null;
+                            onOpponentDropOut.run();
+                        }
+                        else
+                            onOpponentLeaveGame.run();
                     }
-                    else
-                        viewerConn.remove(conn);
+                    else {
+                        if (!hasGameStart)
+                            viewerConn.remove(conn);
+                        else
+                            serverGameCore.quitView(conn);
+                    }
                 }
             });
         });
@@ -106,9 +133,37 @@ public class LanServerCore {
         this.onOpponentAddIn = onOpponentAddIn;
     }
 
+    public void setOnOpponentDropOut(Runnable onOpponentDropOut) {
+        this.onOpponentDropOut = onOpponentDropOut;
+    }
+
     public void setOnOpponentDisconnect(Runnable onDisconnect, Runnable onReconnect) {
         this.onDisconnect = onDisconnect;
         this.onReconnect = onReconnect;
+    }
+
+    public void setOnOpponentLeaveGame(Runnable onOpponentLeaveGame) {
+        this.onOpponentLeaveGame = onOpponentLeaveGame;
+    }
+
+    public void setOnGetMoveHistory(Supplier<MoveHistory> onGetMoveHistory) {
+        this.onGetMoveHistory = onGetMoveHistory;
+    }
+
+    public void setOnGetTurn(Supplier<ColorType> onGetTurn) {
+        this.onGetTurn = onGetTurn;
+    }
+
+    public void setOnGetPlayer(Function<ColorType, Player> onGetPlayer) {
+        this.onGetPlayer = onGetPlayer;
+    }
+
+    public void setOnGetGameTime(Function<ColorType, Double> onGetGameTime) {
+        this.onGetGameTime = onGetGameTime;
+    }
+
+    public void sendDataNotSync() {
+
     }
 
     /**
@@ -131,7 +186,13 @@ public class LanServerCore {
             }
         });
 
-        isGameStart = true;
+        serverGameCore.setOnGetMoveHistory(onGetMoveHistory);
+        serverGameCore.setOnGetTurn(onGetTurn);
+        serverGameCore.setOnGetPlayer(onGetPlayer);
+        serverGameCore.setOnGetGameTime(onGetGameTime);
+        serverGameCore.startGame();
+
+        hasGameStart = true;
         Bundle msg = new Bundle("");
         msg.put(StartGame, "");
         server.broadcast(msg);
@@ -139,7 +200,12 @@ public class LanServerCore {
     }
 
 
-    void stop() {
+    /**
+     * this method must be called after the game ended
+     */
+    public void stop() {
+        if (hasGameStart)
+            serverGameCore.endGame();
         server.stop();
     }
 

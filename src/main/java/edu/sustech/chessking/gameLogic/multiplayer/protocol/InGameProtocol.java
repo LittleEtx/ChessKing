@@ -24,13 +24,25 @@ public class InGameProtocol {
     public static final String PickUpChess = "pickUpChess"; //Chess
     public static final String PutDownChess = "putDownChess"; //empty
     public static final String MoveChess = "moveChess"; //Move
+    public static final String EndTurn = "endTurn"; //double: remaining game time
     public static final String RequestReverse = "requestReverse"; //empty
     public static final String AllowReverse = "allowReverse"; //empty
+    public static final String RequestDrawn = "requestDrawn"; //empty
+    public static final String AllowDrawn = "allowDrawn"; //empty
+    public static final String ReachTimeLimit = "reachTimeLimit"; //empty
 
     //game getter action
     public static final String GetMoveHistory = "getMoveHistory"; //empty
-    public static final String MoveHistory = "moveHistory"; //String
+    public static final String MoveHistory = "moveHistory"; //MoveHistory
     public static final String GetTurn = "getTurn"; //empty
     public static final String Turn = "turn"; //ColorType
-    public static final String GetGameInfo = "getGameInfo";
+    public static final String GetPlayer = "getPlayer"; //ColorType
+    public static final String WhitePlayer = "whitePlayer"; //Player
+    public static final String BlackPlayer = "blackPlayer"; //Player
+    public static final String GetGameTime = "getGameTime"; //ColorType
+    public static final String WhiteGameTime = "whiteGameTime"; //double
+    public static final String BlackGameTime = "blackGameTime"; //double
+
+    public static final String DataNotSync = "dataNotSync"; //empty
+
 }
