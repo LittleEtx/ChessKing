@@ -2,7 +2,7 @@ package edu.sustech.chessking.gameLogic.multiplayer.Lan;
 
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.net.Connection;
-import edu.sustech.chessking.gameLogic.gameSave.Player;
+import edu.sustech.chessking.gameLogic.Player;
 
 import java.io.Serializable;
 import java.util.function.Consumer;

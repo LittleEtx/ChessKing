@@ -16,8 +16,6 @@ abstract public class ClientGameCore extends GameEventListener{
 
     private final ColorType side;
 
-    private Runnable onDisconnect;
-
     /**
      * @param connection connection to the server
      * @param side the side of the client
@@ -28,19 +26,15 @@ abstract public class ClientGameCore extends GameEventListener{
         this.side = side;
     }
 
-    /**
-     * set method to run when not connected
-     */
-    public void setOnDisconnect(Runnable onDisconnect) {
-        this.onDisconnect = onDisconnect;
-    }
-
     //=============================================
     //   Methods for sending msg to the opponent
     //=============================================
+    abstract protected void onDisconnect();
+    abstract protected void onDataNotSync();
+
     private void sendMsg(String key, Serializable info) {
         if (!connection.isConnected()) {
-            onDisconnect.run();
+            onDisconnect();
             return;
         }
 
@@ -50,43 +44,43 @@ abstract public class ClientGameCore extends GameEventListener{
         connection.send(bundle);
     }
 
-    public void pickUpChess(Chess chess) {
+    final public void pickUpChess(Chess chess) {
         sendMsg(PickUpChess, chess);
     }
 
-    public void putDownChess() {
+    final public void putDownChess() {
         sendMsg(PutDownChess, "");
     }
 
-    public void moveChess(Move move) {
+    final public void moveChess(Move move) {
         sendMsg(MoveChess, move);
     }
 
-    public void endTurn(double remainGameTime) {
+    final public void endTurn(double remainGameTime) {
         sendMsg(EndTurn, remainGameTime);
     }
-    
-    public void reachTimeLimit() {
+
+    final public void reachTimeLimit() {
         sendMsg(ReachTimeLimit, "");
     }
 
-    public void requestReverse() {
+    final public void requestReverse() {
         sendMsg(RequestReverse, "");
     }
 
-    public void replyReverse(boolean accept) {
+    final public void replyReverse(boolean accept) {
         sendMsg(ReplyReverse, accept);
     }
 
-    public void requestDrawn() {
+    final public void requestDrawn() {
         sendMsg(RequestDrawn, "");
     }
 
-    public void replyDrawn(boolean accept) {
+    final public void replyDrawn(boolean accept) {
         sendMsg(ReplyDrawn, accept);
     }
 
-    public void sentMousePt(Point2D pt) {
+    final public void sentMousePt(Point2D pt) {
         var data = new Bundle("");
         data.put(Color, side);
         data.put(Mouse, toDouble(pt));

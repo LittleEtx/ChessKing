@@ -4,8 +4,8 @@ import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.net.Connection;
 import com.almasb.fxgl.net.MessageHandler;
 import edu.sustech.chessking.gameLogic.MoveHistory;
+import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
-import edu.sustech.chessking.gameLogic.gameSave.Player;
 
 import java.io.Serializable;
 import java.util.function.Consumer;

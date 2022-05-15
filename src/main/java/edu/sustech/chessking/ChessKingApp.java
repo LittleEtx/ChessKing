@@ -11,6 +11,7 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.input.UserAction;
+import com.almasb.fxgl.net.Client;
 import com.almasb.fxgl.net.Connection;
 import com.almasb.fxgl.time.LocalTimer;
 import edu.sustech.chessking.components.ChessComponent;
@@ -22,10 +23,10 @@ import edu.sustech.chessking.gameLogic.enumType.CastleType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.EndGameType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
-import edu.sustech.chessking.gameLogic.gameSave.Player;
 import edu.sustech.chessking.gameLogic.gameSave.Replay;
 import edu.sustech.chessking.gameLogic.gameSave.Save;
 import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
+import edu.sustech.chessking.gameLogic.multiplayer.ClientGameCore;
 import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
@@ -46,6 +47,7 @@ import java.util.Date;
 import java.util.Map;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
+import static edu.sustech.chessking.GameVars.*;
 import static edu.sustech.chessking.VisualLogic.*;
 
 public class ChessKingApp extends GameApplication {
@@ -90,27 +92,27 @@ public class ChessKingApp extends GameApplication {
     //initialize variables
     @Override
     protected void initGameVars(Map<String, Object> vars) {
-        vars.put("core", gameCore);
-        vars.put("downChessSkin", "");
-        vars.put("upChessSkin", "");
-        vars.put("downSideColor", ColorType.WHITE);
-        vars.put("gameType", GameType.LOCAL);
+        vars.put(GameCoreVar, gameCore);
+        vars.put(DownChessSkinVar, "");
+        vars.put(UpChessSkinVar, "");
+        vars.put(DownSideColorVar, ColorType.WHITE);
+        vars.put(GameTypeVar, GameType.LOCAL);
         //indicate if the player is moving chess
-        vars.put("isMovingChess", false);
+        vars.put(IsMovingChess, false);
         //indicate the player end his turn
-        vars.put("isEndTurn", false);
-        vars.put("turn", ColorType.WHITE);
+        vars.put(IsEndTurn, false);
+        vars.put(TurnVar, ColorType.WHITE);
         //indicate the enemy end his turn
-        vars.put("isEnemyMovingChess", false);
-        vars.put("allyList", new ArrayList<Chess>());
-        vars.put("enemyList", new ArrayList<Chess>());
-        vars.put("targetList", new ArrayList<Chess>());
-        vars.put("targetKingList", new ArrayList<Chess>());
-        vars.put("availablePosition", new ArrayList<Position>());
+        vars.put(IsEnemyMovingChess, false);
+        vars.put(AllayListVar, new ArrayList<Chess>());
+        vars.put(EnemyListVar, new ArrayList<Chess>());
+        vars.put(TargetListVar, new ArrayList<Chess>());
+        vars.put(TargetKingListVar, new ArrayList<Chess>());
+        vars.put(AvailablePositionVar, new ArrayList<Position>());
 
-        vars.put("openAllyVisual", true);
-        vars.put("openEnemyVisual", true);
-        vars.put("openTargetVisual", true);
+        vars.put(OpenAllayVisualVar, true);
+        vars.put(OpenEnemyVisualVar, true);
+        vars.put(OpenTargetVisualListVar, true);
     }
 
     // ===============================
@@ -187,11 +189,11 @@ public class ChessKingApp extends GameApplication {
                 aiBeginningTimer = newLocalTimer();
         }
 
-        set("downSideColor", downSideColor);
+        set(DownSideColorVar, downSideColor);
         //Set player and theme
-        set("gameType", gameType);
-        set("downChessSkin", downPlayer.getChessSkin());
-        set("upChessSkin", upPlayer.getChessSkin());
+        set(GameTypeVar, gameType);
+        set(DownChessSkinVar, downPlayer.getChessSkin());
+        set(UpChessSkinVar, upPlayer.getChessSkin());
 
         spawn("backGround", new SpawnData().put("player", localPlayer));
 
@@ -225,6 +227,9 @@ public class ChessKingApp extends GameApplication {
         initChess();
 
         initialEndTurnListener();
+        FXGL.getNotificationService().setBackgroundColor(
+                Color.web("#00000080"));
+        FXGL.getNotificationService().setTextColor(Color.WHITE);
     }
 
     /**
@@ -320,8 +325,80 @@ public class ChessKingApp extends GameApplication {
         getGameController().startNewGame();
     }
 
-    public static void newClientGame(Connection<Bundle> connection) {
+    public static boolean newClientGame(Client<Bundle> client, ColorType side) {
+        Connection<Bundle> connection = client.getConnections().get(0);
+        if (!connection.isConnected())
+            return false;
+        ClientGameCore clientGameCore = new ClientGameCore(connection, side) {
+            @Override
+            protected void onPickUpChess(Chess chess) {
+                Entity chessEntity = getChessEntity(toPoint(chess.getPosition()));
+                //cannot find chess or not enemy's turn
+                if (chessEntity == null || geto(TurnVar) == side) {
+                    reSyncData(connection);
+                    return;
+                }
+                ChessComponent cc = chessEntity.getComponent(ChessComponent.class);
+                cc.moveChess();
+            }
 
+            @Override
+            protected void onPutDownChess() {
+
+            }
+
+            @Override
+            protected void onMoveChess(Move move) {
+
+            }
+
+            @Override
+            protected void onEndTurn(double remainTime) {
+
+            }
+
+            @Override
+            protected void onReachTimeLimit() {
+
+            }
+
+            @Override
+            protected void onRequestReverse() {
+
+            }
+
+            @Override
+            protected void onReplyReverse(boolean result) {
+
+            }
+
+            @Override
+            protected void onRequestDrawn() {
+
+            }
+
+            @Override
+            protected void onReplyDrawn(boolean result) {
+
+            }
+
+            @Override
+            protected void onDisconnect() {
+
+            }
+
+            @Override
+            protected void onDataNotSync() {
+                
+            }
+        };
+
+
+
+        return true;
+    }
+
+    private static void reSyncData(Connection<Bundle> connection) {
     }
 
     private static void setAiPlayer(AiType aiType) {
@@ -372,7 +449,7 @@ public class ChessKingApp extends GameApplication {
      * the player moving the chess
      */
     private void initialEndTurnListener() {
-        getbp("isEndTurn").addListener((ob, ov, nv) -> {
+        getbp(IsEndTurn).addListener((ob, ov, nv) -> {
             if (!nv)
                 return;
 
@@ -380,12 +457,12 @@ public class ChessKingApp extends GameApplication {
             if (!isEnemyFirst)
                 timerSwitchTurn();
             checkIfEndGame();
-            set("turn", gameCore.getTurn());
+            set(TurnVar, gameCore.getTurn());
 
             switch (gameType) {
                 //set computer's turn
                 case COMPUTER -> {
-                    set("isEnemyMovingChess", true);
+                    set(IsEnemyMovingChess, true);
                     //set a new thread in case the game be paused
                     Thread thread = new Thread(() -> {
                         Move move = ai.getNextMove();
@@ -407,10 +484,10 @@ public class ChessKingApp extends GameApplication {
 
                 }
             }
-            set("isEndTurn", false);
+            set(IsEndTurn, false);
         });
 
-        getbp("isEnemyMovingChess").addListener((ob, ov, nv) -> {
+        getbp(IsEnemyMovingChess).addListener((ob, ov, nv) -> {
             //begin moving chess
             if (nv) {
                 tempHistory = gameCore.getGameHistory();
@@ -419,12 +496,12 @@ public class ChessKingApp extends GameApplication {
             //After enemy end moving chess
             timerSwitchTurn();
             checkIfEndGame();
-            set("turn", gameCore.getTurn());
+            set(TurnVar, gameCore.getTurn());
         });
     }
 
     private void timerSwitchTurn() {
-        if (geto("turn") == ColorType.WHITE) {
+        if (geto(TurnVar) == ColorType.WHITE) {
             remainTime.add(whiteTimer.getRemainingGameTime());
             whiteTimer.resetTurnTime();
         }
@@ -567,7 +644,7 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void onUpdate(double tpf) {
         //advance the time
-        if (geto("turn") == ColorType.WHITE) {
+        if (geto(TurnVar) == ColorType.WHITE) {
             whiteTimer.advance(tpf);
         }
         else {
@@ -575,12 +652,12 @@ public class ChessKingApp extends GameApplication {
         }
 
         if (isEnemyFirst) {
-            set("isEnemyMovingChess", true);
+            set(IsEnemyMovingChess, true);
             //for computer, only begin to move after 2 sec
             if (gameType == GameType.COMPUTER)
                 if (!aiBeginningTimer.elapsed(Duration.seconds(2)))
                     return;
-            set("isEndTurn", true);
+            set(IsEndTurn, true);
             isEnemyFirst = false;
         }
     }
@@ -609,8 +686,8 @@ public class ChessKingApp extends GameApplication {
             @Override
             protected void onActionBegin() {
                 //if enemy is moving chess or the turn is not over
-                if (getb("isEnemyMovingChess") ||
-                        getb("isEndTurn"))
+                if (getb(IsEnemyMovingChess) ||
+                        getb(IsEndTurn))
                     return;
 
                 //In case move to fast
@@ -619,7 +696,7 @@ public class ChessKingApp extends GameApplication {
                 }
                 betweenClickTimer.capture();
 
-                if (!getb("isMovingChess")) {
+                if (!getb(IsMovingChess)) {
                     movingChess = getChessEntity(getMousePt());
                     if (movingChess == null) {
                         return;
@@ -627,15 +704,15 @@ public class ChessKingApp extends GameApplication {
 
                     //for none local chess, clicking at enemy chess will do nothing
                     if (gameType != GameType.LOCAL &&
-                        geto("turn") != downSideColor)
+                        geto(TurnVar) != downSideColor)
                         return;
 
                     if (movingChess.getComponent(ChessComponent.class).moveChess()) {
-                        set("isMovingChess", true);
+                        set(IsMovingChess, true);
                     }
                 }
                 else {
-                    set("isMovingChess", false);
+                    set(IsMovingChess, false);
                     if (movingChess == null)
                         return;
                     //if successfully move chess or cause player to choose
@@ -760,7 +837,7 @@ public class ChessKingApp extends GameApplication {
         saveBox.setOnMouseClicked(event -> {
             //save game method
             MoveHistory moveHistory;
-            if (getb("isEnemyMovingChess"))
+            if (getb(IsEnemyMovingChess))
                 moveHistory = tempHistory;
             else
                 moveHistory = gameCore.getGameHistory();
@@ -775,6 +852,16 @@ public class ChessKingApp extends GameApplication {
         undo.setPrefSize(60,60);
         undo.getStyleClass().add("undo-box");
         undo.setOnMouseClicked(event->{
+            //No move: cannot reverse
+            int moveNum = gameCore.getGameHistory().getMoveNum();
+            if (moveNum == 0 ||
+                    (gameType != GameType.LOCAL && moveNum == 1)) {
+                FXGL.getNotificationService().pushNotification(
+                        "You can't reverse move at the beginning!"
+                );
+                return;
+            }
+
             //local game can always undo
             if (gameType == GameType.LOCAL) {
                 reverseMove(1);
@@ -782,7 +869,7 @@ public class ChessKingApp extends GameApplication {
             }
 
             //only in your turn can you undo
-            if (geto("turn") != downSideColor) {
+            if (geto(TurnVar) != downSideColor) {
                 FXGL.getNotificationService().pushNotification(
                         "Your can only reverse move in your turn!"
                 );
@@ -805,8 +892,8 @@ public class ChessKingApp extends GameApplication {
         ally.getStyleClass().add("setting-box-ally-on");
         //int allyCounter = 0;
         ally.setOnMouseClicked(event -> {
-            set("openAllyVisual", !getb("openAllyVisual"));
-            if(getb("openAllyVisual")) {
+            set(OpenAllayVisualVar, !getb(OpenAllayVisualVar));
+            if(getb(OpenAllayVisualVar)) {
                 ally.getStyleClass().removeAll("setting-box-ally-off");
                 ally.getStyleClass().add("setting-box-ally-on");
             }else{
@@ -820,8 +907,8 @@ public class ChessKingApp extends GameApplication {
         enemy.setPrefSize(60,60);
         enemy.getStyleClass().add("setting-box-enemy-on");
         enemy.setOnMouseClicked(event -> {
-            set("openEnemyVisual", !getb("openEnemyVisual"));
-            if(getb("openEnemyVisual")) {
+            set(OpenEnemyVisualVar, !getb(OpenEnemyVisualVar));
+            if(getb(OpenEnemyVisualVar)) {
                 enemy.getStyleClass().removeAll("setting-box-enemy-off");
                 enemy.getStyleClass().add("setting-box-enemy-on");
             }else{
@@ -835,8 +922,8 @@ public class ChessKingApp extends GameApplication {
         target.setPrefSize(60,60);
         target.getStyleClass().add("setting-box-target-on");
         target.setOnMouseClicked(event -> {
-            set("openTargetVisual", !getb("openTargetVisual"));
-            if(getb("openTargetVisual")) {
+            set(OpenTargetVisualListVar, !getb(OpenTargetVisualListVar));
+            if(getb(OpenTargetVisualListVar)) {
                 target.getStyleClass().removeAll("setting-box-target-off");
                 target.getStyleClass().add("setting-box-target-on");
             }else{
@@ -895,14 +982,14 @@ public class ChessKingApp extends GameApplication {
 
             //reset turnTime
             if (gameTimeInSec > 0) {
-                if (geto("turn") == ColorType.WHITE)
+                if (geto(TurnVar) == ColorType.WHITE)
                     reverseTimer(whiteTimer, blackTimer);
                 else
                     reverseTimer(blackTimer, whiteTimer);
             }
 
             chess.getComponent(ChessComponent.class).reverseMove(move);
-            set("turn", ((ColorType)geto("turn")).reverse());
+            set(TurnVar, ((ColorType)geto(TurnVar)).reverse());
         }
     }
 

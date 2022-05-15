@@ -4,14 +4,10 @@ import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.net.Client;
-import edu.sustech.chessking.gameLogic.Chess;
-import edu.sustech.chessking.gameLogic.GameCore;
-import edu.sustech.chessking.gameLogic.Move;
-import edu.sustech.chessking.gameLogic.MoveHistory;
+import edu.sustech.chessking.gameLogic.*;
 import edu.sustech.chessking.gameLogic.ai.AiEnemy;
 import edu.sustech.chessking.gameLogic.ai.AiType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
-import edu.sustech.chessking.gameLogic.gameSave.Player;
 import edu.sustech.chessking.gameLogic.multiplayer.ClientGameCore;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerCore;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.NewGameInfo;
@@ -184,8 +180,19 @@ public class LanServerTest extends GameApplication {
                 protected void onReplyDrawn(boolean result) {
                     System.out.println("[Server] opponent's opinion on drawn: " + result);
                 }
+
+                @Override
+                protected void onDisconnect() {
+                    System.out.println("[Server] Error: local client disconnect from server!");
+                }
+
+                @Override
+                protected void onDataNotSync() {
+                    System.out.println("[Server] Error: local client data not sync!");
+                }
             };
             clientGame.startListening();
+            System.out.println("[Server] start new game!");
         }
     }
 

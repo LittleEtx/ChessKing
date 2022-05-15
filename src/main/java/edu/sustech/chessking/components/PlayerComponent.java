@@ -3,7 +3,7 @@ package edu.sustech.chessking.components;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.entity.components.ViewComponent;
 import com.almasb.fxgl.texture.Texture;
-import edu.sustech.chessking.gameLogic.gameSave.Player;
+import edu.sustech.chessking.gameLogic.Player;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
 

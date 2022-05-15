@@ -3,6 +3,7 @@ package edu.sustech.chessking.gameLogic.gameSave;
 import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.gameLogic.Move;
 import edu.sustech.chessking.gameLogic.MoveHistory;
+import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.EndGameType;
 

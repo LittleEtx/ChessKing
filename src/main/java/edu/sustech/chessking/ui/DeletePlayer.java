@@ -2,9 +2,7 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
-import edu.sustech.chessking.ChessKingApp;
-import edu.sustech.chessking.GameType;
-import edu.sustech.chessking.gameLogic.gameSave.Player;
+import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;

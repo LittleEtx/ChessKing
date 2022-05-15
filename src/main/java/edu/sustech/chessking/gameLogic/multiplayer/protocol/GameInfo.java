@@ -1,6 +1,6 @@
 package edu.sustech.chessking.gameLogic.multiplayer.protocol;
 
-import edu.sustech.chessking.gameLogic.gameSave.Player;
+import edu.sustech.chessking.gameLogic.Player;
 
 import java.io.Serial;
 import java.io.Serializable;

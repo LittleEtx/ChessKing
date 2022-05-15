@@ -1,6 +1,7 @@
 package edu.sustech.chessking.gameLogic.gameSave;
 
 import edu.sustech.chessking.gameLogic.MoveHistory;
+import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 
 import java.time.LocalDateTime;

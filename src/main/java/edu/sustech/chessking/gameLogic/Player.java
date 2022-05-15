@@ -1,4 +1,4 @@
-package edu.sustech.chessking.gameLogic.gameSave;
+package edu.sustech.chessking.gameLogic;
 
 import edu.sustech.chessking.gameLogic.exception.ConstructorException;
 import javafx.scene.paint.Color;
