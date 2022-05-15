@@ -5,20 +5,26 @@ import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.GameType;
 import edu.sustech.chessking.gameLogic.gameSave.Player;
+import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.Bloom;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
-import static com.almasb.fxgl.dsl.FXGL.getSceneService;
-import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
+import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class ChoosePlayer2 extends SubScene {
+    Player p2;
     public ChoosePlayer2(Player player){
         Rectangle bg = new Rectangle(1200,800, Color.web("#00000080"));
         getContentRoot().getChildren().add(bg);
@@ -30,7 +36,53 @@ public class ChoosePlayer2 extends SubScene {
             choosePlayerText.setEffect(new Bloom(0.8));
         }
 
-        Rectangle players = new Rectangle(400,400,Color.web("#00000080"));
+//        Rectangle players = new Rectangle(400,400,Color.web("#00000080"));
+
+        ArrayList<Player> players2 = SaveLoader.readPlayerList();
+        HashMap<Button,Player> p2Btns = new HashMap<>();
+        for(Player canP2 : players2){
+            if(!canP2.getName().equals(player.getName())){
+                p2Btns.put(new Button(canP2.getName()), canP2);
+            }
+        }
+
+        VBox playerBtnVB = new VBox();
+        playerBtnVB.setAlignment(Pos.TOP_CENTER);
+//        playerBtnVB.setMinWidth(500);
+        playerBtnVB.setMinHeight(400);
+//        playerBtnVB.setMaxWidth(500);
+        playerBtnVB.setPrefSize(500,players2.size()*40);
+        playerBtnVB.setStyle("-fx-background-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #193237ff 0.0%, #2e4e58ff 50.0%, #39687cff 100.0%);");
+
+
+        for(Button btns : p2Btns.keySet()){
+            btns.setStyle("-fx-background-color: transparent");
+            btns.setPrefSize(300,40);
+            btns.setAlignment(Pos.CENTER);
+            btns.setTextFill(Color.WHITE);
+            btns.setFont(new Font(20));
+            playerBtnVB.getChildren().add(btns);
+            btns.addEventHandler(MouseEvent.MOUSE_CLICKED,event -> {
+                setTransparent(p2Btns);
+                p2 = p2Btns.get(btns);
+                System.out.println(p2);
+                btns.setStyle("-fx-border-color: #20B2AA;"+
+                        "-fx-border-width: 5;"+
+                        "-fx-background-color: transparent;");
+
+                if(event.getClickCount()==2){
+                    getSceneService().popSubScene();
+                    ChessKingApp.newGame(GameType.LOCAL,p2,200,200);
+                }
+            });
+        }
+
+        ScrollPane playerSP = new ScrollPane(playerBtnVB);
+        playerSP.setPrefViewportHeight(400);
+        playerSP.setPrefViewportWidth(400);
+        playerSP.setFitToWidth(true);
+        playerSP.setMaxHeight(400);
+        playerSP.setStyle("-fx-background-color: transparent");
 
         Button newPlayerBtn = new Button("New Player");
         newPlayerBtn.getStyleClass().add("newPlayer-subScene-button");
@@ -64,7 +116,7 @@ public class ChoosePlayer2 extends SubScene {
         backBtn.setLayoutX(350);
         backBtn.setLayoutY(100);
 
-        VBox vb = new VBox(20,choosePlayerText,players,buttons);
+        VBox vb = new VBox(20,choosePlayerText,playerSP,buttons);
         vb.setAlignment(Pos.CENTER);
         vb.setStyle("-fx-background-radius: 10;" +
                 "-fx-background-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #193237ff 0.0%, #2e4e58ff 50.0%, #39687cff 100.0%);" +
@@ -72,7 +124,15 @@ public class ChoosePlayer2 extends SubScene {
         vb.setPrefSize(500,600);
         vb.setLayoutX(350);
         vb.setLayoutY(100);
+
         getContentRoot().getChildren().add(vb);
         getContentRoot().getChildren().add(backBtn);
+    }
+
+    private void setTransparent(HashMap<Button,Player> buttons){
+        for (Button button : buttons.keySet()){
+            button.setStyle("-fx-border-color: transparent;"
+                    +"-fx-background-color: transparent");
+        }
     }
 }

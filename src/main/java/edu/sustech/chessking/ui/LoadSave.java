@@ -2,11 +2,15 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
+import edu.sustech.chessking.ChessKingApp;
+import edu.sustech.chessking.GameType;
+import edu.sustech.chessking.gameLogic.ai.AiType;
 import edu.sustech.chessking.gameLogic.gameSave.Save;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.Bloom;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -54,18 +58,36 @@ public class LoadSave extends SubScene {
             saveBtn.setTextFill(Color.WHITE);
             saveBtn.setFont(new Font(20));
             saveBtnVB.getChildren().add(saveBtn);
-            saveBtn.setOnAction(event -> {
+//            saveBtn.setOnAction(event -> {
+//                setTransparent(savesBtn);
+//                saveBtn.setStyle("-fx-border-color: #20B2AA;"+
+//                        "-fx-border-width: 5;"+
+//                        "-fx-background-color: transparent;");
+//
+//                /**Load save method here
+//                *
+//                *
+//                */
+//                wantedSave = saves.get(savesBtn.indexOf(saveBtn));
+//                System.out.println(wantedSave.toString());
+//            });
+
+            saveBtn.addEventHandler(MouseEvent.MOUSE_CLICKED,event -> {
                 setTransparent(savesBtn);
                 saveBtn.setStyle("-fx-border-color: #20B2AA;"+
                         "-fx-border-width: 5;"+
                         "-fx-background-color: transparent;");
 
-                /**Load save method here
-                *
-                *
-                */
                 wantedSave = saves.get(savesBtn.indexOf(saveBtn));
-                System.out.println(wantedSave.toString());
+
+                if (event.getClickCount()==2){
+                    getSceneService().popSubScene();
+                    /**Load save method here
+                     *
+                     *
+                     */
+
+                }
             });
 
         }
@@ -80,11 +102,11 @@ public class LoadSave extends SubScene {
         doneBtn.getStyleClass().add("newPlayer-subScene-button");
         doneBtn.setOnAction(event ->{
             getSceneService().popSubScene();
-            /*
+            /**
             load the save data
             start a new game with saved data
              */
-
+//            ChessKingApp.loadAiGame(wantedSave, AiType.NORMAL);
 
         });
 
