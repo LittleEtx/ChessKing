@@ -8,23 +8,11 @@ import edu.sustech.chessking.gameLogic.Move;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.geometry.Point2D;
 
-import java.util.function.Consumer;
-
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.*;
 
-public class GameEventListener {
+abstract public class GameEventListener {
     private final Connection<Bundle> connection;
     private ColorType side;
-
-    private Consumer<Chess> pickUpChessEvent;
-    private Runnable putDownChessEvent;
-    private Consumer<Move> moveChessEvent;
-    private Consumer<Double> endTurnEvent;
-    private Runnable onReachTimeLimit;
-    private Runnable onReceiveReverseRequest;
-    private Runnable onReceiveDrawnRequest;
-    private Runnable onAllowReverseRequest;
-    private Runnable onAllowDrawnRequest;
 
     private Point2D mousePt;
 
@@ -36,18 +24,26 @@ public class GameEventListener {
         if (msg.exists(Mouse))
             mousePt = toPoint2D(msg.get(Mouse));
 
-        MsgChecker checker = new MsgChecker(msg);
-        checker.listen(PickUpChess, pickUpChessEvent);
-        checker.listen(PutDownChess, putDownChessEvent);
-        checker.listen(MoveChess, moveChessEvent);
-        checker.listen(EndTurn, endTurnEvent);
+        if (msg.exists(PickUpChess))
+            onPickUpChess(msg.get(PickUpChess));
+        if (msg.exists(PutDownChess))
+            onPutDownChess();
+        if (msg.exists(MoveChess))
+            onMoveChess(msg.get(MoveChess));
+        if (msg.exists(EndTurn))
+            onEndTurn(msg.get(EndTurn));
 
-        checker.listen(RequestReverse, onReceiveReverseRequest);
-        checker.listen(AllowReverse, onAllowReverseRequest);
-        checker.listen(RequestDrawn, onReceiveDrawnRequest);
-        checker.listen(AllowDrawn, onAllowDrawnRequest);
+        if (msg.exists(RequestReverse))
+            onRequestReverse();
+        if (msg.exists(ReplyReverse))
+            onReplyReverse(msg.get(ReplyReverse));
+        if (msg.exists(RequestDrawn))
+            onRequestDrawn();
+        if (msg.exists(ReplyDrawn))
+            onReplyDrawn(msg.get(ReplyDrawn));
 
-        checker.listen(ReachTimeLimit, onReachTimeLimit);
+        if (msg.exists(ReachTimeLimit))
+            onReachTimeLimit();
     };
 
     /**
@@ -67,41 +63,20 @@ public class GameEventListener {
         return mousePt;
     }
 
-    public void setPickUpChessEvent(Consumer<Chess> pickUpChessEvent) {
-        this.pickUpChessEvent = pickUpChessEvent;
-    }
+    abstract protected void onPickUpChess(Chess chess);
 
-    public void setPutDownChessEvent(Runnable putDownChessEvent) {
-        this.putDownChessEvent = putDownChessEvent;
-    }
+    abstract protected void onPutDownChess();
 
-    public void setMoveChessEvent(Consumer<Move> moveChessEvent) {
-        this.moveChessEvent = moveChessEvent;
-    }
+    abstract protected void onMoveChess(Move move);
+    abstract protected void onEndTurn(double remainTime);
 
-    public void setEndTurnEvent(Consumer<Double> endTurnEvent) {
-        this.endTurnEvent = endTurnEvent;
-    }
+    abstract protected void onReachTimeLimit();
 
-    public void setOnReachTimeLimit(Runnable onReachTimeLimit) {
-        this.onReachTimeLimit = onReachTimeLimit;
-    }
+    abstract protected void onRequestReverse();
+    abstract protected void onReplyReverse(boolean result);
 
-    public void setOnReceiveReverseRequest(Runnable onReceiveReverseRequest) {
-        this.onReceiveReverseRequest = onReceiveReverseRequest;
-    }
-
-    public void setOnReceiveDrawnRequest(Runnable onReceiveDrawnRequest) {
-        this.onReceiveDrawnRequest = onReceiveDrawnRequest;
-    }
-
-    public void setOnAllowReverseRequest(Runnable onAllowReverseRequest) {
-        this.onAllowReverseRequest = onAllowReverseRequest;
-    }
-
-    public void setOnAllowDrawnRequest(Runnable onAllowDrawnRequest) {
-        this.onAllowDrawnRequest = onAllowDrawnRequest;
-    }
+    abstract protected void onRequestDrawn();
+    abstract protected void onReplyDrawn(boolean result);
 
     /**
      * start listening for game event

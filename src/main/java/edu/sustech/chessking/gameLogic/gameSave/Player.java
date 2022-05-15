@@ -15,7 +15,6 @@ public class Player implements Serializable {
     private String avatar;
     private String chessSkin;
     private String background;
-    private String password;
     private Color color1;
     private Color color2;
 
@@ -33,7 +32,6 @@ public class Player implements Serializable {
         color1 = defaultColor1;
         color2 = defaultColor2;
         background = "apple";
-        password = "";
     }
 
     /**
@@ -42,8 +40,8 @@ public class Player implements Serializable {
      */
     public Player(String playerMessage) {
         String[] data = playerMessage.split(" ");
-//        System.out.println(data.length);
-        if (data.length < 7) {
+        //System.out.println(data.length);
+        if (data.length != 7) {
             throw new ConstructorException("Invalid message number");
         }
         setScore(Integer.parseInt(data[0]));
@@ -53,8 +51,6 @@ public class Player implements Serializable {
         setColor1(Color.valueOf(data[4]));
         setColor2(Color.valueOf(data[5]));
         setBackground(data[6]);
-        if (data.length == 8)
-            setPassword(data[7]);
     }
 
     public void setScore(int score) {
@@ -103,13 +99,6 @@ public class Player implements Serializable {
         this.background = background;
     }
 
-    public void setPassword(String password) {
-        if (password.isEmpty() || password.contains(" "))
-            throw new IllegalArgumentException("password should not " +
-                    "contains the blank");
-        this.password = password;
-    }
-
     //getter method
 
     public int getScore() {
@@ -140,23 +129,14 @@ public class Player implements Serializable {
         return avatar;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(score).append(" ");
-        sb.append(name).append(" ");
-        sb.append(avatar).append(" ");
-        sb.append(chessSkin).append(" ");
-        sb.append(color1.toString()).append(" ");
-        sb.append(color2.toString()).append(" ");
-        sb.append(background);
-//        if (!password.isEmpty())
-//            sb.append(" ").append(password);
-        return sb.toString();
+        return score + " " +
+                name + " " +
+                avatar + " " +
+                chessSkin + " " +
+                color1.toString() + " " +
+                color2.toString() + " " +
+                background;
     }
 }

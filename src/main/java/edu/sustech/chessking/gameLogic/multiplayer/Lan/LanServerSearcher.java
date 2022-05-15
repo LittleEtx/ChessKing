@@ -3,6 +3,7 @@ package edu.sustech.chessking.gameLogic.multiplayer.Lan;
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.net.Client;
+import com.almasb.fxgl.net.Connection;
 
 import java.io.IOException;
 import java.net.*;
@@ -12,8 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.Address;
-import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.Port;
+import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.*;
 
 public class LanServerSearcher extends Thread{
     private final MulticastSocket socket;
@@ -63,9 +63,12 @@ public class LanServerSearcher extends Thread{
                 if (serverInfo.equals(newInfo)) {
                     serverInfo.updatePing();
                     hasGame = true;
-                    break;
                 }
             }
+
+            //remove server with ping > 30s, remove the entry
+            entryList.removeIf(serverInfo -> serverInfo.getPing() > 30000);
+
 
             if (!hasGame) {
                 newInfo.updatePing();
@@ -74,11 +77,23 @@ public class LanServerSearcher extends Thread{
                 Client<Bundle> client = FXGL.getNetService()
                         .newTCPClient(newInfo.getAddress().getHostAddress(), newInfo.getPort());
 
-                client.setOnConnected(conn -> gameInfoList.add(
-                        new LanGameInfo(newInfo, client)));
+                LanGameInfo lanGameInfo = new LanGameInfo(newInfo, client);
+                client.setOnConnected(connection -> {
+                    //add listener for updating the gameInfo
+                    connection.addMessageHandler((conn, msg) -> {
+                        if (msg.exists(SendGameInfo))
+                            lanGameInfo.setGameInfo(msg.get(SendGameInfo));
+                    });
+
+                    gameInfoList.add(lanGameInfo);
+
+                    Bundle bundle = new Bundle("");
+                    bundle.put(HasGame, "");
+                    connection.send(bundle);
+                });
+
                 client.setOnDisconnected(conn -> {
-                    gameInfoList.removeIf(lanGameInfo ->
-                            lanGameInfo.serverInfo().equals(newInfo));
+                    gameInfoList.remove(lanGameInfo);
                     entryList.remove(newInfo);
                 });
                 client.connectAsync();
@@ -90,7 +105,33 @@ public class LanServerSearcher extends Thread{
         this.onFailToSearch = onFailToSearch;
     }
 
+    public void stopListening() {
+        interrupt();
+        getGameInfoList().forEach(gameInfo -> gameInfo.getClient().disconnect());
+    }
+
+    public void stopListeningExcept(Client<Bundle> exceptClient) {
+        interrupt();
+        getGameInfoList().forEach(gameInfo -> {
+            Client<Bundle> client = gameInfo.getClient();
+            if (!gameInfo.getClient().equals(exceptClient))
+                client.disconnect();
+        });
+    }
+
     public List<LanGameInfo> getGameInfoList() {
         return Collections.unmodifiableList(gameInfoList);
+    }
+
+    public void updateGameInfoList() {
+        getGameInfoList().forEach(gameInfo -> {
+                    Connection<Bundle> connection =
+                            gameInfo.getClient().getConnections().get(0);
+
+                    Bundle bundle = new Bundle("");
+                    bundle.put(HasGame, "");
+                    connection.send(bundle);
+                }
+        );
     }
 }

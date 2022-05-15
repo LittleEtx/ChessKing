@@ -18,13 +18,13 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.DataNotSync;
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.*;
 
-public class LanServerCore {
+abstract public class LanServerCore {
     private final Server<Bundle> server;
     private final GameInfo game;
     private final int port;
@@ -36,23 +36,12 @@ public class LanServerCore {
     private final LinkedList<Connection<Bundle>> viewerConn = new LinkedList<>();
     private ServerGameCore serverGameCore;
 
-    //add in and drop out for game not started yet
-    private Consumer<Player> onOpponentAddIn;
-    private Runnable onOpponentDropOut;
-    private Runnable onDisconnect;
-    private Runnable onReconnect;
-    private Runnable onOpponentLeaveGame;
-
-    private Supplier<MoveHistory> onGetMoveHistory;
-    private Supplier<ColorType> onGetTurn;
-    private Function<ColorType, Player> onGetPlayer;
-    private Function<ColorType, Double> onGetGameTime;
 
     /**
      * Creating a lan server will automatically open on a free port
      * @throws FailToAccessLanException when unable to open lan
      */
-    LanServerCore(NewGameInfo gameInfo) {
+    public LanServerCore(NewGameInfo gameInfo) {
         //get a new port
         try (ServerSocket serverSocket = new ServerSocket(0)){
             port = serverSocket.getLocalPort();
@@ -87,74 +76,88 @@ public class LanServerCore {
     }
 
     private void startBroadcast() {
-        server.setOnConnected(connection -> {
-            connection.addMessageHandlerFX((conn, msg) -> {
-                //when client search for the game
-                if (msg.exists(HasGame)) {
-                    send(conn, SendGameInfo, game);
-                    return;
+        server.setOnConnected(connection ->
+                connection.addMessageHandlerFX((conn, msg) -> {
+            //when client search for the game
+            if (msg.exists(HasGame)) {
+                send(conn, SendGameInfo, game);
+                return;
+            }
+
+            //when opponent join in the game
+            if (msg.exists(JoinGame)) {
+                Player opponent = msg.get(JoinGame);
+                if (game.getState() == GameState.WAITING_JOIN) {
+                    opponentConn = conn;
+                    game.setPlayer2(opponent);
+                    game.setGameState(GameState.WAITING_START);
+                    onOpponentAddIn(opponent);
                 }
-
-                //when opponent join in the game
-                if (msg.exists(JoinGame)) {
-                    Player opponent = msg.get(JoinGame);
-                    if (game.getState() == GameState.WAITING_JOIN) {
-                        opponentConn = conn;
-                        game.setPlayer2(opponent);
-                        game.setGameState(GameState.WAITING_START);
-                        onOpponentAddIn.accept(opponent);
-                    }
-                    //reconnect
-                    else if (game.getState() == GameState.RECONNECTING) {
-                        if (!opponent.getName().equals(game.getPlayer2().getName())) {
-                            send(conn, FailToJoinInfo, "");
-                            return;
-                        }
-
-                        opponentConn = conn;
-                        game.setGameState(GameState.ON_GOING);
-                        serverGameCore.rejoinIn(1, opponentConn);
-                        onReconnect.run();
-                    }
-                    else {
-                        send(conn, FailToJoinInfo, "");
+                //reconnect
+                else if (game.getState() == GameState.RECONNECTING) {
+                    if (!opponent.getName().equals(game.getPlayer2().getName())) {
+                        send(conn, FailToJoin, "");
                         return;
                     }
 
-                    send(opponentConn, SuccessfullyJoinIn, "");
+                    opponentConn = conn;
+                    game.setGameState(GameState.ON_GOING);
+                    serverGameCore.rejoinIn(1, opponentConn);
+                    onOpponentReconnect();
+                }
+                else {
+                    send(conn, FailToJoin, "");
                     return;
                 }
 
-                //when viewer join the game
-                if (msg.exists(JoinView)) {
-                    if (!game.getState().isGameStart())
-                        viewerConn.add(conn);
+                broadcast(SendGameInfo, game);
+                send(opponentConn, SuccessfullyJoinIn, "");
+                return;
+            }
+
+            //when viewer join the game
+            if (msg.exists(JoinView)) {
+                if (!game.getState().isGameStart()) {
+                    viewerConn.add(conn);
+                    send(conn, SuccessfullyJoinIn, "");
+                }
+                else {
+                    send(conn, SuccessfullyJoinIn, "");
+                    serverGameCore.joinView(conn);
+                }
+                return;
+            }
+
+            //when remote connection quit
+            if (msg.exists(Quit)) {
+                if (conn.equals(opponentConn)) {
+                    //waiting for join
+                    if (game.getState() == GameState.WAITING_START) {
+                        game.setPlayer2(null);
+                        game.setGameState(GameState.WAITING_JOIN);
+                        opponentConn = null;
+                        broadcast(SendGameInfo, game);
+                        onOpponentDropOut();
+                    }
+                    //end game
                     else
-                        serverGameCore.joinView(conn);
-                    return;
+                        onOpponentLeaveGame();
                 }
+                //viewer connection
+                else {
+                    if (!game.getState().isGameStart())
+                        viewerConn.remove(conn);
+                    else
+                        serverGameCore.quitView(conn);
+                }
+            }
+        }));
+    }
 
-                //when remote connection quit
-                if (msg.exists(Quit)) {
-                    if (conn.equals(opponentConn)) {
-                        if (game.getState() == GameState.WAITING_START) {
-                            game.setPlayer2(null);
-                            game.setGameState(GameState.WAITING_JOIN);
-                            opponentConn = null;
-                            onOpponentDropOut.run();
-                        }
-                        else
-                            onOpponentLeaveGame.run();
-                    }
-                    else {
-                        if (!game.getState().isGameStart())
-                            viewerConn.remove(conn);
-                        else
-                            serverGameCore.quitView(conn);
-                    }
-                }
-            });
-        });
+    private void broadcast(String key, Serializable msg) {
+        Bundle bundle = new Bundle("");
+        bundle.put(key, msg);
+        server.broadcast(bundle);
     }
 
     private void send(Connection<Bundle> conn, String key, Serializable msg) {
@@ -168,48 +171,25 @@ public class LanServerCore {
     }
 
 
-    public void setOnOpponentAddIn(Consumer<Player> onOpponentAddIn) {
-        this.onOpponentAddIn = onOpponentAddIn;
-    }
+    abstract protected void onOpponentAddIn(Player opponent);
 
-    public void setOnOpponentDropOut(Runnable onOpponentDropOut) {
-        this.onOpponentDropOut = onOpponentDropOut;
-    }
-
-    public void setOnOpponentDisconnect(Runnable onDisconnect, Runnable onReconnect) {
-        this.onDisconnect = onDisconnect;
-        this.onReconnect = onReconnect;
-    }
-
-    public void setOnOpponentLeaveGame(Runnable onOpponentLeaveGame) {
-        this.onOpponentLeaveGame = onOpponentLeaveGame;
-    }
-
-    public void setOnGetMoveHistory(Supplier<MoveHistory> onGetMoveHistory) {
-        this.onGetMoveHistory = onGetMoveHistory;
-    }
-
-    public void setOnGetTurn(Supplier<ColorType> onGetTurn) {
-        this.onGetTurn = onGetTurn;
-    }
-
-    public void setOnGetPlayer(Function<ColorType, Player> onGetPlayer) {
-        this.onGetPlayer = onGetPlayer;
-    }
-
-    public void setOnGetGameTime(Function<ColorType, Double> onGetGameTime) {
-        this.onGetGameTime = onGetGameTime;
-    }
+    abstract protected void onOpponentDropOut();
+    abstract protected void onOpponentDisconnect();
+    abstract protected void onOpponentReconnect();
+    abstract protected void onOpponentLeaveGame();
 
     public void sendDataNotSync() {
-
+        send(opponentConn, DataNotSync, "");
     }
 
     /**
      * Start game. Ensure opponent join in first
      * @return false when cannot start
      */
-    public boolean startGame() {
+    public boolean startGame(Player whitePlayer,
+                             Supplier<MoveHistory> onGetMoveHistory,
+                             Supplier<ColorType> onGetTurn,
+                             Function<ColorType, Double>onGetGameTime) {
         //if disconnected
         if (opponentConn == null || !opponentConn.isConnected()) {
             opponentConn = null;
@@ -217,26 +197,56 @@ public class LanServerCore {
             game.setPlayer2(null);
             return false;
         }
+
+        Player wPlayer, bPlayer;
+        if (whitePlayer.equals(game.getPlayer1())) {
+            wPlayer = game.getPlayer1();
+            bPlayer = game.getPlayer2();
+        }
+        else if (whitePlayer.equals(game.getPlayer2())) {
+            wPlayer = game.getPlayer2();
+            bPlayer = game.getPlayer1();
+        }
+        //player do not match
+        else
+            return false;
+
         serverGameCore = new ServerGameCore(
-                localClient.getConnections().get(0), opponentConn, viewerConn);
-
-        serverGameCore.setOnDisconnecting((conn) -> {
-            if (conn.equals(opponentConn)) {
-                game.setGameState(GameState.RECONNECTING);
-                onDisconnect.run();
+                localClient.getConnections().get(0), opponentConn, viewerConn) {
+            @Override
+            protected void onDisconnecting(Connection<Bundle> connection) {
+                if (connection.equals(opponentConn)) {
+                    game.setGameState(GameState.RECONNECTING);
+                    onOpponentDisconnect();
+                }
             }
-        });
+            @Override
+            protected MoveHistory onGetMoveHistory() {
+                return onGetMoveHistory.get();
+            }
 
-        serverGameCore.setOnGetMoveHistory(onGetMoveHistory);
-        serverGameCore.setOnGetTurn(onGetTurn);
-        serverGameCore.setOnGetPlayer(onGetPlayer);
-        serverGameCore.setOnGetGameTime(onGetGameTime);
+            @Override
+            protected ColorType onGetTurn () {
+                return onGetTurn.get();
+            }
+
+            @Override
+            protected Player onGetPlayer (ColorType colorType){
+                if (colorType == ColorType.WHITE)
+                    return wPlayer;
+                else
+                    return bPlayer;
+            }
+
+            @Override
+            protected double onGetGameTime (ColorType colorType){
+                return onGetGameTime.apply(colorType);
+            }
+        };
+
         serverGameCore.startGame();
-
         game.setGameState(GameState.ON_GOING);
-        Bundle msg = new Bundle("");
-        msg.put(StartGame, "");
-        server.broadcast(msg);
+        broadcast(StartGame, whitePlayer);
         return true;
     }
 
