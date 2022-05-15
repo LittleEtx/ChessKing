@@ -50,17 +50,18 @@ abstract public class LanServerCore {
         }
 
         //creating the broadcaster
+        String localhost;
         try {
-            String address = InetAddress.getLocalHost()
-                    .getHostAddress() + ":" + port;
-            lanServerBroadcaster = new LanServerBroadcaster(address);
+            localhost = InetAddress.getLocalHost().getHostAddress();
+            lanServerBroadcaster = new LanServerBroadcaster(
+                    localhost + ":" + port);
         } catch (UnknownHostException e) {
             throw new FailToAccessLanException("Fail to get local host");
         }
 
         game = new GameInfo(gameInfo);
         server = FXGL.getNetService().newTCPServer(port);
-        localClient = FXGL.getNetService().newTCPClient("localhost", port);
+        localClient = FXGL.getNetService().newTCPClient(localhost, port);
 
         server.startAsync();
         localClient.connectAsync();

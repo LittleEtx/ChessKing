@@ -6,10 +6,12 @@ import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.LoadingScene;
 import com.almasb.fxgl.app.scene.SceneFactory;
+import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.input.UserAction;
+import com.almasb.fxgl.net.Connection;
 import com.almasb.fxgl.time.LocalTimer;
 import edu.sustech.chessking.components.ChessComponent;
 import edu.sustech.chessking.factories.ChessKingEntityFactory;
@@ -316,6 +318,10 @@ public class ChessKingApp extends GameApplication {
         downPlayer = localPlayer;
         setAiPlayer(aiType);
         getGameController().startNewGame();
+    }
+
+    public static void newClientGame(Connection<Bundle> connection) {
+
     }
 
     private static void setAiPlayer(AiType aiType) {

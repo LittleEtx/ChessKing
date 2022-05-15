@@ -12,26 +12,26 @@ import java.util.function.Consumer;
 
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.*;
 
-public class GameInfoGetter {
-    private Consumer<MoveHistory> getHistoryCallback;
-    private Consumer<ColorType> getTurnCallback;
-    private Consumer<Player> getPlayerCallback;
-    private Consumer<Double> getGameTimeCallBack;
+abstract public class GameInfoGetter {
     private final Connection<Bundle> connection;
-    private Runnable onDisconnecting;
 
     public GameInfoGetter(Connection<Bundle> connection) {
         this.connection = connection;
     }
 
     MessageHandler<Bundle> gameInfoListener = (conn, msg) -> {
-        MsgChecker checker = new MsgChecker(msg);
-        checker.listen(MoveHistory, getHistoryCallback);
-        checker.listen(Turn, getTurnCallback);
-        checker.listen(BlackPlayer, getPlayerCallback);
-        checker.listen(BlackGameTime, getGameTimeCallBack);
-        checker.listen(WhitePlayer, getPlayerCallback);
-        checker.listen(WhiteGameTime, getGameTimeCallBack);
+        if (msg.exists(MoveHistory))
+            onReceiveMoveHistory(msg.get(MoveHistory));
+        if (msg.exists(Turn))
+            onReceiveTurn(msg.get(Turn));
+        if (msg.exists(WhitePlayer))
+            onReceivePlayer(ColorType.WHITE, msg.get(WhitePlayer));
+        if (msg.exists(BlackPlayer))
+            onReceivePlayer(ColorType.BLACK, msg.get(BlackPlayer));
+        if (msg.exists(WhiteGameTime))
+            onReceiveGameTime(ColorType.WHITE, msg.get(WhiteGameTime));
+        if (msg.exists(BlackGameTime))
+            onReceiveGameTime(ColorType.BLACK, msg.get(BlackGameTime));
     };
 
     public void startListening() {
@@ -48,22 +48,19 @@ public class GameInfoGetter {
         connection.send(bundle);
     }
 
-
     public void getMoveHistory(Consumer<MoveHistory> callback) {
         if (!connection.isConnected()) {
-            onDisconnecting.run();
+            onDisconnecting();
             return;
         }
-        getHistoryCallback = callback;
         send(GetMoveHistory, "");
     }
 
     public void getTurn(Consumer<ColorType> callback) {
         if (!connection.isConnected()) {
-            onDisconnecting.run();
+            onDisconnecting();
             return;
         }
-        getTurnCallback = callback;
         send(GetTurn, "");
     }
 
@@ -72,10 +69,9 @@ public class GameInfoGetter {
      */
     public void getPlayer(ColorType side, Consumer<Player> callback) {
         if (!connection.isConnected()) {
-            onDisconnecting.run();
+            onDisconnecting();
             return;
         }
-        getPlayerCallback = callback;
         send(GetPlayer, side.reverse());
     }
 
@@ -84,14 +80,15 @@ public class GameInfoGetter {
      */
     public void getGameTime(ColorType side, Consumer<Double> callback) {
         if (!connection.isConnected()) {
-            onDisconnecting.run();
+            onDisconnecting();
             return;
         }
-        getGameTimeCallBack = callback;
         send(GetGameTime, side.reverse());
     }
 
-    public void setOnDisconnecting(Runnable onDisconnecting) {
-        this.onDisconnecting = onDisconnecting;
-    }
+    abstract protected void onReceiveMoveHistory(MoveHistory moveHistory);
+    abstract protected void onReceiveTurn(ColorType turn);
+    abstract protected void onReceivePlayer(ColorType color, Player player);
+    abstract protected void onReceiveGameTime(ColorType color, double gameTime);
+    abstract protected void onDisconnecting();
 }
