@@ -1,65 +1,65 @@
 package edu.sustech.chessking.gameLogic.multiplayer.Lan;
 
 import com.almasb.fxgl.core.serialization.Bundle;
-import com.almasb.fxgl.net.Client;
 import com.almasb.fxgl.net.Connection;
 import edu.sustech.chessking.gameLogic.gameSave.Player;
-import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameInfo;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.function.BiConsumer;
+import java.io.Serializable;
+import java.util.function.Consumer;
 
-import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.HasGame;
-import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.SendGameInfo;
+import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.*;
 
 public class LanClientCore {
-    private List<Client<Bundle>> clientList;
-    private final LanServerSearcher serverSearcher;
-    private BiConsumer<LanGameInfo, GameInfo> onReceiveGameInfo;
-
+    private final Connection<Bundle> connection;
+    private final Player player;
+    private Consumer<Player> onGameStart;
 
     /**
-     * this class helps get all the existing games
-     * @throws FailToAccessLanException when cannot search in lan
+     * this class helps connect to exist class
+     * @param connection the connection to the server
      * @param player player information
      */
-    public LanClientCore(Player player) {
-        try {
-            serverSearcher = new LanServerSearcher();
-        } catch (IOException e) {
-            throw new FailToAccessLanException("Fail to search in lan");
-        }
+    public LanClientCore(Connection<Bundle> connection, Player player) {
+        this.connection = connection;
+        this.player = player;
     }
 
-    public void refreshGamesList() {
-        List<LanGameInfo> clientList = serverSearcher.getGameInfoList();
-        for (LanGameInfo gameInfo : clientList) {
-            Connection<Bundle> connection =
-                    gameInfo.client().getConnections().get(0);
-
-
-            //Needs to do sth here
-
-            connection.addMessageHandler((conn, msg) -> {
-                if (msg.exists(SendGameInfo))
-                    onReceiveGameInfo.accept(gameInfo,
-                            msg.get(SendGameInfo));
-            });
-
-            Bundle bundle = new Bundle("");
-            bundle.put(HasGame, "");
-            connection.send(bundle);
-
-        }
+    public void joinIn(Consumer<Boolean> callback) {
+        sendAndJoin(JoinGame, callback);
     }
 
-    public void setOnReceiveGameInfo(BiConsumer<LanGameInfo, GameInfo> onReceiveGameInfo) {
-        this.onReceiveGameInfo = onReceiveGameInfo;
+    public void joinInView(Consumer<Boolean> callback) {
+        sendAndJoin(JoinView, callback);
     }
 
-    public void closeListening(Connection<Bundle> exceptClient) {
+    private void sendAndJoin(String key, Consumer<Boolean> callback) {
+        if (!connection.isConnected())
+            callback.accept(false);
 
+        send(key, player);
+        connection.addMessageHandler((conn, msg) -> {
+            if (msg.exists(SuccessfullyJoinIn))
+                callback.accept(true);
+            else if (msg.exists(FailToJoin))
+                callback.accept(false);
 
+            if (msg.exists(StartGame))
+                onGameStart.accept(msg.get(StartGame));
+        });
     }
+
+    public void setOnGameStart(Consumer<Player> onGameStart) {
+        this.onGameStart = onGameStart;
+    }
+
+    public void leave() {
+        send(Quit, "");
+    }
+
+    private void send(String key, Serializable msg) {
+        Bundle bundle = new Bundle("");
+        bundle.put(key, msg);
+        connection.send(bundle);
+    }
+
 }

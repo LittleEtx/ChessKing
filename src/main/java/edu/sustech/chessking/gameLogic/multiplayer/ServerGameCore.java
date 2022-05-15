@@ -9,51 +9,42 @@ import edu.sustech.chessking.gameLogic.gameSave.Player;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.*;
 
-public class ServerGameCore {
+abstract public class ServerGameCore {
     private final List<Connection<Bundle>> viewerList;
     private Connection<Bundle> player1;
     private Connection<Bundle> player2;
     private boolean waitingForRejoin = false;
 
-    private Consumer<Connection<Bundle>> onDisconnecting;
-    private Supplier<MoveHistory> onGetMoveHistory;
-    private Supplier<ColorType> onGetTurn;
-    private Function<ColorType, Player> onGetPlayer;
-    private Function<ColorType, Double> onGetGameTime;
-
     private final MessageHandler<Bundle> gameInfoListener = (conn, msg) -> {
         Bundle bundle = new Bundle("");
         if (msg.exists(GetMoveHistory)) {
-            MoveHistory moveHistory = onGetMoveHistory.get();
+            MoveHistory moveHistory = onGetMoveHistory();
             bundle.put(MoveHistory, moveHistory);
         }
 
         if (msg.exists(GetTurn)) {
-            bundle.put(Turn, onGetTurn.get());
+            bundle.put(Turn, onGetTurn());
         }
 
         if (msg.exists(GetPlayer)) {
             if (msg.get(GetPlayer) == ColorType.WHITE)
                 bundle.put(WhitePlayer,
-                        onGetPlayer.apply(ColorType.WHITE));
+                        onGetPlayer(ColorType.WHITE));
             else
                 bundle.put(BlackPlayer,
-                        onGetPlayer.apply(ColorType.BLACK));
+                        onGetPlayer(ColorType.BLACK));
         }
 
         if (msg.exists(GetGameTime)) {
             if (msg.get(GetGameTime) == ColorType.WHITE)
                 bundle.put(WhiteGameTime,
-                        onGetGameTime.apply(ColorType.WHITE));
+                        onGetGameTime(ColorType.WHITE));
             else
                 bundle.put(BlackGameTime,
-                        onGetGameTime.apply(ColorType.BLACK));
+                        onGetGameTime(ColorType.BLACK));
         }
 
         conn.send(bundle);
@@ -74,7 +65,7 @@ public class ServerGameCore {
         if (msg.exists(Color)) {
             if (!opponent.isConnected()) {
                 waitingForRejoin = true;
-                onDisconnecting.accept(opponent);
+                onDisconnecting(opponent);
             }
             opponent.send(msg);
             broadcastViewer(msg);
@@ -103,29 +94,12 @@ public class ServerGameCore {
         viewerConn.removeMessageHandler(gameInfoListener);
     }
 
-    /**
-     * must set before game start
-     * @param onDisconnecting consume the connection that is disconnected
-     */
-    public void setOnDisconnecting(Consumer<Connection<Bundle>> onDisconnecting) {
-        this.onDisconnecting = onDisconnecting;
-    }
+    abstract protected void onDisconnecting(Connection<Bundle> connection);
 
-    public void setOnGetMoveHistory(Supplier<MoveHistory> onGetMoveHistory) {
-        this.onGetMoveHistory = onGetMoveHistory;
-    }
-
-    public void setOnGetTurn(Supplier<ColorType> onGetTurn) {
-        this.onGetTurn = onGetTurn;
-    }
-
-    public void setOnGetPlayer(Function<ColorType, Player> onGetPlayer) {
-        this.onGetPlayer = onGetPlayer;
-    }
-
-    public void setOnGetGameTime(Function<ColorType, Double> onGetGameTime) {
-        this.onGetGameTime = onGetGameTime;
-    }
+    abstract protected MoveHistory onGetMoveHistory();
+    abstract protected ColorType onGetTurn();
+    abstract protected Player onGetPlayer(ColorType colorType);
+    abstract protected double onGetGameTime(ColorType colorType);
 
     /**
      * must be sure that index is right

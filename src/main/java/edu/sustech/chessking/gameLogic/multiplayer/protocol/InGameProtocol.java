@@ -26,9 +26,9 @@ public class InGameProtocol {
     public static final String MoveChess = "moveChess"; //Move
     public static final String EndTurn = "endTurn"; //double: remaining game time
     public static final String RequestReverse = "requestReverse"; //empty
-    public static final String AllowReverse = "allowReverse"; //empty
+    public static final String ReplyReverse = "replyReverse"; //boolean
     public static final String RequestDrawn = "requestDrawn"; //empty
-    public static final String AllowDrawn = "allowDrawn"; //empty
+    public static final String ReplyDrawn = "replyDrawn"; //boolean
     public static final String ReachTimeLimit = "reachTimeLimit"; //empty
 
     //game getter action

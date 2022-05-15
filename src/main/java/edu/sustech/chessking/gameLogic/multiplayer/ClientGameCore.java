@@ -11,7 +11,7 @@ import java.io.Serializable;
 
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.*;
 
-public class ClientGameCore extends GameEventListener{
+abstract public class ClientGameCore extends GameEventListener{
     private final Connection<Bundle> connection;
 
     private final ColorType side;
@@ -74,16 +74,16 @@ public class ClientGameCore extends GameEventListener{
         sendMsg(RequestReverse, "");
     }
 
-    public void allowReverse() {
-        sendMsg(AllowReverse, "");
+    public void replyReverse(boolean accept) {
+        sendMsg(ReplyReverse, accept);
     }
 
     public void requestDrawn() {
         sendMsg(RequestDrawn, "");
     }
 
-    public void allowDrawn() {
-        sendMsg(AllowDrawn, "");
+    public void replyDrawn(boolean accept) {
+        sendMsg(ReplyDrawn, accept);
     }
 
     public void sentMousePt(Point2D pt) {

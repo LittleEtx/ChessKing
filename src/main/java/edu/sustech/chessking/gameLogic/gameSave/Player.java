@@ -33,7 +33,7 @@ public class Player implements Serializable {
         color1 = defaultColor1;
         color2 = defaultColor2;
         background = "apple";
-        password = "";
+        password = null;
     }
 
     /**
@@ -155,7 +155,7 @@ public class Player implements Serializable {
         sb.append(color1.toString()).append(" ");
         sb.append(color2.toString()).append(" ");
         sb.append(background);
-        if (!password.isEmpty())
+        if (password != null)
             sb.append(" ").append(password);
         return sb.toString();
     }
