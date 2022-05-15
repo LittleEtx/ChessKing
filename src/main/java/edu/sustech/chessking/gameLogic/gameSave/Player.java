@@ -131,14 +131,12 @@ public class Player implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(score).append(" ");
-        sb.append(name).append(" ");
-        sb.append(avatar).append(" ");
-        sb.append(chessSkin).append(" ");
-        sb.append(color1.toString()).append(" ");
-        sb.append(color2.toString()).append(" ");
-        sb.append(background);
-        return sb.toString();
+        return score + " " +
+                name + " " +
+                avatar + " " +
+                chessSkin + " " +
+                color1.toString() + " " +
+                color2.toString() + " " +
+                background;
     }
 }
