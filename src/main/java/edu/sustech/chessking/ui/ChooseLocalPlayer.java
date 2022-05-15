@@ -90,8 +90,6 @@ public class ChooseLocalPlayer extends SubScene{
         playerSP.setPrefViewportWidth(400);
         playerSP.setFitToWidth(true);
         playerSP.setMaxHeight(400);
-
-
         playerSP.setStyle("-fx-background-color: transparent");
 
         Button newPlayerBtn = new Button("New Player");

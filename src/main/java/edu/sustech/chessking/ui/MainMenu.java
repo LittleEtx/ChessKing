@@ -222,6 +222,12 @@ public class MainMenu extends FXGLMenu {
             getSceneService().pushSubScene(ss);
         });
 
+        loadSaveBtn.setOnAction(event -> {
+            ArrayList<Save> save = SaveLoader.readLocalSaveList(ChessKingApp.getLocalPlayer());
+            SubScene loadSave = new LoadSave(save);
+            getSceneService().pushSubScene(loadSave);
+        });
+
         localAIbtn.setOnAction(event -> {
 
             //add a panel here to choose difficulty

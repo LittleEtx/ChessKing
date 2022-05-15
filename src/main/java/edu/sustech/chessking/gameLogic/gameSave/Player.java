@@ -155,8 +155,8 @@ public class Player implements Serializable {
         sb.append(color1.toString()).append(" ");
         sb.append(color2.toString()).append(" ");
         sb.append(background);
-        if (!password.isEmpty())
-            sb.append(" ").append(password);
+//        if (!password.isEmpty())
+//            sb.append(" ").append(password);
         return sb.toString();
     }
 }

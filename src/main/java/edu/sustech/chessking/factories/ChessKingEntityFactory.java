@@ -157,4 +157,18 @@ public class ChessKingEntityFactory implements EntityFactory {
                 .at(735,170)
                 .build();
     }
+
+    @Spawns("downTimer")
+    public Entity newDownTimer(SpawnData data){
+        return FXGL.entityBuilder(data)
+                .with(new TimerComponent())
+                .build();
+    }
+
+    @Spawns("upTimer")
+    public Entity newUpTimer(SpawnData data){
+        return FXGL.entityBuilder(data)
+                .with(new TimerComponent())
+                .build();
+    }
 }
