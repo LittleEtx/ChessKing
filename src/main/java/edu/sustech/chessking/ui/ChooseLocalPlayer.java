@@ -4,6 +4,7 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.gameLogic.gameSave.Player;
+import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -16,6 +17,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 import static com.almasb.fxgl.dsl.FXGL.getSceneService;
@@ -48,9 +50,7 @@ public class ChooseLocalPlayer extends SubScene{
 
         VBox playerBtnVB = new VBox();
         playerBtnVB.setAlignment(Pos.TOP_CENTER);
-//        playerBtnVB.setMinWidth(500);
         playerBtnVB.setMinHeight(400);
-//        playerBtnVB.setMaxWidth(500);
         playerBtnVB.setPrefSize(500,players.size()*40);
         playerBtnVB.setStyle("-fx-background-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #193237ff 0.0%, #2e4e58ff 50.0%, #39687cff 100.0%);");
 
@@ -61,15 +61,6 @@ public class ChooseLocalPlayer extends SubScene{
             playerBtn.setTextFill(Color.WHITE);
             playerBtn.setFont(new Font(20));
             playerBtnVB.getChildren().add(playerBtn);
-//            playerBtn.setOnAction(event -> {
-//                setTransparent(playersBtn);
-//                System.out.println(players.get(playersBtn.indexOf(playerBtn)));
-//                playerBtn.setStyle("-fx-border-color: #20B2AA;"+
-//                        "-fx-border-width: 5;"+
-//                        "-fx-background-color: transparent;");
-//
-//                ChessKingApp.setLocalPlayer(players.get(playersBtn.indexOf(playerBtn)));
-//            });
 
             playerBtn.addEventHandler(MouseEvent.MOUSE_CLICKED, event ->{
                 setTransparent(playersBtn);
@@ -112,6 +103,15 @@ public class ChooseLocalPlayer extends SubScene{
             }
         });
 
+        Button deleteBtn = new Button();
+        deleteBtn.getStyleClass().add("deleteBtn");
+        deleteBtn.setOnAction(event -> {
+            getSceneService().popSubScene();
+            getSceneService().pushSubScene(new DeletePlayer(SaveLoader.readPlayerList()));
+        });
+        deleteBtn.setLayoutX(350);
+        deleteBtn.setLayoutY(100);
+
         HBox buttons = new HBox(20,newPlayerBtn,doneBtn);
         buttons.setAlignment(Pos.BOTTOM_CENTER);
 
@@ -124,6 +124,7 @@ public class ChooseLocalPlayer extends SubScene{
         vb.setLayoutX(350);
         vb.setLayoutY(100);
         getContentRoot().getChildren().add(vb);
+        getContentRoot().getChildren().add(deleteBtn);
     }
 
     private void setTransparent(ArrayList<Button> buttons){

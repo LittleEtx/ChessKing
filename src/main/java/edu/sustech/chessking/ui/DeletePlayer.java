@@ -11,7 +11,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.Bloom;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -19,58 +18,50 @@ import javafx.scene.text.Font;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
-import static com.almasb.fxgl.dsl.FXGL.*;
+import static com.almasb.fxgl.dsl.FXGL.getSceneService;
+import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
 
-public class ChoosePlayer2 extends SubScene {
-    Player p2;
-    public ChoosePlayer2(Player player){
+public class DeletePlayer extends SubScene {
+    public DeletePlayer(ArrayList<Player> deletePlayers) {
         Rectangle bg = new Rectangle(1200,800, Color.web("#00000080"));
         getContentRoot().getChildren().add(bg);
 
-        var choosePlayerText = getUIFactoryService().newText("Choose Player2", Color.BROWN,35);
-        choosePlayerText.setStroke(Color.WHITE);
-        choosePlayerText.setStrokeWidth(3);
+        var deletePlayerText = getUIFactoryService().newText("Delete Local Player", Color.BROWN,35);
+        deletePlayerText.setStroke(Color.WHITE);
+        deletePlayerText.setStrokeWidth(3);
         if(!FXGL.isMobile()){
-            choosePlayerText.setEffect(new Bloom(0.8));
+            deletePlayerText.setEffect(new Bloom(0.8));
         }
 
-//        Rectangle players = new Rectangle(400,400,Color.web("#00000080"));
-
-        ArrayList<Player> players2 = SaveLoader.readPlayerList();
-        HashMap<Button,Player> p2Btns = new HashMap<>();
-        for(Player canP2 : players2){
-            if(!canP2.getName().equals(player.getName())){
-                p2Btns.put(new Button(canP2.getName()), canP2);
-            }
+        HashMap<Button,Player> deletePlayersBtn = new HashMap<>();
+        for(Player canDel : deletePlayers){
+            deletePlayersBtn.put(new Button(canDel.getName()), canDel);
         }
 
         VBox playerBtnVB = new VBox();
         playerBtnVB.setAlignment(Pos.TOP_CENTER);
         playerBtnVB.setMinHeight(400);
-        playerBtnVB.setPrefSize(500,players2.size()*40);
+        playerBtnVB.setPrefSize(500,deletePlayers.size()*40);
         playerBtnVB.setStyle("-fx-background-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #193237ff 0.0%, #2e4e58ff 50.0%, #39687cff 100.0%);");
 
-
-        for(Button btns : p2Btns.keySet()){
+        for(Button btns : deletePlayersBtn.keySet()){
             btns.setStyle("-fx-background-color: transparent");
             btns.setPrefSize(300,40);
             btns.setAlignment(Pos.CENTER);
             btns.setTextFill(Color.WHITE);
             btns.setFont(new Font(20));
             playerBtnVB.getChildren().add(btns);
-            btns.addEventHandler(MouseEvent.MOUSE_CLICKED,event -> {
-                setTransparent(p2Btns);
-                p2 = p2Btns.get(btns);
-                System.out.println(p2);
+            btns.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+                setTransparent(deletePlayersBtn);
+                System.out.println(deletePlayersBtn.get(btns));
                 btns.setStyle("-fx-border-color: #20B2AA;"+
                         "-fx-border-width: 5;"+
                         "-fx-background-color: transparent;");
 
                 if(event.getClickCount()==2){
                     getSceneService().popSubScene();
-                    ChessKingApp.newGame(GameType.LOCAL,p2,200,200);
+                    getSceneService().pushSubScene(new DeletePlayerPopOut(deletePlayersBtn.get(btns)));
                 }
             });
         }
@@ -82,39 +73,14 @@ public class ChoosePlayer2 extends SubScene {
         playerSP.setMaxHeight(400);
         playerSP.setStyle("-fx-background-color: transparent");
 
-        Button newPlayerBtn = new Button("New Player");
-        newPlayerBtn.getStyleClass().add("newPlayer-subScene-button");
-        newPlayerBtn.setOnAction(event -> {
-            SubScene newPlayer = new NewPlayerName(player);
-            getSceneService().pushSubScene(newPlayer);
-        });
-
-        Button doneBtn = new Button("Done");
-        doneBtn.getStyleClass().add("newPlayer-subScene-button");
-        doneBtn.setOnAction(event ->{
-            if(!Objects.equals(player.getName(), "player name you choose")) {
-                Player opponent = new Player();
-                opponent.setName("YourOpponent");
-                opponent.setAvatar("avatar5");
-                getSceneService().popSubScene();
-                ChessKingApp.newGame(GameType.LOCAL, opponent, -1, -1);
-            }else{
-                System.out.println("no player2 detected");
-            }
-        });
-
-        HBox buttons = new HBox(20,newPlayerBtn,doneBtn);
-        buttons.setAlignment(Pos.BOTTOM_CENTER);
-
-        Button backBtn = new Button();
-        backBtn.getStyleClass().add("backBtn");
+        Button backBtn = new Button("Back");
+        backBtn.getStyleClass().add("newPlayer-subScene-button");
         backBtn.setOnAction(event -> {
             getSceneService().popSubScene();
+            getSceneService().pushSubScene(new ChooseLocalPlayer(SaveLoader.readPlayerList()));
         });
-        backBtn.setLayoutX(350);
-        backBtn.setLayoutY(100);
 
-        VBox vb = new VBox(20,choosePlayerText,playerSP,buttons);
+        VBox vb = new VBox(20,deletePlayerText,playerSP,backBtn);
         vb.setAlignment(Pos.CENTER);
         vb.setStyle("-fx-background-radius: 10;" +
                 "-fx-background-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #193237ff 0.0%, #2e4e58ff 50.0%, #39687cff 100.0%);" +
@@ -124,7 +90,6 @@ public class ChoosePlayer2 extends SubScene {
         vb.setLayoutY(100);
 
         getContentRoot().getChildren().add(vb);
-        getContentRoot().getChildren().add(backBtn);
     }
 
     private void setTransparent(HashMap<Button,Player> buttons){

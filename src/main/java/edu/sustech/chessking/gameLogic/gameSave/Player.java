@@ -42,7 +42,7 @@ public class Player implements Serializable {
      */
     public Player(String playerMessage) {
         String[] data = playerMessage.split(" ");
-        System.out.println(data.length);
+//        System.out.println(data.length);
         if (data.length < 7) {
             throw new ConstructorException("Invalid message number");
         }

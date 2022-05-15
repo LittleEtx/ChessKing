@@ -434,3 +434,16 @@
     -fx-background-image: url("RedCross.png");
     -fx-background-size: 45 45;
 }
+
+.deleteBtn {
+    -fx-background-color: transparent;
+    -fx-background-image: url("deleteGrey.png");
+    -fx-background-size: 40 40;
+    -fx-pref-height: 40;
+    -fx-pref-width: 40;
+}
+
+.deleteBtn:hover {
+    -fx-background-image: url("deleteBlue.png");
+    -fx-background-size: 45 45;
+}
