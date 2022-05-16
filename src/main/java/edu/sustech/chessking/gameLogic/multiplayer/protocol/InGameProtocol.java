@@ -22,7 +22,7 @@ public class InGameProtocol {
 
     //player action
     public static final String PickUpChess = "pickUpChess"; //Chess
-    public static final String PutDownChess = "putDownChess"; //empty
+    public static final String PutDownChess = "putDownChess"; //Position
     public static final String MoveChess = "moveChess"; //Move
     public static final String EndTurn = "endTurn"; //double: remaining game time
     public static final String RequestReverse = "requestReverse"; //empty

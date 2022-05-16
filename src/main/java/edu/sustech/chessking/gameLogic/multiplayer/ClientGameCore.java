@@ -4,6 +4,7 @@ import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.net.Connection;
 import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.Move;
+import edu.sustech.chessking.gameLogic.Position;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.geometry.Point2D;
 
@@ -12,7 +13,7 @@ import java.io.Serializable;
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.*;
 
 abstract public class ClientGameCore extends GameEventListener{
-    private final Connection<Bundle> connection;
+    protected Connection<Bundle> connection;
 
     private final ColorType side;
 
@@ -48,8 +49,8 @@ abstract public class ClientGameCore extends GameEventListener{
         sendMsg(PickUpChess, chess);
     }
 
-    final public void putDownChess() {
-        sendMsg(PutDownChess, "");
+    final public void putDownChess(Position pos) {
+        sendMsg(PutDownChess, pos);
     }
 
     final public void moveChess(Move move) {
@@ -80,7 +81,7 @@ abstract public class ClientGameCore extends GameEventListener{
         sendMsg(ReplyDrawn, accept);
     }
 
-    final public void sentMousePt(Point2D pt) {
+    final public void sendMousePt(Point2D pt) {
         var data = new Bundle("");
         data.put(Color, side);
         data.put(Mouse, toDouble(pt));

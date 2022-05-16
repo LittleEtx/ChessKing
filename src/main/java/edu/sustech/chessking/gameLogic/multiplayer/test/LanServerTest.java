@@ -120,8 +120,8 @@ public class LanServerTest extends GameApplication {
                 }
 
                 @Override
-                protected void onPutDownChess() {
-                    System.out.println("[Server] Opponent put down chess");
+                protected void onPutDownChess(Position position) {
+                    System.out.println("[Server] Opponent put down chess at " + position);
 
                 }
 

@@ -9,7 +9,7 @@ public class GameVars {
     public static final String IsMovingChess = "isMovingChess";
     public static final String IsEndTurn = "isEndTurn";
     public static final String TurnVar = "turn";
-    public static final String IsEnemyMovingChess = "isEnemyMovingChess";
+    public static final String IsEnemyMoving = "isEnemyMovingChess";
 
     public static final String AllayListVar = "allyList";
     public static final String EnemyListVar = "enemyList";

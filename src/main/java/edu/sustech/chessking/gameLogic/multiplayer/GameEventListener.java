@@ -5,6 +5,7 @@ import com.almasb.fxgl.net.Connection;
 import com.almasb.fxgl.net.MessageHandler;
 import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.Move;
+import edu.sustech.chessking.gameLogic.Position;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.geometry.Point2D;
 
@@ -27,7 +28,7 @@ abstract public class GameEventListener {
         if (msg.exists(PickUpChess))
             onPickUpChess(msg.get(PickUpChess));
         if (msg.exists(PutDownChess))
-            onPutDownChess();
+            onPutDownChess(msg.get(PutDownChess));
         if (msg.exists(MoveChess))
             onMoveChess(msg.get(MoveChess));
         if (msg.exists(EndTurn))
@@ -65,7 +66,7 @@ abstract public class GameEventListener {
 
     abstract protected void onPickUpChess(Chess chess);
 
-    abstract protected void onPutDownChess();
+    abstract protected void onPutDownChess(Position pos);
 
     abstract protected void onMoveChess(Move move);
     abstract protected void onEndTurn(double remainTime);
