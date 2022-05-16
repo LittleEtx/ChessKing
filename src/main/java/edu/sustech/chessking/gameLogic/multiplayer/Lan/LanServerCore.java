@@ -30,6 +30,7 @@ abstract public class LanServerCore {
     private final int port;
 
     private final LanServerBroadcaster lanServerBroadcaster;
+    private Connection<Bundle> serverSideConn;
 
     private Connection<Bundle> opponentConn = null;
     private final Client<Bundle> localClient;
@@ -55,6 +56,7 @@ abstract public class LanServerCore {
             localhost = InetAddress.getLocalHost().getHostAddress();
             lanServerBroadcaster = new LanServerBroadcaster(
                     localhost + ":" + port);
+            lanServerBroadcaster.setDaemon(true);
         } catch (UnknownHostException e) {
             throw new FailToAccessLanException("Fail to get local host");
         }
@@ -62,14 +64,17 @@ abstract public class LanServerCore {
         game = new GameInfo(gameInfo);
         server = FXGL.getNetService().newTCPServer(port);
         localClient = FXGL.getNetService().newTCPClient(localhost, port);
-
-        server.startAsync();
-        localClient.connectAsync();
-
-        localClient.setOnConnected((msg) -> {
+        localClient.setOnConnected(connection -> {
             startBroadcast();
             lanServerBroadcaster.start();
         });
+        server.setOnConnected(connection -> {
+            if (serverSideConn == null)
+                serverSideConn = connection;
+        });
+
+        server.startAsync();
+        localClient.connectAsync();
     }
 
     public int getPort() {
@@ -111,8 +116,8 @@ abstract public class LanServerCore {
                     return;
                 }
 
-                broadcast(SendGameInfo, game);
                 send(opponentConn, SuccessfullyJoinIn, "");
+                broadcast(SendGameInfo, game);
                 return;
             }
 
@@ -213,7 +218,7 @@ abstract public class LanServerCore {
             return false;
 
         serverGameCore = new ServerGameCore(
-                localClient.getConnections().get(0), opponentConn, viewerConn) {
+                serverSideConn, opponentConn, viewerConn) {
             @Override
             protected void onDisconnecting(Connection<Bundle> connection) {
                 if (connection.equals(opponentConn)) {

@@ -2,6 +2,7 @@ package edu.sustech.chessking.gameLogic.multiplayer.Lan;
 
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.net.Connection;
+import com.almasb.fxgl.net.MessageHandler;
 import edu.sustech.chessking.gameLogic.Player;
 
 import java.io.Serializable;
@@ -13,6 +14,17 @@ public class LanClientCore {
     private final Connection<Bundle> connection;
     private final Player player;
     private Consumer<Player> onGameStart;
+    private boolean isInGame = false;
+    private Consumer<Boolean> callback;
+    private final MessageHandler<Bundle> listener = (conn, msg) -> {
+        if (msg.exists(SuccessfullyJoinIn))
+            callback.accept(true);
+        else if (msg.exists(FailToJoin))
+            callback.accept(false);
+
+        if (msg.exists(StartGame))
+            onGameStart.accept(msg.get(StartGame));
+    };
 
     /**
      * this class helps connect to exist class
@@ -33,26 +45,27 @@ public class LanClientCore {
     }
 
     private void sendAndJoin(String key, Consumer<Boolean> callback) {
-        if (!connection.isConnected())
+        if (isInGame || !connection.isConnected())
             callback.accept(false);
 
+        isInGame = true;
+        this.callback = callback;
         send(key, player);
-        connection.addMessageHandler((conn, msg) -> {
-            if (msg.exists(SuccessfullyJoinIn))
-                callback.accept(true);
-            else if (msg.exists(FailToJoin))
-                callback.accept(false);
-
-            if (msg.exists(StartGame))
-                onGameStart.accept(msg.get(StartGame));
-        });
+        connection.addMessageHandlerFX(listener);
     }
 
+    /**
+     * @param onGameStart actions to do when game start, Player is the white player
+     */
     public void setOnGameStart(Consumer<Player> onGameStart) {
         this.onGameStart = onGameStart;
     }
 
+    /**
+     * Whenever leave a server (including being refuse join in, use the method）
+     */
     public void leave() {
+        connection.removeMessageHandler(listener);
         send(Quit, "");
     }
 

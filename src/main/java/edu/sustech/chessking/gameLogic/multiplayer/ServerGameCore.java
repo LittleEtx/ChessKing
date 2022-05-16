@@ -60,7 +60,7 @@ abstract public class ServerGameCore {
         else if (conn == player2)
             opponent = player1;
         else
-            throw new RuntimeException("GiveListener to a none player connection!");
+            throw new RuntimeException("Give Listener to a none player connection!");
 
         if (msg.exists(Color)) {
             if (!opponent.isConnected()) {

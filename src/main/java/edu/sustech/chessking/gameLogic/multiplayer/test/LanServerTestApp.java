@@ -3,6 +3,7 @@ package edu.sustech.chessking.gameLogic.multiplayer.test;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.core.serialization.Bundle;
+import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.net.Client;
 import edu.sustech.chessking.gameLogic.*;
 import edu.sustech.chessking.gameLogic.ai.AiEnemy;
@@ -11,11 +12,15 @@ import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.multiplayer.ClientGameCore;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerCore;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.NewGameInfo;
+import javafx.geometry.Point2D;
+import javafx.util.Duration;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.PickUpChess;
 
-public class LanServerTest extends GameApplication {
+public class LanServerTestApp extends GameApplication {
+    private static boolean hasGameStart = false;
+    private static ClientGameCore clientGame;
+
     public static void main(String[] args) {
         launch(args);
     }
@@ -37,14 +42,22 @@ public class LanServerTest extends GameApplication {
         new ServerHelper(newGameInfo, gameCore, aiEnemy);
     }
 
+    @Override
+    protected void onUpdate(double tpf) {
+        if (hasGameStart) {
+            clientGame.sendMousePt(new Point2D(100, 100));
+        }
+    }
+
     private static class ServerHelper {
         private final LanServerCore lanServerCore;
         private final GameCore gameCore;
         private final AiEnemy aiEnemy;
         private MoveHistory tempHistory;
         private final Client<Bundle> client;
-        private Timer timer;
         private boolean isAiCalculating = false;
+
+        private boolean isOpponentAddIn = false;
 
         private Player opponent;
 
@@ -57,20 +70,14 @@ public class LanServerTest extends GameApplication {
                     System.out.println("[Server] Opponent join in");
                     System.out.println("[Server] Game start after 5 seconds");
                     ServerHelper.this.opponent = opponent;
-                    timer = new Timer();
-                    timer.schedule(
-                            new TimerTask() {
-                               @Override
-                               public void run() {
-                                   readyStartGame();
-                               }
-                           }, 5000);
+                    isOpponentAddIn = true;
+                    FXGL.runOnce(() -> readyStartGame(), Duration.seconds(5));
                 }
 
                 @Override
                 protected void onOpponentDropOut() {
                     System.out.println("[Server] Opponent left");
-                    timer.cancel();
+                    isOpponentAddIn = false;
                 }
 
                 @Override
@@ -94,6 +101,9 @@ public class LanServerTest extends GameApplication {
         }
 
         private void readyStartGame() {
+            if (!isOpponentAddIn)
+                return;
+
             if (!lanServerCore.startGame(opponent,
                     () -> {
                         if (!isAiCalculating)
@@ -113,7 +123,7 @@ public class LanServerTest extends GameApplication {
                 return;
             }
 
-            ClientGameCore clientGame = new ClientGameCore(client.getConnections().get(0), ColorType.BLACK) {
+            clientGame = new ClientGameCore(client.getConnections().get(0), ColorType.BLACK) {
                 @Override
                 protected void onPickUpChess(Chess chess) {
                     System.out.println("[Server] Opponent pick up chess");
@@ -150,6 +160,8 @@ public class LanServerTest extends GameApplication {
                     Move nextMove = aiEnemy.getNextMove();
                     isAiCalculating = false;
                     gameCore.moveChess(nextMove);
+                    pickUpChess(nextMove.getChess());
+                    putDownChess(nextMove.getPosition());
                     moveChess(nextMove);
                     endTurn(-1);
                 }
@@ -192,6 +204,11 @@ public class LanServerTest extends GameApplication {
                 }
             };
             clientGame.startListening();
+            client.getConnections().get(0).addMessageHandler((conn, msg) -> {
+                if (msg.exists(PickUpChess))
+                    System.out.println("[Client] receive pick up chess" + msg.get(PickUpChess));
+            });
+            hasGameStart = true;
             System.out.println("[Server] start new game!");
         }
     }

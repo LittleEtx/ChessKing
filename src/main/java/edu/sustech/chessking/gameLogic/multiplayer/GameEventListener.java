@@ -15,7 +15,7 @@ abstract public class GameEventListener {
     private final Connection<Bundle> connection;
     private ColorType side;
 
-    private Point2D mousePt;
+    private Point2D mousePt = new Point2D(0, 0);
 
     private final MessageHandler<Bundle> gameEventListener = (conn, msg) -> {
         if (!msg.exists(Color) || msg.get(Color) != side)
@@ -25,8 +25,10 @@ abstract public class GameEventListener {
         if (msg.exists(Mouse))
             mousePt = toPoint2D(msg.get(Mouse));
 
-        if (msg.exists(PickUpChess))
+        if (msg.exists(PickUpChess)) {
+            System.out.println("[Client] Receive pick up chess");
             onPickUpChess(msg.get(PickUpChess));
+        }
         if (msg.exists(PutDownChess))
             onPutDownChess(msg.get(PutDownChess));
         if (msg.exists(MoveChess))
@@ -83,13 +85,13 @@ abstract public class GameEventListener {
      * start listening for game event
      */
     public void startListening() {
-        connection.addMessageHandler(gameEventListener);
+        connection.addMessageHandlerFX(gameEventListener);
     }
 
     /**
      * stop listening game events of the connection
      */
     public void stopListening() {
-        connection.removeMessageHandler(gameEventListener);
+        connection.removeMessageHandlerFX(gameEventListener);
     }
 }

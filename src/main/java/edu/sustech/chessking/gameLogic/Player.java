@@ -15,8 +15,8 @@ public class Player implements Serializable {
     private String avatar;
     private String chessSkin;
     private String background;
-    private Color color1;
-    private Color color2;
+    private String color1Str;
+    private String color2Str;
 
     private static final Color defaultColor1 = Color.web("#00000070");
     private static final Color defaultColor2 = Color.web("#00000050");
@@ -29,8 +29,8 @@ public class Player implements Serializable {
         name = "";
         avatar = "avatar7";
         chessSkin = "default";
-        color1 = defaultColor1;
-        color2 = defaultColor2;
+        color1Str = defaultColor1.toString();
+        color2Str = defaultColor2.toString();
         background = "apple";
     }
 
@@ -86,11 +86,11 @@ public class Player implements Serializable {
     }
 
     public void setColor1(Color color){
-        this.color1 = color;
+        this.color1Str = color.toString();
     }
 
     public void setColor2(Color color){
-        this.color2 = color;
+        this.color2Str = color.toString();
     }
 
     public void setBackground(String background) {
@@ -114,11 +114,11 @@ public class Player implements Serializable {
     }
 
     public Color getColor1(){
-        return this.color1;
+        return Color.web(color1Str);
     }
 
     public Color getColor2(){
-        return this.color2;
+        return Color.web(color2Str);
     }
 
     public String getBackground() {
@@ -135,8 +135,36 @@ public class Player implements Serializable {
                 name + " " +
                 avatar + " " +
                 chessSkin + " " +
-                color1.toString() + " " +
-                color2.toString() + " " +
+                color1Str + " " +
+                color2Str + " " +
                 background;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Player player = (Player) o;
+
+        if (score != player.score) return false;
+        if (!name.equals(player.name)) return false;
+        if (!avatar.equals(player.avatar)) return false;
+        if (!chessSkin.equals(player.chessSkin)) return false;
+        if (!background.equals(player.background)) return false;
+        if (!color1Str.equals(player.color1Str)) return false;
+        return color2Str.equals(player.color2Str);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = score;
+        result = 31 * result + name.hashCode();
+        result = 31 * result + avatar.hashCode();
+        result = 31 * result + chessSkin.hashCode();
+        result = 31 * result + background.hashCode();
+        result = 31 * result + color1Str.hashCode();
+        result = 31 * result + color2Str.hashCode();
+        return result;
     }
 }

@@ -34,6 +34,9 @@ abstract public class ClientGameCore extends GameEventListener{
     abstract protected void onDataNotSync();
 
     private void sendMsg(String key, Serializable info) {
+        if (!key.equals(Mouse))
+            System.out.println("[Client] client send msg: " + key +  " : " + info.toString());
+
         if (!connection.isConnected()) {
             onDisconnect();
             return;
@@ -82,9 +85,6 @@ abstract public class ClientGameCore extends GameEventListener{
     }
 
     final public void sendMousePt(Point2D pt) {
-        var data = new Bundle("");
-        data.put(Color, side);
-        data.put(Mouse, toDouble(pt));
-        connection.send(data);
+        sendMsg(Mouse, toDouble(pt));
     }
 }

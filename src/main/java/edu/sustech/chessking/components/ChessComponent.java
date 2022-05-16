@@ -310,7 +310,7 @@ public class ChessComponent extends Component {
 
     /**
      * @param callback the action to take after the move.
-     *                 If move not available, callback will not be called.
+     *                 If move not available, callback accept null.
      */
     public void putChess(Consumer<Move> callback){
         clearMovingChessVisual();
@@ -342,6 +342,7 @@ public class ChessComponent extends Component {
                             } else {
                                 entity.setPosition(toPoint(chess.getPosition()));
                                 setTargetKingList();
+                                callback.accept(null);
                             }
                         });
             }
@@ -353,6 +354,7 @@ public class ChessComponent extends Component {
             //reset the chess's position
             entity.setPosition(toPoint(chess.getPosition()));
             setTargetKingList();
+            callback.accept(null);
         }
     }
 
@@ -377,6 +379,7 @@ public class ChessComponent extends Component {
     }
 
     public void executeMove(Move move) {
+        isMove = false;
         Position pos = move.getPosition();
 
         gameCore.moveChess(move);
