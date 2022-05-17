@@ -23,6 +23,7 @@ import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
 
 public class LoadSave extends SubScene {
     private Save wantedSave;
+    private boolean choseSave = false;
 
     public LoadSave(ArrayList<Save> saves) {
         Rectangle rect = new Rectangle(1200,800, Color.web("#00000090"));
@@ -79,6 +80,7 @@ public class LoadSave extends SubScene {
                         "-fx-background-color: transparent;");
 
                 wantedSave = saves.get(savesBtn.indexOf(saveBtn));
+                choseSave = true;
 
                 if (event.getClickCount()==2){
                     getSceneService().popSubScene();
@@ -86,6 +88,7 @@ public class LoadSave extends SubScene {
                      *
                      *
                      */
+
 
                 }
             });
@@ -101,13 +104,16 @@ public class LoadSave extends SubScene {
         Button doneBtn = new Button("Done");
         doneBtn.getStyleClass().add("newPlayer-subScene-button");
         doneBtn.setOnAction(event ->{
-            getSceneService().popSubScene();
-            /**
-            load the save data
-            start a new game with saved data
-             */
-//            ChessKingApp.loadAiGame(wantedSave, AiType.NORMAL);
-
+            if(choseSave) {
+                getSceneService().popSubScene();
+                /**
+                 load the save data
+                 start a new game with saved data
+                 */
+            }else {
+                System.out.println("No save selected");
+            }
+            
         });
 
         Button backBtn = new Button();
@@ -115,7 +121,7 @@ public class LoadSave extends SubScene {
         backBtn.setOnAction(event -> {
             getSceneService().popSubScene();
         });
-        backBtn.setLayoutX(350);
+        backBtn.setLayoutX(800);
         backBtn.setLayoutY(100);
 
         VBox vb = new VBox(20,loadSaveText,saveSP,doneBtn);
