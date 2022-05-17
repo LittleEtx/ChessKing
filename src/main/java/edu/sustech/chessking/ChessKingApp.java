@@ -40,7 +40,9 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameController;
@@ -173,9 +175,11 @@ public class ChessKingApp extends GameApplication {
     //initialize the game
     @Override
     protected void initGame() {
+        //receive method for client
         if (gameType == GameType.CLIENT) {
             clientGameCore = new ClientGameCore(lanGameInfo.getClient()
                     .getConnections().get(0), downSideColor) {
+                private boolean isReconnecting;
                 private ChessComponent cc;
                 private boolean isMovingChess = false;
 
@@ -233,20 +237,33 @@ public class ChessKingApp extends GameApplication {
                 @Override
                 protected void onReplyReverse(boolean result) {
                     waitingBos.close();
-                    if (result)
+                    if (result) {
                         getNotificationService().pushNotification("Agree reverse");
+                        reverseMove(2);
+                    }
                     else
                         getNotificationService().pushNotification("Refuse reverse!");
                 }
 
                 @Override
                 protected void onRequestDrawn() {
-
+                    getDialogService().showConfirmationBox(
+                            "Your opponent asked for reversing, do you agree?",
+                            accept -> {
+                                replyDrawn(accept);
+                                endGame(ClientEndGameType.DRAWN);
+                            }
+                    );
                 }
 
                 @Override
                 protected void onReplyDrawn(boolean result) {
-
+                    waitingBos.close();
+                    if (result) {
+                        endGame(ClientEndGameType.DRAWN);
+                    }
+                    else
+                        getNotificationService().pushNotification("Refuse drawn!");
                 }
 
                 @Override
@@ -254,25 +271,24 @@ public class ChessKingApp extends GameApplication {
                     waitingBos = getDialogService().showProgressBox(
                             "Reconnecting to the server..."
                     );
-                    Timer timer = new Timer("");
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            waitingBos.close();
-                            getDialogService().showMessageBox("Can't connect to server!",
-                                    () -> {
-                                        saveGame(getSave());
-                                        getGameController().gotoMainMenu();
-                                    });
-                        }
-                    }, 30000);
+                    isReconnecting = true;
+
+                    runOnce(() -> {
+                        if (!isReconnecting)
+                            return;
+                        waitingBos.close();
+                        getDialogService().showMessageBox("Can't connect to server!",
+                            () -> {
+                                saveGame(getSave());
+                                getGameController().gotoMainMenu();
+                            });
+                    }, Duration.seconds(30));
 
                     LanServerInfo serverInfo = lanGameInfo.getServerInfo();
-
                     Client<Bundle> newClient = getNetService().newTCPClient(
                             serverInfo.getAddress().getHostAddress(), serverInfo.getPort());
                     newClient.setOnConnected((conn) -> {
-                        timer.cancel();
+                        isReconnecting = false;
                         this.connection = conn;
                         waitingBos.close();
                     });
@@ -341,14 +357,13 @@ public class ChessKingApp extends GameApplication {
     }
 
     /**
-     * load game for the given save
-     * @param gameType choose from LOCAL, LAN, and NET
+     * load game for local game for the given save
      * @return false when failed to read save
      */
-    public static boolean loadGame(GameType gameType, Save save, Player opponent) {
+    public static boolean loadGame(Save save, Player opponent) {
         if (!readSave(save))
             return false;
-        ChessKingApp.gameType = gameType;
+        gameType = GameType.LOCAL;
         upPlayer = opponent;
         downPlayer = localPlayer;
         getGameController().startNewGame();
@@ -448,6 +463,8 @@ public class ChessKingApp extends GameApplication {
         getGameController().startNewGame();
         return true;
     }
+
+
 
     private static GameTimer getDownSideTimer() {
         if (downSideColor == ColorType.WHITE)

@@ -43,20 +43,24 @@ public class SaveLoader {
      * @param player read which player's saves
      * @return all available saves of a player, in order of time
      */
-    public static ArrayList<Save> readLocalSaveList(Player player) {
+    public static List<Save> readLocalSaveList(Player player) {
         return getSaves(localSavePath, player);
+    }
+
+    public static List<Replay> readLocalReplayList(Player player) {
+        return  null;
     }
 
     /**
      * @param player read which player's saves
      * @return all available saves of a player, in order of time
      */
-    public static ArrayList<Save> readServerSaveList(String serverIdentifier, Player player) {
+    public static List<Save> readServerSaveList(String serverIdentifier, Player player) {
         return getSaves(new File(serverSavePath + "/" + serverIdentifier), player);
     }
 
 
-    private static ArrayList<Save> getSaves(File rootSaveFile, Player player) {
+    private static List<Save> getSaves(File rootSaveFile, Player player) {
         ArrayList<Save> saveList = new ArrayList<>();
 
         //check player dictionary exist

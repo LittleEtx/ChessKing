@@ -130,4 +130,18 @@ public class Save {
     public long getUuid() {
         return uuid;
     }
+
+    public Player getDownPlayer() {
+        if (defaultDownColor == ColorType.WHITE)
+            return whitePlayer;
+        else
+            return blackPlayer;
+    }
+
+    public Player getUpPlayer() {
+        if (defaultDownColor == ColorType.WHITE)
+            return blackPlayer;
+        else
+            return whitePlayer;
+    }
 }

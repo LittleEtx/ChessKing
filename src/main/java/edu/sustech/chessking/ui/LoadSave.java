@@ -2,9 +2,6 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
-import edu.sustech.chessking.ChessKingApp;
-import edu.sustech.chessking.GameType;
-import edu.sustech.chessking.gameLogic.ai.AiType;
 import edu.sustech.chessking.gameLogic.gameSave.Save;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -17,6 +14,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.almasb.fxgl.dsl.FXGL.getSceneService;
 import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
@@ -25,7 +23,7 @@ public class LoadSave extends SubScene {
     private Save wantedSave;
     private boolean choseSave = false;
 
-    public LoadSave(ArrayList<Save> saves) {
+    public LoadSave(List<Save> saves) {
         Rectangle rect = new Rectangle(1200,800, Color.web("#00000090"));
 
         getContentRoot().getChildren().addAll(rect);

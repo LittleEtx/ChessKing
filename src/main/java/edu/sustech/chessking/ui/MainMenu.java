@@ -10,7 +10,6 @@ import com.almasb.fxgl.texture.Texture;
 import com.almasb.fxgl.ui.DialogBox;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.gameLogic.Player;
-import edu.sustech.chessking.gameLogic.ai.AiType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.gameSave.Save;
 import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
@@ -28,6 +27,7 @@ import javafx.scene.paint.Color;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 
@@ -76,7 +76,7 @@ public class MainMenu extends FXGLMenu {
             @Override
             public void handle(KeyEvent keyEvent) {
                 if(keyEvent.getCode().equals(KeyCode.S)){
-                    ArrayList<Save> save = SaveLoader.readLocalSaveList(ChessKingApp.getLocalPlayer());
+                    List<Save> save = SaveLoader.readLocalSaveList(ChessKingApp.getLocalPlayer());
                     SubScene loadSave = new LoadSave(save);
                     getSceneService().pushSubScene(loadSave);
                 }
@@ -231,7 +231,7 @@ public class MainMenu extends FXGLMenu {
         });
 
         loadSaveBtn.setOnAction(event -> {
-            ArrayList<Save> save = SaveLoader.readLocalSaveList(ChessKingApp.getLocalPlayer());
+            List<Save> save = SaveLoader.readLocalSaveList(ChessKingApp.getLocalPlayer());
             SubScene loadSave = new LoadSave(save);
             getSceneService().pushSubScene(loadSave);
         });

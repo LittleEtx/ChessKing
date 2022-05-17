@@ -92,4 +92,14 @@ public class VisualLogic {
         entity.removeFromWorld();
         getGameWorld().addEntity(entity);
     }
+
+    public static Point2D rotateMouse(Point2D opponentMouse) {
+        double x = 800 - opponentMouse.getX();
+        double y = 800 - opponentMouse.getY();
+
+        //in case chess move out of the board
+        if (x < 0)
+            x = 0;
+        return new Point2D(x, y);
+    }
 }
