@@ -12,7 +12,7 @@ import javafx.geometry.Point2D;
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.*;
 
 abstract public class GameEventListener {
-    private final Connection<Bundle> connection;
+    protected Connection<Bundle> connection;
     private ColorType side;
 
     private Point2D mousePt = new Point2D(0, 0);
@@ -59,10 +59,16 @@ abstract public class GameEventListener {
         this.side = side;
     }
 
+    public final void reconnect(Connection<Bundle> connection) {
+        this.connection = connection;
+        connection.addMessageHandlerFX(gameEventListener);
+    }
+
+
     /**
      * @return the mousePt of your opponent, without rotation
      */
-    public Point2D getMousePt() {
+    public final Point2D getMousePt() {
         return mousePt;
     }
 

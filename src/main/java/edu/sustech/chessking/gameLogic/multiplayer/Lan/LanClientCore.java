@@ -14,16 +14,20 @@ public class LanClientCore {
     private final Connection<Bundle> connection;
     private final Player player;
     private Consumer<Player> onGameStart;
+    private Consumer<Player> onReconnectToGame;
     private boolean isInGame = false;
-    private Consumer<Boolean> callback;
+    private Consumer<Boolean> joinInCallback;
     private final MessageHandler<Bundle> listener = (conn, msg) -> {
         if (msg.exists(SuccessfullyJoinIn))
-            callback.accept(true);
+            joinInCallback.accept(true);
         else if (msg.exists(FailToJoin))
-            callback.accept(false);
+            joinInCallback.accept(false);
 
         if (msg.exists(StartGame))
             onGameStart.accept(msg.get(StartGame));
+
+        if (msg.exists(SuccessfullyReconnect))
+            onReconnectToGame.accept(msg.get(SuccessfullyReconnect));
     };
 
     /**
@@ -49,7 +53,7 @@ public class LanClientCore {
             callback.accept(false);
 
         isInGame = true;
-        this.callback = callback;
+        this.joinInCallback = callback;
         send(key, player);
         connection.addMessageHandlerFX(listener);
     }
@@ -59,6 +63,10 @@ public class LanClientCore {
      */
     public void setOnGameStart(Consumer<Player> onGameStart) {
         this.onGameStart = onGameStart;
+    }
+
+    public void setOnReconnectToGame(Consumer<Player> onReconnectToGame) {
+        this.onReconnectToGame = onReconnectToGame;
     }
 
     /**

@@ -218,7 +218,7 @@ public class SaveLoader {
                 }
             }
             else {
-                ArrayList<Double> timeList = save.getRemainingTime();
+                List<Double> timeList = save.getRemainingTime();
                 if (moveHistory.getMoveNum() != timeList.size())
                     throw new RuntimeException("Move history num and remaining time not match!");
 

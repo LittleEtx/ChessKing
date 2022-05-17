@@ -36,9 +36,8 @@ public class InGameProtocol {
     public static final String MoveHistory = "moveHistory"; //MoveHistory
     public static final String GetTurn = "getTurn"; //empty
     public static final String Turn = "turn"; //ColorType
-    public static final String GetPlayer = "getPlayer"; //ColorType
-    public static final String WhitePlayer = "whitePlayer"; //Player
-    public static final String BlackPlayer = "blackPlayer"; //Player
+    public static final String GetGameTimerList = "getGameTimerList"; //empty
+    public static final String GameTimeList = "whitePlayer"; //List<Double>
     public static final String GetGameTime = "getGameTime"; //ColorType
     public static final String WhiteGameTime = "whiteGameTime"; //double
     public static final String BlackGameTime = "blackGameTime"; //double

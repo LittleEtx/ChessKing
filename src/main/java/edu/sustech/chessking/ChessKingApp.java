@@ -28,6 +28,7 @@ import edu.sustech.chessking.gameLogic.gameSave.Replay;
 import edu.sustech.chessking.gameLogic.gameSave.Save;
 import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
 import edu.sustech.chessking.gameLogic.multiplayer.ClientGameCore;
+import edu.sustech.chessking.gameLogic.multiplayer.GameInfoGetter;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanGameInfo;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerInfo;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameInfo;
@@ -38,15 +39,18 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameController;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getInput;
+import static edu.sustech.chessking.EntityType.CHESS;
 import static edu.sustech.chessking.GameVars.*;
 import static edu.sustech.chessking.VisualLogic.*;
 import static edu.sustech.chessking.ui.InGameUI.*;
@@ -58,17 +62,18 @@ public class ChessKingApp extends GameApplication {
     private static MoveHistory tempHistory;
     public static ColorType downSideColor;
     private static LanGameInfo lanGameInfo;
+    private static boolean isNewClientGame;
     private ChessComponent movingChessComponent;
     private LocalTimer betweenClickTimer;
-    private LocalTimer aiBeginningTimer;
     private static String serverIP = "localhost";
     private boolean cursorDefault = true;
     private static int reverseCount;
+
     private static GameTimer whiteTimer;
     private static GameTimer blackTimer;
     private static double gameTimeInSec;
     private static double turnTimeInSec;
-    private static ArrayList<Double> remainTime = new ArrayList<>();
+    private static List<Double> remainTime = new ArrayList<>();
 
     private static Player localPlayer = new Player();
     public static Player getLocalPlayer(){
@@ -77,23 +82,30 @@ public class ChessKingApp extends GameApplication {
     public static void setLocalPlayer(Player player){
         localPlayer = player;
     }
+
     private static Player downPlayer;
     private static Player upPlayer;
     private static long saveUuid;
 
     private static AiEnemy ai;
-    private static boolean isEnemyFirst = false;
+    private static boolean isAiStartTurn = false;
+    private static boolean isEnemyOnTurn = false;
+    private static GameInfoGetter clientGameInfoGetter;
     private static ClientGameCore clientGameCore;
 
     private enum ClientEndGameType {
-        LOST, WIN, DRAWN, BLACK_WIN, WHITE_WIN
+        LOST, WIN, DRAWN, BLACK_WIN, WHITE_WIN;
+
     }
 
     private static GameType gameType;
-    private static DialogBox waitingBos;
+    private static DialogBox waitingBox;
+    private static boolean isReconnecting = false;
+    private static boolean isSyncData = false;
 
     // ===============================
     //initialize variables
+
     @Override
     protected void initGameVars(Map<String, Object> vars) {
         vars.put(GameCoreVar, gameCore);
@@ -103,11 +115,8 @@ public class ChessKingApp extends GameApplication {
         vars.put(GameTypeVar, GameType.LOCAL);
         //indicate if the player is moving chess
         vars.put(IsMovingChess, false);
-        //indicate the player end his turn
-        vars.put(IsEndTurn, false);
         vars.put(TurnVar, ColorType.WHITE);
         //indicate the enemy end his turn
-        vars.put(IsEnemyMoving, false);
         vars.put(AllayListVar, new ArrayList<Chess>());
         vars.put(EnemyListVar, new ArrayList<Chess>());
         vars.put(TargetListVar, new ArrayList<Chess>());
@@ -142,11 +151,13 @@ public class ChessKingApp extends GameApplication {
         gameSettings.setDefaultCursor(getCursor(cursorDefault));
 
         gameSettings.setSceneFactory(new SceneFactory(){
+            @NotNull
             @Override
             public FXGLMenu newMainMenu() {
                 return new MainMenu();
             }
 
+            @NotNull
             @Override
             public LoadingScene newLoadingScene() {
                 return new Loading();
@@ -177,9 +188,9 @@ public class ChessKingApp extends GameApplication {
     protected void initGame() {
         //receive method for client
         if (gameType == GameType.CLIENT) {
-            clientGameCore = new ClientGameCore(lanGameInfo.getClient()
-                    .getConnections().get(0), downSideColor) {
-                private boolean isReconnecting;
+            Connection<Bundle> connection = lanGameInfo.getClient()
+                    .getConnections().get(0);
+            clientGameCore = new ClientGameCore(connection, downSideColor) {
                 private ChessComponent cc;
                 private boolean isMovingChess = false;
 
@@ -188,7 +199,7 @@ public class ChessKingApp extends GameApplication {
                     Entity chessEntity = getChessEntity(toPoint(chess.getPosition()));
                     //cannot find chess or not enemy's turn
                     if (chessEntity == null || geto(TurnVar) == downSideColor) {
-                        syncData(connection);
+                        syncData();
                         return;
                     }
                     cc = chessEntity.getComponent(ChessComponent.class);
@@ -203,13 +214,13 @@ public class ChessKingApp extends GameApplication {
                         isMovingChess = false;
                     }
                     else
-                        syncData(connection);
+                        syncData();
                 }
 
                 @Override
                 protected void onMoveChess(Move move) {
                     if (cc == null) {
-                        syncData(connection);
+                        syncData();
                         return;
                     }
                     cc.executeMove(move);
@@ -218,7 +229,7 @@ public class ChessKingApp extends GameApplication {
                 @Override
                 protected void onEndTurn(double remainTime) {
                     getOpponentTimer().setCurrentGameTime(remainTime);
-                    set(IsEnemyMoving, false);
+                    enemyEndTurn();
                 }
 
                 @Override
@@ -236,7 +247,7 @@ public class ChessKingApp extends GameApplication {
 
                 @Override
                 protected void onReplyReverse(boolean result) {
-                    waitingBos.close();
+                    waitingBox.close();
                     if (result) {
                         getNotificationService().pushNotification("Agree reverse");
                         reverseMove(2);
@@ -258,7 +269,7 @@ public class ChessKingApp extends GameApplication {
 
                 @Override
                 protected void onReplyDrawn(boolean result) {
-                    waitingBos.close();
+                    waitingBox.close();
                     if (result) {
                         endGame(ClientEndGameType.DRAWN);
                     }
@@ -268,51 +279,83 @@ public class ChessKingApp extends GameApplication {
 
                 @Override
                 protected void onDisconnect() {
-                    waitingBos = getDialogService().showProgressBox(
-                            "Reconnecting to the server..."
-                    );
-                    isReconnecting = true;
-
-                    runOnce(() -> {
-                        if (!isReconnecting)
-                            return;
-                        waitingBos.close();
-                        getDialogService().showMessageBox("Can't connect to server!",
-                            () -> {
-                                saveGame(getSave());
-                                getGameController().gotoMainMenu();
-                            });
-                    }, Duration.seconds(30));
-
-                    LanServerInfo serverInfo = lanGameInfo.getServerInfo();
-                    Client<Bundle> newClient = getNetService().newTCPClient(
-                            serverInfo.getAddress().getHostAddress(), serverInfo.getPort());
-                    newClient.setOnConnected((conn) -> {
-                        isReconnecting = false;
-                        this.connection = conn;
-                        waitingBos.close();
-                    });
+                    ChessKingApp.reconnect();
                 }
 
                 @Override
                 protected void onDataNotSync() {
-                    syncData(connection);
+                    syncData();
                 }
             };
             clientGameCore.startListening();
+            clientGameInfoGetter = new GameInfoGetter(connection) {
+                private final boolean[] receiveRecord = new boolean[5];
+                private void checkReceiveAllInfo() {
+                    for (boolean b : receiveRecord) {
+                        if (!b)
+                            return;
+                    }
+                    isSyncData = false;
+                    waitingBox.close();
+                }
+
+                @Override
+                protected void onReceiveMoveHistory(MoveHistory moveHistory) {
+                    if (!isSyncData)
+                        return;
+                    gameCore.setGame(moveHistory);
+                    getGameWorld().removeEntities(getGameWorld().getEntitiesByType(CHESS));
+                    initChess();
+                    receiveRecord[0] = true;
+                    checkReceiveAllInfo();
+                }
+
+                @Override
+                protected void onReceiveTurn(ColorType turn) {
+                    if (!isSyncData)
+                        return;
+                    set(TurnVar, turn);
+                    if (turn != downSideColor)
+                        isEnemyOnTurn = true;
+                    receiveRecord[1] = true;
+                    checkReceiveAllInfo();
+                }
+                @Override
+                protected void onReceiveGameTimeList(List<Double> timeList) {
+                    if (!isSyncData)
+                        return;
+                    remainTime = timeList;
+                    receiveRecord[2] = true;
+                    checkReceiveAllInfo();
+                }
+                @Override
+                protected void onReceiveGameTime(ColorType color, double gameTime) {
+                    if (!isSyncData)
+                        return;
+                    if (color == ColorType.WHITE) {
+                        whiteTimer.setCurrentGameTime(gameTime);
+                        receiveRecord[3] = true;
+                    }
+                    else {
+                        blackTimer.setCurrentGameTime(gameTime);
+                        receiveRecord[4] = true;
+                    }
+                    checkReceiveAllInfo();
+                }
+
+                @Override
+                protected void onDisconnecting() {
+                    ChessKingApp.reconnect();
+                }
+            };
+            clientGameInfoGetter.startListening();
         }
-
-
 
         getGameWorld().addEntityFactory(new ChessKingEntityFactory());
         betweenClickTimer = newLocalTimer();
-        aiBeginningTimer = newLocalTimer();
 
-        if (gameType != GameType.LOCAL) {
-            isEnemyFirst = downSideColor != ColorType.WHITE;
-
-            if (gameType == GameType.COMPUTER)
-                aiBeginningTimer = newLocalTimer();
+        if (gameType == GameType.COMPUTER && isEnemyOnTurn) {
+            runOnce(() -> isAiStartTurn = true, Duration.seconds(3));
         }
 
         set(DownSideColorVar, downSideColor);
@@ -350,10 +393,38 @@ public class ChessKingApp extends GameApplication {
         initBoard();
         initChess();
 
-        initialEndTurnListener();
         FXGL.getNotificationService().setBackgroundColor(
                 Color.web("#00000080"));
         FXGL.getNotificationService().setTextColor(Color.WHITE);
+    }
+
+    private static void reconnect() {
+        waitingBox = getDialogService().showProgressBox(
+                "Reconnecting to the server..."
+        );
+        isReconnecting = true;
+
+        runOnce(() -> {
+            if (!isReconnecting)
+                return;
+            waitingBox.close();
+            getDialogService().showMessageBox("Can't connect to server!",
+                    () -> {
+                        saveGame(getSave());
+                        getGameController().gotoMainMenu();
+                    });
+        }, Duration.seconds(30));
+
+        LanServerInfo serverInfo = lanGameInfo.getServerInfo();
+        Client<Bundle> newClient = getNetService().newTCPClient(
+                serverInfo.getAddress().getHostAddress(), serverInfo.getPort());
+        newClient.setOnConnected((conn) -> {
+            isReconnecting = false;
+            clientGameCore.reconnect(conn);
+            clientGameInfoGetter.reconnect(conn);
+            syncData();
+            waitingBox.close();
+        });
     }
 
     /**
@@ -445,12 +516,21 @@ public class ChessKingApp extends GameApplication {
         randomSide();
         createNewGame(GameType.COMPUTER);
         setAiPlayer(aiType);
+        isEnemyOnTurn = downSideColor == ColorType.BLACK;
+        isAiStartTurn = false;
         getGameController().startNewGame();
     }
 
-    public static boolean newClientGame(LanGameInfo lanGameInfo, ColorType side) {
+    /**
+     * create a new client game
+     * @param lanGameInfo LanGameInfo receive from LanServerSearcher
+     * @param side the player's side
+     * @param isNewGame if start a new game
+     * @return if the connection is valid
+     */
+    public static boolean newClientGame(LanGameInfo lanGameInfo, ColorType side, boolean isNewGame) {
         ChessKingApp.lanGameInfo = lanGameInfo;
-        Connection<Bundle> connection =  lanGameInfo.getClient().getConnections().get(0);
+        Connection<Bundle> connection = lanGameInfo.getClient().getConnections().get(0);
         if (!connection.isConnected())
             return false;
 
@@ -458,13 +538,14 @@ public class ChessKingApp extends GameApplication {
         GameInfo gameInfo = lanGameInfo.getGameInfo();
         upPlayer = gameInfo.getPlayer1();
         downSideColor = side;
+        isEnemyOnTurn = downSideColor == ColorType.BLACK;
+
         gameTimeInSec = gameInfo.getGameTime();
         turnTimeInSec = gameInfo.getGameTime();
+        isNewClientGame = isNewGame;
         getGameController().startNewGame();
         return true;
     }
-
-
 
     private static GameTimer getDownSideTimer() {
         if (downSideColor == ColorType.WHITE)
@@ -480,8 +561,22 @@ public class ChessKingApp extends GameApplication {
             return whiteTimer;
     }
 
-    private static void syncData(Connection<Bundle> connection) {
-        System.out.println("[Client] Data not sync!");
+    /**
+     * Method to Sync data.
+     * A waiting box will be pushed until all data are sync
+     */
+    private static void syncData() {
+        waitingBox = getDialogService().showProgressBox(
+                "Synchronizing data..."
+        );
+        isSyncData = true;
+        set(IsMovingChess, false);
+
+        clientGameInfoGetter.getMoveHistory();
+        clientGameInfoGetter.getTurn();
+        clientGameInfoGetter.getGameTimeList();
+        clientGameInfoGetter.getGameTime(ColorType.WHITE);
+        clientGameInfoGetter.getGameTime(ColorType.BLACK);
     }
 
     private static void setAiPlayer(AiType aiType) {
@@ -526,58 +621,32 @@ public class ChessKingApp extends GameApplication {
         }
     }
 
-    /**
-     * This method contains all the logic between
-     * the player moving the chess
-     */
-    private void initialEndTurnListener() {
-        getbp(IsEndTurn).addListener((ob, ov, nv) -> {
-            if (!nv)
-                return;
+    private static void endTurn() {
+        //when downSide finish moving chess
+        timerSwitchTurn();
+        checkIfEndGame();
+        set(TurnVar, gameCore.getTurn());
 
-            //when downSide finish moving chess
-            if (!isEnemyFirst)
-                timerSwitchTurn();
-            checkIfEndGame();
-            set(TurnVar, gameCore.getTurn());
-
-            switch (gameType) {
-                //set computer's turn
-                case COMPUTER -> {
-                    set(IsEnemyMoving, true);
-                    //set a new thread in case the game be paused
-                    Thread thread = new Thread(() -> {
-                        Move move = ai.getNextMove();
-                        Entity chess = getChessEntity(
-                                toPoint(move.getChess().getPosition()));
-                        if (chess == null)
-                            throw new RuntimeException("Cannot find chess!");
-                        chess.getComponent(ChessComponent.class).computerExecuteMove(move);
-                    });
-                    thread.start();
-                }
-                case CLIENT -> {
-                    set(IsEnemyMoving, true);
-                    clientGameCore.endTurn(getDownSideTimer().getRemainingGameTime());
-                }
-            }
-            set(IsEndTurn, false);
-        });
-
-        getbp(IsEnemyMoving).addListener((ob, ov, nv) -> {
-            //begin moving chess
-            if (nv) {
-                tempHistory = gameCore.getGameHistory();
-                return;
-            }
-            //After enemy end moving chess
-            timerSwitchTurn();
-            checkIfEndGame();
-            set(TurnVar, gameCore.getTurn());
-        });
+        if (gameType == GameType.CLIENT) {
+            clientGameCore.endTurn(getDownSideTimer()
+                    .getRemainingGameTime());
+            isEnemyOnTurn = true;
+        }
+        else if (gameType == GameType.COMPUTER) {
+            isEnemyOnTurn = true;
+            isAiStartTurn = true;
+        }
     }
 
-    private void timerSwitchTurn() {
+    public static void enemyEndTurn() {
+        //After enemy end moving chess
+        timerSwitchTurn();
+        checkIfEndGame();
+        set(TurnVar, gameCore.getTurn());
+        isEnemyOnTurn = false;
+    }
+
+    private static void timerSwitchTurn() {
         if (geto(TurnVar) == ColorType.WHITE) {
             remainTime.add(whiteTimer.getRemainingGameTime());
             whiteTimer.resetTurnTime();
@@ -588,7 +657,7 @@ public class ChessKingApp extends GameApplication {
         }
     }
 
-    private void checkIfEndGame() {
+    private static void checkIfEndGame() {
         ColorType winSide = gameCore.getWinSide();
         if (winSide != null) {
             if (gameType == GameType.LOCAL) {
@@ -657,9 +726,6 @@ public class ChessKingApp extends GameApplication {
             return SaveLoader.writeServerSave(serverIP, localPlayer, save);
     }
 
-    /**
-     * get players, 0 for white, 1 for black
-     */
     private static Save getSave() {
         Player whitePlayer;
         Player blackPlayer;
@@ -673,7 +739,7 @@ public class ChessKingApp extends GameApplication {
         }
 
         MoveHistory moveHistory;
-        if (getb(IsEnemyMoving))
+        if (gameType == GameType.COMPUTER && isEnemyOnTurn)
             moveHistory = tempHistory;
         else
             moveHistory = gameCore.getGameHistory();
@@ -701,7 +767,7 @@ public class ChessKingApp extends GameApplication {
         spawn("chat");
     }
 
-    public void initChess() {
+    public static void initChess() {
         for(Chess chess: gameCore.getChessList()){
             spawn("chess", new SpawnData().put("chess", chess));
         }
@@ -726,21 +792,33 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void onUpdate(double tpf) {
         //advance the time
-        if (geto(TurnVar) == ColorType.WHITE) {
-            whiteTimer.advance(tpf);
-        }
-        else {
-            blackTimer.advance(tpf);
+        if (gameType != GameType.VIEW) {
+            if (geto(TurnVar) == ColorType.WHITE) {
+                whiteTimer.advance(tpf);
+            } else {
+                blackTimer.advance(tpf);
+            }
         }
 
-        if (isEnemyFirst) {
-            set(IsEnemyMoving, true);
-            //for computer, only begin to move after 2 sec
-            if (gameType == GameType.COMPUTER)
-                if (!aiBeginningTimer.elapsed(Duration.seconds(2)))
-                    return;
-            set(IsEndTurn, true);
-            isEnemyFirst = false;
+        if (isAiStartTurn) {
+            isAiStartTurn = false;
+
+            tempHistory = gameCore.getGameHistory();
+            //set a new thread in case the game be paused
+            Thread thread = new Thread(() -> {
+                Move move = ai.getNextMove();
+                Entity chess = getChessEntity(
+                        toPoint(move.getChess().getPosition()));
+                if (chess == null)
+                    throw new RuntimeException("Cannot find chess!");
+                chess.getComponent(ChessComponent.class).computerExecuteMove(move);
+            });
+            thread.start();
+        }
+
+        if (gameType == GameType.CLIENT && !isNewClientGame) {
+            syncData();
+            isNewClientGame = true;
         }
 
         if (gameType == GameType.CLIENT && getb(IsMovingChess))
@@ -771,7 +849,7 @@ public class ChessKingApp extends GameApplication {
             @Override
             protected void onActionBegin() {
                 //if enemy is moving chess or the turn is not over
-                if (getb(IsEnemyMoving) || getb(IsEndTurn))
+                if (isEnemyOnTurn)
                     return;
 
                 //In case move to fast
@@ -818,7 +896,8 @@ public class ChessKingApp extends GameApplication {
                         movingChessComponent.executeMove(move);
                         if (gameType == GameType.CLIENT)
                             clientGameCore.moveChess(move);
-                        set(IsEndTurn, true);
+
+                        endTurn();
                     });
                 }
             }
@@ -879,7 +958,7 @@ public class ChessKingApp extends GameApplication {
                             "Your opponent may refuse and you can't ask again",
                     sure -> {
                         if (sure)
-                            waitingBos = getDialogService().showProgressBox("Waiting for your opponent to agree");
+                            waitingBox = getDialogService().showProgressBox("Waiting for your opponent to agree");
                     }
             );
         }

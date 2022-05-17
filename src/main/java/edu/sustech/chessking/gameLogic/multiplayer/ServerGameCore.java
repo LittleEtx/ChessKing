@@ -4,9 +4,9 @@ import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.net.Connection;
 import com.almasb.fxgl.net.MessageHandler;
 import edu.sustech.chessking.gameLogic.MoveHistory;
-import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,8 +14,8 @@ import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtoco
 
 abstract public class ServerGameCore {
     private final List<Connection<Bundle>> viewerList;
-    private Connection<Bundle> player1;
-    private Connection<Bundle> player2;
+    protected Connection<Bundle> player1;
+    protected Connection<Bundle> player2;
     private boolean waitingForRejoin = false;
 
     private final MessageHandler<Bundle> gameInfoListener = (conn, msg) -> {
@@ -29,13 +29,8 @@ abstract public class ServerGameCore {
             bundle.put(Turn, onGetTurn());
         }
 
-        if (msg.exists(GetPlayer)) {
-            if (msg.get(GetPlayer) == ColorType.WHITE)
-                bundle.put(WhitePlayer,
-                        onGetPlayer(ColorType.WHITE));
-            else
-                bundle.put(BlackPlayer,
-                        onGetPlayer(ColorType.BLACK));
+        if (msg.exists(GetGameTimerList)) {
+            bundle.put(GameTimeList, onGetGameTimeList());
         }
 
         if (msg.exists(GetGameTime)) {
@@ -98,7 +93,7 @@ abstract public class ServerGameCore {
 
     abstract protected MoveHistory onGetMoveHistory();
     abstract protected ColorType onGetTurn();
-    abstract protected Player onGetPlayer(ColorType colorType);
+    abstract protected ArrayList<Double> onGetGameTimeList();
     abstract protected double onGetGameTime(ColorType colorType);
 
     /**

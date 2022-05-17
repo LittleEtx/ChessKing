@@ -13,8 +13,6 @@ import java.io.Serializable;
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.*;
 
 abstract public class ClientGameCore extends GameEventListener{
-    protected Connection<Bundle> connection;
-
     private final ColorType side;
 
     /**
@@ -48,43 +46,43 @@ abstract public class ClientGameCore extends GameEventListener{
         connection.send(bundle);
     }
 
-    final public void pickUpChess(Chess chess) {
+    public final void pickUpChess(Chess chess) {
         sendMsg(PickUpChess, chess);
     }
 
-    final public void putDownChess(Position pos) {
+    public final void putDownChess(Position pos) {
         sendMsg(PutDownChess, pos);
     }
 
-    final public void moveChess(Move move) {
+    public final void moveChess(Move move) {
         sendMsg(MoveChess, move);
     }
 
-    final public void endTurn(double remainGameTime) {
+    public final void endTurn(double remainGameTime) {
         sendMsg(EndTurn, remainGameTime);
     }
 
-    final public void reachTimeLimit() {
+    public final void reachTimeLimit() {
         sendMsg(ReachTimeLimit, "");
     }
 
-    final public void requestReverse() {
+    public final void requestReverse() {
         sendMsg(RequestReverse, "");
     }
 
-    final public void replyReverse(boolean accept) {
+    public final void replyReverse(boolean accept) {
         sendMsg(ReplyReverse, accept);
     }
 
-    final public void requestDrawn() {
+    public final void requestDrawn() {
         sendMsg(RequestDrawn, "");
     }
 
-    final public void replyDrawn(boolean accept) {
+    public final void replyDrawn(boolean accept) {
         sendMsg(ReplyDrawn, accept);
     }
 
-    final public void sendMousePt(Point2D pt) {
+    public final void sendMousePt(Point2D pt) {
         sendMsg(Mouse, toDouble(pt));
     }
 }

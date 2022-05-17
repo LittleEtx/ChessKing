@@ -9,6 +9,7 @@ import com.almasb.fxgl.entity.components.ViewComponent;
 import com.almasb.fxgl.scene.SubScene;
 import com.almasb.fxgl.texture.Texture;
 import com.almasb.fxgl.time.LocalTimer;
+import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.EntityType;
 import edu.sustech.chessking.GameType;
 import edu.sustech.chessking.gameLogic.*;
@@ -272,7 +273,7 @@ public class ChessComponent extends Component {
                     set(AvailablePositionVar, new ArrayList<Position>());
                     executeMove(computerMove);
                     isAtTargetPos = false;
-                    set(IsEnemyMoving, false);
+                    ChessKingApp.enemyEndTurn();
                 }
             }
         }

@@ -263,12 +263,19 @@ public class MainMenu extends FXGLMenu {
                     Connection<Bundle> connection = gameInfo.getClient().getConnections().get(0);
                     Player localPlayer = ChessKingApp.getLocalPlayer();
                     LanClientCore lanClient = new LanClientCore(connection, localPlayer);
+
                     lanClient.setOnGameStart(whitePlayer -> {
-                        System.out.println("Start game!");
                         if (whitePlayer.equals(localPlayer))
-                            ChessKingApp.newClientGame(gameInfo, ColorType.WHITE);
+                            ChessKingApp.newClientGame(gameInfo, ColorType.WHITE, true);
                         else
-                            ChessKingApp.newClientGame(gameInfo, ColorType.BLACK);
+                            ChessKingApp.newClientGame(gameInfo, ColorType.BLACK, true);
+                    });
+
+                    lanClient.setOnReconnectToGame(whitePlayer -> {
+                        if (whitePlayer.equals(localPlayer))
+                            ChessKingApp.newClientGame(gameInfo, ColorType.WHITE, false);
+                        else
+                            ChessKingApp.newClientGame(gameInfo, ColorType.BLACK, false);
                     });
 
                     lanClient.joinIn(accept -> {

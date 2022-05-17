@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -36,6 +37,7 @@ abstract public class LanServerCore {
     private final Client<Bundle> localClient;
     private final LinkedList<Connection<Bundle>> viewerConn = new LinkedList<>();
     private ServerGameCore serverGameCore;
+    private Player whitePlayer;
 
 
     /**
@@ -97,6 +99,7 @@ abstract public class LanServerCore {
                     opponentConn = conn;
                     game.setPlayer2(opponent);
                     game.setGameState(GameState.WAITING_START);
+                    send(opponentConn, SuccessfullyJoinIn, "");
                     onOpponentAddIn(opponent);
                 }
                 //reconnect
@@ -109,6 +112,7 @@ abstract public class LanServerCore {
                     opponentConn = conn;
                     game.setGameState(GameState.ON_GOING);
                     serverGameCore.rejoinIn(1, opponentConn);
+                    send(opponentConn, SuccessfullyReconnect, whitePlayer);
                     onOpponentReconnect();
                 }
                 else {
@@ -116,7 +120,6 @@ abstract public class LanServerCore {
                     return;
                 }
 
-                send(opponentConn, SuccessfullyJoinIn, "");
                 broadcast(SendGameInfo, game);
                 return;
             }
@@ -195,6 +198,7 @@ abstract public class LanServerCore {
     public boolean startGame(Player whitePlayer,
                              Supplier<MoveHistory> onGetMoveHistory,
                              Supplier<ColorType> onGetTurn,
+                             Supplier<ArrayList<Double>> onGetGameTimeList,
                              Function<ColorType, Double>onGetGameTime) {
         //if disconnected
         if (opponentConn == null || !opponentConn.isConnected()) {
@@ -204,24 +208,17 @@ abstract public class LanServerCore {
             return false;
         }
 
-        Player wPlayer, bPlayer;
-        if (whitePlayer.equals(game.getPlayer1())) {
-            wPlayer = game.getPlayer1();
-            bPlayer = game.getPlayer2();
-        }
-        else if (whitePlayer.equals(game.getPlayer2())) {
-            wPlayer = game.getPlayer2();
-            bPlayer = game.getPlayer1();
-        }
-        //player do not match
-        else
+        if (!whitePlayer.equals(game.getPlayer1()) &&
+                !whitePlayer.equals(game.getPlayer2()))
             return false;
+
+        this.whitePlayer = whitePlayer;
 
         serverGameCore = new ServerGameCore(
                 serverSideConn, opponentConn, viewerConn) {
             @Override
             protected void onDisconnecting(Connection<Bundle> connection) {
-                if (connection.equals(opponentConn)) {
+                if (connection.equals(player2)) {
                     game.setGameState(GameState.RECONNECTING);
                     onOpponentDisconnect();
                 }
@@ -237,11 +234,8 @@ abstract public class LanServerCore {
             }
 
             @Override
-            protected Player onGetPlayer (ColorType colorType){
-                if (colorType == ColorType.WHITE)
-                    return wPlayer;
-                else
-                    return bPlayer;
+            protected ArrayList<Double> onGetGameTimeList(){
+                return onGetGameTimeList.get();
             }
 
             @Override
@@ -252,7 +246,7 @@ abstract public class LanServerCore {
 
         serverGameCore.startGame();
         game.setGameState(GameState.ON_GOING);
-        broadcast(StartGame, whitePlayer);
+        broadcast(StartGame, this.whitePlayer);
         return true;
     }
 

@@ -15,6 +15,9 @@ import edu.sustech.chessking.gameLogic.multiplayer.protocol.NewGameInfo;
 import javafx.geometry.Point2D;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.PickUpChess;
 
 public class LanServerTestApp extends GameApplication {
@@ -105,12 +108,7 @@ public class LanServerTestApp extends GameApplication {
                 return;
 
             if (!lanServerCore.startGame(opponent,
-                    () -> {
-                        if (!isAiCalculating)
-                            return gameCore.getGameHistory();
-                        else
-                            return tempHistory;
-                    },
+                    this::getMoveHistory,
                     () -> {
                         if (!isAiCalculating)
                             return gameCore.getTurn();
@@ -118,6 +116,7 @@ public class LanServerTestApp extends GameApplication {
                             //ai's turn
                             return ColorType.BLACK;
                     },
+                    () -> new ArrayList<>(List.of(new Double[getMoveHistory().getMoveNum()])),
                     colorType -> -1.0)) {
                 System.out.println("[Server] Fail to start game!");
                 return;
@@ -210,6 +209,13 @@ public class LanServerTestApp extends GameApplication {
             });
             hasGameStart = true;
             System.out.println("[Server] start new game!");
+        }
+
+        private MoveHistory getMoveHistory() {
+            if (!isAiCalculating)
+                return gameCore.getGameHistory();
+            else
+                return tempHistory;
         }
     }
 
