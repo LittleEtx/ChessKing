@@ -44,11 +44,11 @@ public class SaveLoader {
      * @return all available saves of a player, in order of time
      */
     public static List<Save> readLocalSaveList(Player player) {
-        return getSaves(localSavePath, player);
+        return getSaves(localSavePath, player, Save.class);
     }
 
     public static List<Replay> readLocalReplayList(Player player) {
-        return  null;
+        return getSaves(localSavePath, player, Replay.class);
     }
 
     /**
@@ -56,13 +56,16 @@ public class SaveLoader {
      * @return all available saves of a player, in order of time
      */
     public static List<Save> readServerSaveList(String serverIdentifier, Player player) {
-        return getSaves(new File(serverSavePath + "/" + serverIdentifier), player);
+        return getSaves(new File(serverSavePath + "/" + serverIdentifier), player, Save.class);
+    }
+
+    public static List<Replay> readServerReplayList(String serverIdentifier, Player player) {
+        return getSaves(new File(serverSavePath + "/" + serverIdentifier), player, Replay.class);
     }
 
 
-    private static List<Save> getSaves(File rootSaveFile, Player player) {
-        ArrayList<Save> saveList = new ArrayList<>();
-
+    private static <T extends Save> List<T> getSaves(File rootSaveFile, Player player, Class<T> saveType) {
+        ArrayList<T> saveList = new ArrayList<>();
         //check player dictionary exist
         File playerSaveDic = getPlayerSaveDic(rootSaveFile.toString(), player.getName());
         if (playerSaveDic == null)
@@ -79,8 +82,8 @@ public class SaveLoader {
             if (!saveFile.isFile() ||
                     !saveFile.getName().endsWith(".save"))
                 continue;
-            if ((save = readSave(saveFile.toPath())) != null)
-                saveList.add(save);
+            if ((save = readSave(saveFile.toPath())) != null && saveType.equals(save.getClass()))
+                saveList.add((T)save);
         }
 
         saveList.sort(Comparator.comparing(o -> o.getSaveDate().toString()));
