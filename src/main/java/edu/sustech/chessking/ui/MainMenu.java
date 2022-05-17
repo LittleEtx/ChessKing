@@ -240,8 +240,9 @@ public class MainMenu extends FXGLMenu {
 
             //add a panel here to choose difficulty
 
-            AiType aiType = AiType.NORMAL;
-            ChessKingApp.newAiGame(aiType);
+            getSceneService().pushSubScene(new ChooseAI());
+//            AiType aiType = AiType.NORMAL;
+//            ChessKingApp.newAiGame(aiType);
         });
 
         viewGameBtn.setOnAction(event -> {
