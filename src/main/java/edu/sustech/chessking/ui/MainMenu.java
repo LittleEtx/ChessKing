@@ -73,22 +73,19 @@ public class MainMenu extends FXGLMenu {
         //Set all the buttons
 
         btn1.setOnAction(event -> {
-            setLocalGameBtn();
             deleteMainMenuBtn();
+            setLocalGameBtn();
             ArrayList<Player> playerArrayList = SaveLoader.readPlayerList();
             SubScene chooseLocalPlayer = new ChooseLocalPlayer(playerArrayList);
             System.out.println("read player list" + playerArrayList.size());
             getSceneService().pushSubScene(chooseLocalPlayer);
         });
 
-        btn1.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent keyEvent) {
-                if(keyEvent.getCode().equals(KeyCode.S)){
-                    List<Save> save = SaveLoader.readLocalSaveList(ChessKingApp.getLocalPlayer());
-                    SubScene loadSave = new LoadSave(save);
-                    getSceneService().pushSubScene(loadSave);
-                }
+        btn1.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
+            if(keyEvent.getCode().equals(KeyCode.S)){
+                List<Save> save = SaveLoader.readLocalSaveList(ChessKingApp.getLocalPlayer());
+                SubScene loadSave = new LoadSave(save);
+                FXGL.getSceneService().pushSubScene(loadSave);
             }
         });
 
@@ -246,12 +243,7 @@ public class MainMenu extends FXGLMenu {
         });
 
         localAIbtn.setOnAction(event -> {
-
-            //add a panel here to choose difficulty
-
             getSceneService().pushSubScene(new ChooseAI());
-//            AiType aiType = AiType.NORMAL;
-//            ChessKingApp.newAiGame(aiType);
         });
 
         viewGameBtn.setOnAction(event -> {

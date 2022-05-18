@@ -37,6 +37,7 @@ import edu.sustech.chessking.sound.MusicType;
 import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
+import edu.sustech.chessking.ui.inGame.EatRecorder;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
@@ -79,6 +80,9 @@ public class ChessKingApp extends GameApplication {
     private static List<Double> remainTime = new ArrayList<>();
 
     private static Player localPlayer = new Player();
+    private static EatRecorder downEatRecorder;
+    private static EatRecorder upEatRecorder;
+
     public static Player getLocalPlayer(){
         return localPlayer;
     }
@@ -229,6 +233,7 @@ public class ChessKingApp extends GameApplication {
                         return;
                     }
                     cc.executeMove(move);
+                    addGraveChess(move);
                 }
 
                 @Override
@@ -308,8 +313,13 @@ public class ChessKingApp extends GameApplication {
                 protected void onReceiveMoveHistory(MoveHistory moveHistory) {
                     if (!isSyncData)
                         return;
-                    gameCore.setGame(moveHistory);
+                    if (!gameCore.setGame(moveHistory)) {
+                        getMoveHistory();
+                        return;
+                    }
                     getGameWorld().removeEntities(getGameWorld().getEntitiesByType(CHESS));
+                    downEatRecorder.setFromHistory(moveHistory);
+                    upEatRecorder.setFromHistory(moveHistory);
                     initChess();
                     receiveRecord[0] = true;
                     checkReceiveAllInfo();
@@ -402,6 +412,32 @@ public class ChessKingApp extends GameApplication {
         FXGL.getNotificationService().setBackgroundColor(
                 Color.web("#00000080"));
         FXGL.getNotificationService().setTextColor(Color.WHITE);
+
+        downEatRecorder = new EatRecorder(downSideColor);
+        downEatRecorder.setFromHistory(gameCore.getGameHistory());
+        upEatRecorder = new EatRecorder(downSideColor.reverse());
+        upEatRecorder.setFromHistory(gameCore.getGameHistory());
+    }
+
+    public static void addGraveChess(Move move) {
+        if (!move.getMoveType().isEat())
+            return;
+        Chess chess = (Chess) move.getMoveTarget()[0];
+        if (chess.getColorType() == downSideColor)
+            upEatRecorder.addChess(chess);
+        else
+            downEatRecorder.addChess(chess);
+    }
+
+    private static void removeGraveChess(Move move) {
+        if (!move.getMoveType().isEat())
+            return;
+
+        Chess chess = (Chess) move.getMoveTarget()[0];
+        if (chess.getColorType() == downSideColor)
+            upEatRecorder.removeChess(chess);
+        else
+            downEatRecorder.removeChess(chess);
     }
 
     private static void reconnect() {
@@ -886,12 +922,14 @@ public class ChessKingApp extends GameApplication {
                                         .getChess().getPosition());
                             return;
                         }
+
                         if (gameType == GameType.CLIENT)
                             clientGameCore.putDownChess(move.getPosition());
                         movingChessComponent.executeMove(move);
                         if (gameType == GameType.CLIENT)
                             clientGameCore.moveChess(move);
 
+                        addGraveChess(move);
                         endTurn();
                     });
                 }
@@ -983,10 +1021,11 @@ public class ChessKingApp extends GameApplication {
             Chess originChess = move.getChess();
             chess.setPosition(toPoint(originChess.getPosition()));
             //set back eaten chess
-            if (move.getMoveType() == MoveType.EAT ||
-                    move.getMoveType() == MoveType.EAT_PROMOTE)
+            if (move.getMoveType().isEat()) {
                 spawn("chess", new SpawnData().put("chess",
                         move.getMoveTarget()[0]));
+                removeGraveChess(move);
+            }
 
             //set rook back to castle origin
             if (move.getMoveType() == MoveType.CASTLE) {
@@ -1018,6 +1057,7 @@ public class ChessKingApp extends GameApplication {
             chess.getComponent(ChessComponent.class).reverseMove(move);
             set(TurnVar, ((ColorType)geto(TurnVar)).reverse());
         }
+
     }
 
     private static void reverseTimer(GameTimer nowPlayerTimer, GameTimer formerPlayerTimer) {

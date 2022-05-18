@@ -134,22 +134,39 @@ public class ChessKingEntityFactory implements EntityFactory {
         }
 
     @Spawns("chessGrave")
-        public Entity newChessGrave(SpawnData data) {
-        Point2D point;
-        Color color;
-        if (data.get("playerSide").equals("black")) {
-            point = new Point2D(735, 95);
-            color = Color.GRAY;
-        } else {
-            point = new Point2D(735, 645);
-            color = Color.LIGHTGRAY;
-        }
+    public Entity newChessGrave(SpawnData data) {
+    Point2D point;
+    Color color;
+    if (data.get("playerSide").equals("black")) {
+        point = new Point2D(735, 95);
+        color = Color.web("#00000070");
+    } else {
+        point = new Point2D(735, 645);
+        color = Color.web("#00000070");
+    }
+    return FXGL.entityBuilder(data)
+            .view(new Rectangle(450, 60, color))
+            .at(point)
+            .build();
+    }
+
+    @Spawns("grave")
+    public Entity newGrave(SpawnData data){
         return FXGL.entityBuilder(data)
-                .view(new Rectangle(450, 60, color))
-                .at(point)
-                .with(new ChessGraveComponent())
+                .with(new GraveComponent(data.get("chess"),
+                        data.get("number"), data.get("index")))
                 .build();
     }
+
+    @Spawns("graveCount")
+    public Entity newGraveCount(SpawnData data){
+        return FXGL.entityBuilder(data)
+                .with(new BounceComponent(texture("number/" +
+                                data.get("number") + ".png",
+                                24, 36)))
+                .build();
+    }
+
 
     @Spawns("chat")
     public Entity newChat(SpawnData data){

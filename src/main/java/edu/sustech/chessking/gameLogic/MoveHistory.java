@@ -1,10 +1,14 @@
 package edu.sustech.chessking.gameLogic;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 
-public class MoveHistory implements Serializable {
+public class MoveHistory implements Serializable, Iterable<Move> {
     @Serial
     private static final long serialVersionUID = 5L;
 
@@ -91,5 +95,11 @@ public class MoveHistory implements Serializable {
                 return i;
         }
         return -1;
+    }
+
+    @NotNull
+    @Override
+    public Iterator<Move> iterator() {
+        return Collections.unmodifiableList(moveHistory).iterator();
     }
 }
