@@ -2,6 +2,7 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.MenuType;
+import com.almasb.fxgl.audio.Music;
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.net.Connection;
@@ -34,8 +35,11 @@ import static com.almasb.fxgl.dsl.FXGL.*;
 public class MainMenu extends FXGLMenu {
     public Button btn1 = new Button("Local Game");
 
+
     public MainMenu() {
         super(MenuType.MAIN_MENU);
+
+        ChessKingApp.playMusic("BGM1.mp3");
 
         Texture background = texture("Background.png", 1200, 800);
         getContentRoot().getChildren().setAll(background);

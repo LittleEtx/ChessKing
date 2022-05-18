@@ -2,6 +2,7 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
+import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.gameSave.Save;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -37,9 +38,11 @@ public class LoadSave extends SubScene {
 
         ArrayList<Button> savesBtn = new ArrayList<>();
         for(Save existedSave : saves){
+            Player savePlayer = existedSave.getUpPlayer();
             String str = existedSave.getSaveDate().toString();
             str = str.replace('T',' ');
             str = str.substring(0,19);
+            str = savePlayer.getName() +" " +str;
             savesBtn.add(new Button(str));
         }
 
@@ -52,7 +55,7 @@ public class LoadSave extends SubScene {
 
         for(Button saveBtn :savesBtn){
             saveBtn.setStyle("-fx-background-color: transparent;");
-            saveBtn.setPrefSize(300,40);
+            saveBtn.setPrefSize(400,40);
             saveBtn.setAlignment(Pos.CENTER);
             saveBtn.setTextFill(Color.WHITE);
             saveBtn.setFont(new Font(20));

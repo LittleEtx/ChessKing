@@ -6,6 +6,7 @@ import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.LoadingScene;
 import com.almasb.fxgl.app.scene.SceneFactory;
+import com.almasb.fxgl.audio.Music;
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
@@ -133,7 +134,8 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void onPreInit() {
         getSettings().setGlobalSoundVolume(1);
-        getSettings().setGlobalMusicVolume(0.01);
+        getSettings().setGlobalMusicVolume(0.2);
+
     }
 
     // ===============================
@@ -186,6 +188,8 @@ public class ChessKingApp extends GameApplication {
     //initialize the game
     @Override
     protected void initGame() {
+
+        playMusic("phoenixWrightCutBGM.mp3");
         //receive method for client
         if (gameType == GameType.CLIENT) {
             Connection<Bundle> connection = lanGameInfo.getClient()
@@ -1034,7 +1038,17 @@ public class ChessKingApp extends GameApplication {
         remainTime.remove(remainTime.size() - 1);
     }
 
+    /**
+     * Stop and play the music
+     */
+    public static void playMusic(String string) {
+        Music mainMenuMusic = FXGL.getAssetLoader().loadMusic(string);
+        getAudioPlayer().loopMusic(mainMenuMusic);
+    }
 
+    public static void stopMusic(){
+        getAudioPlayer().stopAllMusic();
+    }
     // ===============================
     //finally launching the game
     public static void main(String[] args) {

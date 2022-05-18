@@ -3,7 +3,6 @@ package edu.sustech.chessking.ui;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
-import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.ai.AiType;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -34,6 +33,7 @@ public class ChooseAI extends SubScene {
         easy.setOnAction(event -> {
             getSceneService().popSubScene();
             ChessKingApp.newAiGame(AiType.EASY);
+            ChessKingApp.stopMusic();
         });
 
         Button normal = new Button("Normal");
@@ -41,6 +41,7 @@ public class ChooseAI extends SubScene {
         normal.setOnAction(event -> {
             getSceneService().popSubScene();
             ChessKingApp.newAiGame(AiType.NORMAL);
+            ChessKingApp.stopMusic();
         });
 
         Button hard = new Button("Hard");
@@ -48,12 +49,13 @@ public class ChooseAI extends SubScene {
         hard.setOnAction(event -> {
             getSceneService().popSubScene();
             ChessKingApp.newAiGame(AiType.HARD);
+            ChessKingApp.stopMusic();
         });
 
-        HBox btns = new HBox(20,easy,normal,hard);
+        HBox btns = new HBox(10,easy,normal,hard);
         btns.setAlignment(Pos.CENTER);
 
-        VBox vb = new VBox(20,chooseDifficultyText,btns);
+        VBox vb = new VBox(30,chooseDifficultyText,btns);
         vb.setAlignment(Pos.CENTER);
         vb.setPrefSize(400,200);
         vb.setStyle("-fx-background-radius: 10;" +
