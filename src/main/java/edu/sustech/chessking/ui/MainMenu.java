@@ -2,10 +2,10 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.MenuType;
-import com.almasb.fxgl.audio.Music;
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.net.Connection;
+import com.almasb.fxgl.scene.Scene;
 import com.almasb.fxgl.scene.SubScene;
 import com.almasb.fxgl.texture.Texture;
 import com.almasb.fxgl.ui.DialogBox;
@@ -17,6 +17,8 @@ import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanClientCore;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanGameInfo;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerSearcher;
+import edu.sustech.chessking.sound.MusicPlayer;
+import edu.sustech.chessking.sound.MusicType;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
@@ -25,6 +27,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,12 +38,14 @@ import static com.almasb.fxgl.dsl.FXGL.*;
 public class MainMenu extends FXGLMenu {
     public Button btn1 = new Button("Local Game");
 
+    @Override
+    public void onEnteredFrom(@NotNull Scene prevState) {
+        MusicPlayer.play(MusicType.MENU);
+    }
 
     public MainMenu() {
         super(MenuType.MAIN_MENU);
-
-        ChessKingApp.playMusic("phoenixWrightCutBGM.mp3");
-
+        MusicPlayer.play(MusicType.MENU);
         Texture background = texture("Background.png", 1200, 800);
         getContentRoot().getChildren().setAll(background);
 

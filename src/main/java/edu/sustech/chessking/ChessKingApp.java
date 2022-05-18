@@ -6,7 +6,6 @@ import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.LoadingScene;
 import com.almasb.fxgl.app.scene.SceneFactory;
-import com.almasb.fxgl.audio.Music;
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
@@ -33,6 +32,8 @@ import edu.sustech.chessking.gameLogic.multiplayer.GameInfoGetter;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanGameInfo;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerInfo;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameInfo;
+import edu.sustech.chessking.sound.MusicPlayer;
+import edu.sustech.chessking.sound.MusicType;
 import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
@@ -188,7 +189,7 @@ public class ChessKingApp extends GameApplication {
     //initialize the game
     @Override
     protected void initGame() {
-
+        MusicPlayer.play(MusicType.IN_GAME);
         //receive method for client
         if (gameType == GameType.CLIENT) {
             Connection<Bundle> connection = lanGameInfo.getClient()
@@ -366,6 +367,7 @@ public class ChessKingApp extends GameApplication {
         set(GameTypeVar, gameType);
         set(DownChessSkinVar, downPlayer.getChessSkin());
         set(UpChessSkinVar, upPlayer.getChessSkin());
+        set(TurnVar, gameCore.getTurn());
 
         spawn("backGround", new SpawnData().put("player", localPlayer));
 
@@ -395,7 +397,6 @@ public class ChessKingApp extends GameApplication {
         initAvatar();
         initBoard();
         initChess();
-        initTimer();
 
         FXGL.getNotificationService().setBackgroundColor(
                 Color.web("#00000080"));
@@ -435,12 +436,11 @@ public class ChessKingApp extends GameApplication {
      * load game for local game for the given save
      * @return false when failed to read save
      */
-    public static boolean loadGame(Save save, Player opponent) {
+    public static boolean loadGame(Save save) {
         if (!readSave(save))
             return false;
         gameType = GameType.LOCAL;
-        upPlayer = opponent;
-        downPlayer = localPlayer;
+        upPlayer = save.getUpPlayer();
         getGameController().startNewGame();
         return true;
     }
@@ -454,7 +454,8 @@ public class ChessKingApp extends GameApplication {
             return false;
 
         setAiPlayer(aiType);
-        downPlayer = localPlayer;
+        if (gameCore.getTurn() != downSideColor)
+            isAiStartTurn = true;
         gameType = GameType.COMPUTER;
         getGameController().startNewGame();
         return true;
@@ -468,7 +469,8 @@ public class ChessKingApp extends GameApplication {
             return false;
 
         //initial
-        setPlayerFromSave(replay);
+        downPlayer = replay.getDownPlayer();
+        upPlayer = replay.getUpPlayer();
         gameType = GameType.REPLAY;
         getGameController().startNewGame();
         return true;
@@ -479,22 +481,12 @@ public class ChessKingApp extends GameApplication {
             return false;
         }
         saveUuid = save.getUuid();
+        downPlayer = localPlayer;
         downSideColor = save.getDefaultDownColor();
         gameTimeInSec = save.getGameTime();
         turnTimeInSec = save.getTurnTime();
         remainTime = save.getRemainingTime();
         return true;
-    }
-
-    private static void setPlayerFromSave(Save save) {
-        if (downSideColor == ColorType.WHITE) {
-            downPlayer = save.getWhitePlayer();
-            upPlayer = save.getBlackPlayer();
-        }
-        else {
-            downPlayer = save.getBlackPlayer();
-            upPlayer = save.getWhitePlayer();
-        }
     }
 
     /**
@@ -761,16 +753,6 @@ public class ChessKingApp extends GameApplication {
         return save;
     }
 
-    public void initTimer(){
-        if(localPlayer.getColor1().equals(ColorType.WHITE)){
-            spawn("downTimer",new SpawnData().put("timer",whiteTimer));
-            spawn("upTimer",new SpawnData().put("timer",blackTimer));
-        }else{
-            spawn("downTimer",new SpawnData().put("timer",blackTimer));
-            spawn("upTimer",new SpawnData().put("timer",whiteTimer));
-        }
-    }
-
     public void initAvatar(){
         spawn("downAvatar", new SpawnData().put("player", downPlayer));
         spawn("upAvatar", new SpawnData().put("player", upPlayer));
@@ -872,7 +854,6 @@ public class ChessKingApp extends GameApplication {
                 }
                 betweenClickTimer.capture();
 
-                System.out.println("Move Chess");
                 if (!getb(IsMovingChess)) {
                     Entity chessEntity = getChessEntity(getMousePt());
                     if (chessEntity == null) {
@@ -1048,17 +1029,6 @@ public class ChessKingApp extends GameApplication {
         remainTime.remove(remainTime.size() - 1);
     }
 
-    /**
-     * Stop and play the music
-     */
-    public static void playMusic(String string) {
-        Music mainMenuMusic = FXGL.getAssetLoader().loadMusic(string);
-        getAudioPlayer().loopMusic(mainMenuMusic);
-    }
-
-    public static void stopMusic(){
-        getAudioPlayer().stopAllMusic();
-    }
     // ===============================
     //finally launching the game
     public static void main(String[] args) {

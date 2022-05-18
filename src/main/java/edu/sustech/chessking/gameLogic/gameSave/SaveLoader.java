@@ -235,6 +235,7 @@ public class SaveLoader {
             return true;
         }
         catch (Exception e) {
+            System.out.println(e.getMessage());
             if (file.exists())
                 file.delete();
             return false;
