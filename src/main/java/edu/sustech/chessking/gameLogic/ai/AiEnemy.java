@@ -64,7 +64,11 @@ public class AiEnemy {
      * @return the AI player
      */
     public Player getPlayer() {
-        switch (ai) {
+        return getPlayer(ai);
+    }
+
+    public static Player getPlayer(AiType aiType) {
+        switch (aiType) {
             case EASY -> {
                 return easyAiPlayer;
             }
@@ -75,6 +79,16 @@ public class AiEnemy {
                 return hardAiPlayer;
             }
         }
+        return null;
+    }
+
+    public static AiType getAiType(Player player) {
+        if (easyAiPlayer.equals(player))
+            return AiType.EASY;
+        if (normalAiPlayer.equals(player))
+            return AiType.NORMAL;
+        if (hardAiPlayer.equals(player))
+            return AiType.HARD;
         return null;
     }
 

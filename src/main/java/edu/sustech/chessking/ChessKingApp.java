@@ -367,6 +367,7 @@ public class ChessKingApp extends GameApplication {
         set(GameTypeVar, gameType);
         set(DownChessSkinVar, downPlayer.getChessSkin());
         set(UpChessSkinVar, upPlayer.getChessSkin());
+        set(TurnVar, gameCore.getTurn());
 
         spawn("backGround", new SpawnData().put("player", localPlayer));
 
@@ -435,12 +436,12 @@ public class ChessKingApp extends GameApplication {
      * load game for local game for the given save
      * @return false when failed to read save
      */
-    public static boolean loadGame(Save save, Player opponent) {
+    public static boolean loadGame(Save save) {
         if (!readSave(save))
             return false;
+
         gameType = GameType.LOCAL;
-        upPlayer = opponent;
-        downPlayer = localPlayer;
+        upPlayer = save.getUpPlayer();
         getGameController().startNewGame();
         return true;
     }
@@ -454,7 +455,8 @@ public class ChessKingApp extends GameApplication {
             return false;
 
         setAiPlayer(aiType);
-        downPlayer = localPlayer;
+        if (gameCore.getTurn() != downSideColor)
+            isAiStartTurn = true;
         gameType = GameType.COMPUTER;
         getGameController().startNewGame();
         return true;
@@ -468,7 +470,8 @@ public class ChessKingApp extends GameApplication {
             return false;
 
         //initial
-        setPlayerFromSave(replay);
+        downPlayer = replay.getDownPlayer();
+        upPlayer = replay.getUpPlayer();
         gameType = GameType.REPLAY;
         getGameController().startNewGame();
         return true;
@@ -479,22 +482,12 @@ public class ChessKingApp extends GameApplication {
             return false;
         }
         saveUuid = save.getUuid();
+        downPlayer = localPlayer;
         downSideColor = save.getDefaultDownColor();
         gameTimeInSec = save.getGameTime();
         turnTimeInSec = save.getTurnTime();
         remainTime = save.getRemainingTime();
         return true;
-    }
-
-    private static void setPlayerFromSave(Save save) {
-        if (downSideColor == ColorType.WHITE) {
-            downPlayer = save.getWhitePlayer();
-            upPlayer = save.getBlackPlayer();
-        }
-        else {
-            downPlayer = save.getBlackPlayer();
-            upPlayer = save.getWhitePlayer();
-        }
     }
 
     /**
@@ -862,7 +855,6 @@ public class ChessKingApp extends GameApplication {
                 }
                 betweenClickTimer.capture();
 
-                System.out.println("Move Chess");
                 if (!getb(IsMovingChess)) {
                     Entity chessEntity = getChessEntity(getMousePt());
                     if (chessEntity == null) {

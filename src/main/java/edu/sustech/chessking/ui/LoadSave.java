@@ -2,7 +2,10 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
+import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.gameLogic.Player;
+import edu.sustech.chessking.gameLogic.ai.AiEnemy;
+import edu.sustech.chessking.gameLogic.ai.AiType;
 import edu.sustech.chessking.gameLogic.gameSave.Save;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -17,8 +20,7 @@ import javafx.scene.text.Font;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.almasb.fxgl.dsl.FXGL.getSceneService;
-import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
+import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class LoadSave extends SubScene {
     private Save wantedSave;
@@ -84,13 +86,8 @@ public class LoadSave extends SubScene {
                 choseSave = true;
 
                 if (event.getClickCount()==2){
-                    getSceneService().popSubScene();
-                    /**Load save method here
-                     *
-                     *
-                     */
-
-
+                    if (!startSaveGame())
+                        getDialogService().showMessageBox("Can not load save!");
                 }
             });
 
@@ -106,11 +103,9 @@ public class LoadSave extends SubScene {
         doneBtn.getStyleClass().add("newPlayer-subScene-button");
         doneBtn.setOnAction(event ->{
             if(choseSave) {
-                getSceneService().popSubScene();
-                /**
-                 load the save data
-                 start a new game with saved data
-                 */
+                if (!startSaveGame())
+                    getDialogService().showMessageBox("Can not load save!");
+
             }else {
                 System.out.println("No save selected");
             }
@@ -119,9 +114,7 @@ public class LoadSave extends SubScene {
 
         Button backBtn = new Button();
         backBtn.getStyleClass().add("backBtn");
-        backBtn.setOnAction(event -> {
-            getSceneService().popSubScene();
-        });
+        backBtn.setOnAction(event -> getSceneService().popSubScene());
         backBtn.setLayoutX(800);
         backBtn.setLayoutY(100);
 
@@ -143,4 +136,13 @@ public class LoadSave extends SubScene {
                     +"-fx-background-color: transparent");
         }
     }
+
+    private boolean startSaveGame() {
+        AiType aiType = AiEnemy.getAiType(wantedSave.getUpPlayer());
+        if (aiType != null)
+            return ChessKingApp.loadAiGame(wantedSave, aiType);
+
+        return ChessKingApp.loadGame(wantedSave);
+    }
+
 }
