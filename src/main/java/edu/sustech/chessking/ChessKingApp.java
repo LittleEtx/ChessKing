@@ -6,7 +6,6 @@ import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.LoadingScene;
 import com.almasb.fxgl.app.scene.SceneFactory;
-import com.almasb.fxgl.audio.Music;
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
@@ -33,6 +32,8 @@ import edu.sustech.chessking.gameLogic.multiplayer.GameInfoGetter;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanGameInfo;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerInfo;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameInfo;
+import edu.sustech.chessking.sound.MusicPlayer;
+import edu.sustech.chessking.sound.MusicType;
 import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
@@ -188,8 +189,7 @@ public class ChessKingApp extends GameApplication {
     //initialize the game
     @Override
     protected void initGame() {
-
-        playMusic("phoenixWrightCutBGM.mp3");
+        MusicPlayer.play(MusicType.IN_GAME);
         //receive method for client
         if (gameType == GameType.CLIENT) {
             Connection<Bundle> connection = lanGameInfo.getClient()
@@ -1030,17 +1030,6 @@ public class ChessKingApp extends GameApplication {
         remainTime.remove(remainTime.size() - 1);
     }
 
-    /**
-     * Stop and play the music
-     */
-    public static void playMusic(String string) {
-        Music mainMenuMusic = FXGL.getAssetLoader().loadMusic(string);
-        getAudioPlayer().loopMusic(mainMenuMusic);
-    }
-
-    public static void stopMusic(){
-        getAudioPlayer().stopAllMusic();
-    }
     // ===============================
     //finally launching the game
     public static void main(String[] args) {
