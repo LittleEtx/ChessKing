@@ -40,6 +40,7 @@ import edu.sustech.chessking.ui.MainMenu;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,7 +56,7 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.getInput;
 import static edu.sustech.chessking.EntityType.CHESS;
 import static edu.sustech.chessking.GameVars.*;
 import static edu.sustech.chessking.VisualLogic.*;
-import static edu.sustech.chessking.ui.InGameUI.*;
+import static edu.sustech.chessking.ui.inGame.InGameUI.*;
 
 public class ChessKingApp extends GameApplication {
 
@@ -584,11 +585,11 @@ public class ChessKingApp extends GameApplication {
         switch (aiType) {
             case EASY -> {
                 gameTimeInSec = AiEnemy.EasyGameTime;
-                turnTimeInSec = AiEnemy.EasyGameTime;
+                turnTimeInSec = AiEnemy.EasyTurnTime;
             }
             case NORMAL -> {
                 gameTimeInSec = AiEnemy.NormalGameTime;
-                turnTimeInSec = AiEnemy.NormalGameTime;
+                turnTimeInSec = AiEnemy.NormalTurnTime;
             }
             case HARD -> {
                 gameTimeInSec = AiEnemy.HardGameTime;
@@ -757,8 +758,6 @@ public class ChessKingApp extends GameApplication {
     public void initAvatar(){
         spawn("downAvatar", new SpawnData().put("player", downPlayer));
         spawn("upAvatar", new SpawnData().put("player", upPlayer));
-        //spawn("playerInfo",new SpawnData().put("playerSide", "white"));
-        //spawn("playerInfo",new SpawnData().put("playerSide","black"));
         spawn("chessGrave",new SpawnData().put("playerSide","black"));
         spawn("chessGrave",new SpawnData().put("playerSide","white"));
         spawn("chat");
@@ -907,6 +906,16 @@ public class ChessKingApp extends GameApplication {
         initButtons();
         initLabels(downPlayer, upPlayer);
         initMark();
+        Text gameTime = FXGL.getUIFactoryService().newText(whiteTimer.getGameTimeStr());
+        Text turnTime = FXGL.getUIFactoryService().newText(whiteTimer.getTurnTimeStr());
+        gameTime.setLayoutX(800);
+        gameTime.setLayoutY(200);
+        gameTime.setFill(Color.WHITE);
+        turnTime.setLayoutX(800);
+        turnTime.setLayoutY(400);
+        turnTime.setFill(Color.WHITE);
+        FXGL.addUINode(gameTime);
+        FXGL.addUINode(turnTime);
     }
 
     public static void onClickSave() {

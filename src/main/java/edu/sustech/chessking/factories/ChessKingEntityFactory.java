@@ -147,6 +147,7 @@ public class ChessKingEntityFactory implements EntityFactory {
         return FXGL.entityBuilder(data)
                 .view(new Rectangle(450, 60, color))
                 .at(point)
+                .with(new ChessGraveComponent())
                 .build();
     }
 
@@ -158,17 +159,11 @@ public class ChessKingEntityFactory implements EntityFactory {
                 .build();
     }
 
-    @Spawns("downTimer")
-    public Entity newDownTimer(SpawnData data){
+    @Spawns("timer")
+    public Entity newTimer(SpawnData data){
         return FXGL.entityBuilder(data)
-//                .with(new TimerComponent())
+                .with(new TimerComponent(data.get("timer")))
                 .build();
     }
 
-    @Spawns("upTimer")
-    public Entity newUpTimer(SpawnData data){
-        return FXGL.entityBuilder(data)
-//                .with(new TimerComponent())
-                .build();
-    }
 }
