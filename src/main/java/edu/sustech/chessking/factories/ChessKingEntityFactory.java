@@ -161,14 +161,16 @@ public class ChessKingEntityFactory implements EntityFactory {
     @Spawns("downTimer")
     public Entity newDownTimer(SpawnData data){
         return FXGL.entityBuilder(data)
-//                .with(new TimerComponent())
+                .with(new TimerComponent(data.get("timer")))
+                .at(new Point2D(735,645))
                 .build();
     }
 
     @Spawns("upTimer")
     public Entity newUpTimer(SpawnData data){
         return FXGL.entityBuilder(data)
-//                .with(new TimerComponent())
+                .with(new TimerComponent(data.get("timer")))
+                .at(new Point2D(735,95))
                 .build();
     }
 }

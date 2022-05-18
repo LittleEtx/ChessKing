@@ -189,7 +189,6 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void initGame() {
 
-        playMusic("phoenixWrightCutBGM.mp3");
         //receive method for client
         if (gameType == GameType.CLIENT) {
             Connection<Bundle> connection = lanGameInfo.getClient()
@@ -396,6 +395,7 @@ public class ChessKingApp extends GameApplication {
         initAvatar();
         initBoard();
         initChess();
+        initTimer();
 
         FXGL.getNotificationService().setBackgroundColor(
                 Color.web("#00000080"));
@@ -761,13 +761,23 @@ public class ChessKingApp extends GameApplication {
         return save;
     }
 
+    public void initTimer(){
+        if(localPlayer.getColor1().equals(ColorType.WHITE)){
+            spawn("downTimer",new SpawnData().put("timer",whiteTimer));
+            spawn("upTimer",new SpawnData().put("timer",blackTimer));
+        }else{
+            spawn("downTimer",new SpawnData().put("timer",blackTimer));
+            spawn("upTimer",new SpawnData().put("timer",whiteTimer));
+        }
+    }
+
     public void initAvatar(){
         spawn("downAvatar", new SpawnData().put("player", downPlayer));
         spawn("upAvatar", new SpawnData().put("player", upPlayer));
         //spawn("playerInfo",new SpawnData().put("playerSide", "white"));
         //spawn("playerInfo",new SpawnData().put("playerSide","black"));
-        spawn("chessGrave",new SpawnData().put("playerSide","black"));
-        spawn("chessGrave",new SpawnData().put("playerSide","white"));
+//        spawn("chessGrave",new SpawnData().put("playerSide","black"));
+//        spawn("chessGrave",new SpawnData().put("playerSide","white"));
         spawn("chat");
     }
 

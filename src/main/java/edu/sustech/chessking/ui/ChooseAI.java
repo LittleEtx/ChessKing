@@ -33,7 +33,6 @@ public class ChooseAI extends SubScene {
         easy.setOnAction(event -> {
             getSceneService().popSubScene();
             ChessKingApp.newAiGame(AiType.EASY);
-            ChessKingApp.stopMusic();
         });
 
         Button normal = new Button("Normal");
@@ -41,7 +40,6 @@ public class ChooseAI extends SubScene {
         normal.setOnAction(event -> {
             getSceneService().popSubScene();
             ChessKingApp.newAiGame(AiType.NORMAL);
-            ChessKingApp.stopMusic();
         });
 
         Button hard = new Button("Hard");
@@ -49,7 +47,6 @@ public class ChooseAI extends SubScene {
         hard.setOnAction(event -> {
             getSceneService().popSubScene();
             ChessKingApp.newAiGame(AiType.HARD);
-            ChessKingApp.stopMusic();
         });
 
         HBox btns = new HBox(10,easy,normal,hard);

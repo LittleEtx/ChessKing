@@ -39,7 +39,7 @@ public class MainMenu extends FXGLMenu {
     public MainMenu() {
         super(MenuType.MAIN_MENU);
 
-        ChessKingApp.playMusic("BGM1.mp3");
+        ChessKingApp.playMusic("phoenixWrightCutBGM.mp3");
 
         Texture background = texture("Background.png", 1200, 800);
         getContentRoot().getChildren().setAll(background);
