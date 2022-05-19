@@ -38,15 +38,9 @@ import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
 import edu.sustech.chessking.ui.inGame.EatRecorder;
-import javafx.geometry.Pos;
-import javafx.scene.effect.Bloom;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
@@ -414,6 +408,8 @@ public class ChessKingApp extends GameApplication {
         initAvatar();
         initBoard();
         initChess();
+        initChatBox();
+//        spawn("chatBox");
 
         FXGL.getNotificationService().setBackgroundColor(
                 Color.web("#00000080"));
@@ -880,6 +876,21 @@ public class ChessKingApp extends GameApplication {
                 endGame(ClientEndGameType.LOST);
             }
         }, KeyCode.L);
+
+        getInput().addAction(new UserAction("add Message") {
+            @Override
+            protected void onActionBegin() {
+                double random = Math.random();
+                addMessage(String.valueOf(random));
+            }
+        }, KeyCode.A);
+
+        getInput().addAction(new UserAction("delete Message") {
+            @Override
+            protected void onActionBegin() {
+                deleteMessage();
+            }
+        }, KeyCode.D);
 
         //left click action
         getInput().addAction(new UserAction("LeftClick") {

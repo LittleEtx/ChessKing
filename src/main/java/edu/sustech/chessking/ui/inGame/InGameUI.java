@@ -7,6 +7,7 @@ import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.Bloom;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -256,5 +257,71 @@ public class InGameUI {
         }
 
         FXGL.addUINode(timer);
+    }
+
+    private static int counter = 0;
+    private static double v = 1d;
+    private static final VBox messagesVB = new VBox(5);
+    private static final ScrollPane messages = new ScrollPane(messagesVB);
+    public static void initChatBox(){
+
+        messagesVB.setMinWidth(375);
+        messagesVB.setMinHeight(370);
+        messagesVB.setMaxWidth(375);
+        messagesVB.setAlignment(Pos.TOP_LEFT);
+        messagesVB.setStyle("-fx-background-color: #FF634720;");
+        messagesVB.setMouseTransparent(true);
+
+        messages.setPrefViewportWidth(375);
+        messages.setPrefViewportHeight(370);
+        messages.setMaxHeight(370);
+        messages.setFitToWidth(true);
+        messages.setStyle("-fx-background-color: transparent;");
+        messages.setLayoutY(215);
+        messages.setLayoutX(760);
+
+        messages.setOnSwipeUp(event -> {
+            if(v >= 0) {
+                v = v - 0.01;
+            }
+        });
+
+        messages.setOnSwipeDown(event -> {
+            if(v<=1){
+                v = v + 0.01;
+            }
+        });
+        
+        messages.needsLayoutProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                messages.setVvalue(v);
+            }
+        });
+
+        addUINode(messages);
+    }
+
+    public static void addMessage(String str) {
+        Text msg = new Text(str);
+        msg.setFont(new Font(20));
+        if(counter%2==0) {
+            msg.setFill(Color.GRAY);
+        }else{
+            msg.setFill(Color.BLACK);
+        }
+        messagesVB.getChildren().add(counter,msg);
+        counter++;
+    }
+
+    public static void deleteMessage(){
+        counter--;
+        messagesVB.getChildren().remove(counter);
+    }
+
+    public static void deleteAllMessages(){
+        for(int i = 0; i < counter; i++){
+            messagesVB.getChildren().remove(i);
+        }
+        counter = 0;
     }
 }

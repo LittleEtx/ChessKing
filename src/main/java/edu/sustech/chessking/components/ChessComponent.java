@@ -18,6 +18,7 @@ import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
 import edu.sustech.chessking.ui.PawnPromote;
+import edu.sustech.chessking.ui.inGame.InGameUI;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -426,6 +427,7 @@ public class ChessComponent extends Component {
 
         moveTo(pos);
         System.out.println(move);
+        InGameUI.addMessage(move.toString());
         setTargetKingList();
     }
 

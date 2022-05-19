@@ -176,11 +176,4 @@ public class ChessKingEntityFactory implements EntityFactory {
                 .build();
     }
 
-    @Spawns("timer")
-    public Entity newTimer(SpawnData data){
-        return FXGL.entityBuilder(data)
-                .with(new TimerComponent(data.get("timer")))
-                .build();
-    }
-
 }
