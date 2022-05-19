@@ -447,3 +447,17 @@
     -fx-background-image: url("deleteBlue.png");
     -fx-background-size: 45 45;
 }
+
+.boardBtn{
+    -fx-background-color: transparent;
+    -fx-background-image: url("trophy.png");
+    -fx-background-size: 30 30;
+    -fx-pref-height: 30;
+    -fx-pref-width: 30;
+}
+
+.boardBtn:hover {
+    -fx-background-size: 35 35;
+    -fx-pref-height: 35;
+    -fx-pref-width: 35;
+}

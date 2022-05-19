@@ -15,14 +15,16 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
 import static com.almasb.fxgl.dsl.FXGL.getSceneService;
 import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
-
 public class ChooseLocalPlayer extends SubScene{
+    private boolean isBoardClicked = false;
+
 
     public ChooseLocalPlayer(ArrayList<Player> players){
         Rectangle bg = new Rectangle(1200,800, Color.web("#00000080"));
@@ -108,8 +110,23 @@ public class ChooseLocalPlayer extends SubScene{
             getSceneService().popSubScene();
             getSceneService().pushSubScene(new DeletePlayer(SaveLoader.readPlayerList()));
         });
-        deleteBtn.setLayoutX(350);
-        deleteBtn.setLayoutY(100);
+
+        Button boardBtn = new Button();
+        boardBtn.getStyleClass().add("boardBtn");
+        boardBtn.setOnAction(event -> {
+            if(!isBoardClicked) {
+                showLeaderboard();
+                isBoardClicked = true;
+            }else{
+                getContentRoot().getChildren().remove(1);
+                isBoardClicked = false;
+            }
+        });
+
+        HBox subBtns = new HBox(5,deleteBtn,boardBtn);
+        subBtns.setAlignment(Pos.CENTER);
+        subBtns.setLayoutX(350);
+        subBtns.setLayoutY(100);
 
         HBox buttons = new HBox(20,newPlayerBtn,doneBtn);
         buttons.setAlignment(Pos.BOTTOM_CENTER);
@@ -123,7 +140,7 @@ public class ChooseLocalPlayer extends SubScene{
         vb.setLayoutX(350);
         vb.setLayoutY(100);
         getContentRoot().getChildren().add(vb);
-        getContentRoot().getChildren().add(deleteBtn);
+        getContentRoot().getChildren().add(subBtns);
     }
 
     private void setTransparent(ArrayList<Button> buttons){
@@ -131,5 +148,48 @@ public class ChooseLocalPlayer extends SubScene{
             button.setStyle("-fx-border-color: transparent;"
             +"-fx-background-color: transparent");
         }
+    }
+
+    private void showLeaderboard(){
+        Text leaderBoard = new Text("Leader Board");
+        leaderBoard.setFont(new Font(15));
+        leaderBoard.setStroke(Color.PINK);
+        leaderBoard.setStrokeWidth(1);
+
+        leaderBoard.setFill(Color.WHITE);
+
+        ArrayList<Player> localPlayers = SaveLoader.readPlayerList();
+        localPlayers.sort((p1,p2)-> p1.getScore()-p2.getScore());
+        int topNo;
+        if(localPlayers.size()<5){
+            topNo = localPlayers.size();
+        }else {
+            topNo = 5;
+        }
+
+        VBox boardVB = new VBox(5,leaderBoard);
+        boardVB.setStyle("-fx-background-color: linear-gradient" +
+                "(from 0.0% 0.0% to 100.0% 0.0%, #193237ff 0.0%, #2e4e58ff 50.0%, #39687cff 100.0%);"
+                +"-fx-background-radius: 5;"
+        );
+        boardVB.setPrefWidth(100);
+        boardVB.setLayoutX(1000);
+        boardVB.setLayoutY(100);
+        boardVB.setAlignment(Pos.CENTER);
+
+        for(int i = 0; i < topNo; i++){
+            Player player = localPlayers.get(i);
+
+            Text name = new Text(player.getName());
+            Text score = new Text(String.valueOf(player.getScore()));
+
+            name.setFill(Color.WHITE);
+            score.setFill(Color.WHITE);
+
+            HBox playerHB = new HBox(20,name, score);
+            playerHB.setAlignment(Pos.CENTER);
+            boardVB.getChildren().add(playerHB);
+        }
+        getContentRoot().getChildren().add(1,boardVB);
     }
 }

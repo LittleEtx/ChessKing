@@ -4,6 +4,7 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.GameType;
+import edu.sustech.chessking.gameLogic.GameTimer;
 import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
 import javafx.geometry.Pos;
@@ -26,6 +27,10 @@ import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
 
 public class ChoosePlayer2 extends SubScene {
     Player p2;
+    private int gameTime = 90;
+    private int turnTime = 5;
+    public void setGameTime(int gameTime) {this.gameTime = gameTime;}
+    public void setTurnTime(int turnTime) {this.turnTime = turnTime;}
     public ChoosePlayer2(Player player){
         Rectangle bg = new Rectangle(1200,800, Color.web("#00000080"));
         getContentRoot().getChildren().add(bg);
@@ -98,7 +103,7 @@ public class ChoosePlayer2 extends SubScene {
                 opponent.setName("YourOpponent");
                 opponent.setAvatar("avatar5");
                 getSceneService().popSubScene();
-                ChessKingApp.newGame(GameType.LOCAL, opponent, -1, -1);
+                ChessKingApp.newGame(GameType.LOCAL, opponent, gameTime, turnTime);
             }else{
                 System.out.println("no player2 detected");
             }
