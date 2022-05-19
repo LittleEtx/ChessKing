@@ -268,6 +268,7 @@ public class ChessComponent extends Component {
                 //have moved to the target position
                 if (localTimer.elapsed(Duration.seconds(1.0))) {
                     isComputerMove = false;
+                    play("put.wav");
                     clearVisualEffect();
                     set(AvailablePositionVar, new ArrayList<Position>());
                     executeMove(computerMove);
@@ -315,6 +316,7 @@ public class ChessComponent extends Component {
      */
     public void putChess(Consumer<Move> callback){
         clearMovingChessVisual();
+        play("put.wav");
         Position pos = getMousePos();
         if (pos != null && gameCore.isMoveAvailable(chess, pos)) {
             Move move = gameCore.castToMove(chess, pos);
