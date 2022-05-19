@@ -5,6 +5,7 @@ import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
 import edu.sustech.chessking.gameLogic.exception.ConstructorException;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -21,6 +22,11 @@ public class Move implements Serializable {
     private final Chess chess;
     private final MoveType moveType;
     private final Object[] moveTarget;
+
+    public enum StringType {
+        CONCISE, DETAILED
+    }
+
 
     /**
      * Constructor for a move step <BR/>
@@ -180,6 +186,35 @@ public class Move implements Serializable {
             sb.append(' ');
             sb.append(ob.toString());
         }
+        return sb.toString();
+    }
+
+    public String toString(@NotNull StringType type) {
+        if (type == StringType.DETAILED)
+            return this.toString();
+
+        if (moveType == MoveType.CASTLE) {
+            CastleType castleType = (CastleType) moveTarget[0];
+            if (castleType == CastleType.LONG)
+                return "0-0-0";
+            else
+                return "0-0";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(chess.getChessType().toString()).append(" ")
+                .append(chess.getPosition().toString(Position.ChessStringType.UPPERCASE)).append(" -> ")
+                .append(getPosition().toString(Position.ChessStringType.UPPERCASE));
+
+        if (moveType == MoveType.PROMOTE)
+            sb.append(" = ").append(moveTarget[0].toString());
+
+        else if (moveType == MoveType.EAT_PROMOTE)
+            sb.append(" = ").append(moveTarget[1].toString());
+
+        if (moveType.isEat())
+            sb.append(" x ").append(((Chess)moveTarget[0]).
+                    getChessType().toString());
         return sb.toString();
     }
 

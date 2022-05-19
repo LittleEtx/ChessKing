@@ -139,15 +139,14 @@ public class ChessKingEntityFactory implements EntityFactory {
     Color color;
     if (data.get("playerSide").equals("black")) {
         point = new Point2D(735, 95);
-        color = Color.web("#00000070");
     } else {
         point = new Point2D(735, 645);
-        color = Color.web("#00000070");
     }
+    color = Color.web("#00000070");
     return FXGL.entityBuilder(data)
-            .view(new Rectangle(450, 60, color))
-            .at(point)
-            .build();
+        .view(new Rectangle(450, 60, color))
+        .at(point)
+        .build();
     }
 
     @Spawns("grave")
@@ -167,7 +166,6 @@ public class ChessKingEntityFactory implements EntityFactory {
                 .build();
     }
 
-
     @Spawns("chat")
     public Entity newChat(SpawnData data){
         return FXGL.entityBuilder(data)
@@ -176,4 +174,17 @@ public class ChessKingEntityFactory implements EntityFactory {
                 .build();
     }
 
+    @Spawns("clock")
+    public Entity newClock(SpawnData data){
+        return FXGL.entityBuilder(data)
+                .view(texture("Clock.png", 30, 30))
+                .build();
+    }
+
+    @Spawns("exclamationMark")
+    public Entity newExclamationMark(SpawnData data){
+        return FXGL.entityBuilder(data)
+                .view(texture("ExclamationMark.png", 40, 40))
+                .build();
+    }
 }

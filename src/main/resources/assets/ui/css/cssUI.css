@@ -38,14 +38,24 @@
 }
 
 .undo-box{
-    -fx-background-image: url("redo.png");
+    -fx-background-image: url("undo.png");
     -fx-background-size: 60 60;
 }
 
 .undo-box:hover{
     -fx-background-size: 64 64;
-
 }
+
+.redo-box{
+    -fx-background-image: url("redo.png");
+    -fx-background-size: 60 60;
+}
+
+.redo-box:hover{
+    -fx-background-size: 64 64;
+}
+
+
 
 .setting-box-on .label{
     -fx-pref-width:180;
@@ -71,10 +81,9 @@
 }
 
 .setting-box-ally-off {
-    -fx-background-image: url("AllyMark.png");
+    -fx-background-image: url("AllyMark.png"), url("RedCross.png");
     -fx-background-size: 60 60;
     -fx-text-alignment: center;
-    -fx-background-image: url("RedCross.png");
 }
 
 .setting-box-enemy-on {
@@ -83,9 +92,8 @@
 }
 
 .setting-box-enemy-off {
-    -fx-background-image: url("EnemyMark.png");
+    -fx-background-image: url("EnemyMark.png"), url("RedCross.png");
     -fx-background-size: 60 60;
-    -fx-background-image: url("RedCross.png");
 }
 
 .setting-box-target-on {
@@ -96,11 +104,9 @@
 }
 
 .setting-box-target-off {
-    -fx-background-image: url("TargetMark.png");
+    -fx-background-image: url("TargetMark.png"), url("RedCross.png");
     -fx-background-size: 60 60;
     -fx-text-alignment: center;
-    -fx-background-image: url("TargetMark.png");
-    -fx-background-image: url("RedCross.png");
 }
 
 

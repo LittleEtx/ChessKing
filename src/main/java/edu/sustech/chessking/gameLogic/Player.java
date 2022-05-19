@@ -56,6 +56,10 @@ public class Player implements Serializable {
     public void setScore(int score) {
         this.score = score;
     }
+
+    public void incScore(int increase) {
+        score += increase;
+    }
     public void setName(String name) {
         if (name == null || name.isEmpty() ||
                 name.contains(" ") ||

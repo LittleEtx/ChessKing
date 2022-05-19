@@ -13,7 +13,6 @@ import static edu.sustech.chessking.GameVars.DownSideColorVar;
 import static edu.sustech.chessking.VisualLogic.setPic;
 
 public class GraveComponent extends Component {
-    private final int index;
     private final Chess chess;
 
     private static int getX(int index) {
@@ -62,7 +61,6 @@ public class GraveComponent extends Component {
     public GraveComponent(Chess chess, int number, int index) {
         this.chess = chess;
         this.number = number;
-        this.index = index;
         position = new Point2D(getX(index),
                 getY(chess.getColorType()));
     }

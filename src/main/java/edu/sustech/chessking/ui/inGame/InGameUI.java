@@ -2,14 +2,13 @@ package edu.sustech.chessking.ui.inGame;
 
 import com.almasb.fxgl.dsl.FXGL;
 import edu.sustech.chessking.ChessKingApp;
+import edu.sustech.chessking.GameType;
 import edu.sustech.chessking.gameLogic.GameTimer;
 import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.Bloom;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -21,81 +20,97 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameController;
 import static edu.sustech.chessking.GameVars.*;
 
 public class InGameUI {
-    public static void initButtons(){
-        Label settingLabel = new Label();
-        VBox setting = new VBox(20,settingLabel);
-        setting.setPrefSize(60,60);
-        setting.getStyleClass().add("setting-box");
-        setting.setOnMouseClicked(event -> {
+
+
+    private static final VBox settingBtn;
+    private static final VBox saveBtn;
+    private static final VBox undoBtn;
+    private static final VBox redoBtn;
+    private static final VBox allyBtn;
+    private static final VBox enemyBtn;
+    private static final VBox targetBtn;
+
+    static {
+        settingBtn = new VBox();
+        settingBtn.setPrefSize(60,60);
+        settingBtn.getStyleClass().add("setting-box");
+        settingBtn.setOnMouseClicked(event -> {
             getGameController().gotoGameMenu();
         });
 
-        VBox saveBox = new VBox();
-        saveBox.setPrefSize(65,65);
-        saveBox.getStyleClass().add("save-box");
-        saveBox.setOnMouseClicked(event -> {
-            ChessKingApp.onClickSave();
-        });
+        saveBtn = new VBox();
+        saveBtn.setPrefSize(65,65);
+        saveBtn.getStyleClass().add("save-box");
+        saveBtn.setOnMouseClicked(event -> ChessKingApp.onClickSave());
 
-        VBox undo = new VBox();
-        undo.setPrefSize(60,60);
-        undo.getStyleClass().add("undo-box");
-        undo.setOnMouseClicked(event->{
-            ChessKingApp.onClickReverse();
-        });
+        undoBtn = new VBox();
+        undoBtn.setPrefSize(60,60);
+        undoBtn.getStyleClass().add("undo-box");
+        undoBtn.setOnMouseClicked(event-> ChessKingApp.onClickReverse());
 
-        Label allyLabel = new Label();
-        VBox ally = new VBox(allyLabel);
-        ally.setPrefSize(60,60);
-        ally.getStyleClass().add("setting-box-ally-on");
+        redoBtn = new VBox();
+        redoBtn.setPrefSize(60,60);
+        redoBtn.getStyleClass().add("undo-box");
+        redoBtn.setOnMouseClicked(event-> ChessKingApp.onClickRedo());
+
+        allyBtn = new VBox();
+        allyBtn.setPrefSize(60,60);
+        allyBtn.getStyleClass().add("setting-box-ally-on");
         //int allyCounter = 0;
-        ally.setOnMouseClicked(event -> {
+        allyBtn.setOnMouseClicked(event -> {
             set(OpenAllayVisualVar, !getb(OpenAllayVisualVar));
             if(getb(OpenAllayVisualVar)) {
-                ally.getStyleClass().removeAll("setting-box-ally-off");
-                ally.getStyleClass().add("setting-box-ally-on");
+                allyBtn.getStyleClass().removeAll("setting-box-ally-off");
+                allyBtn.getStyleClass().add("setting-box-ally-on");
             }else{
-                ally.getStyleClass().removeAll("setting-box-ally-on");
-                ally.getStyleClass().add("setting-box-ally-off");
+                allyBtn.getStyleClass().removeAll("setting-box-ally-on");
+                allyBtn.getStyleClass().add("setting-box-ally-off");
             }
         });
 
-        Label enemyLabel = new Label();
-        VBox enemy = new VBox(20,enemyLabel);
-        enemy.setPrefSize(60,60);
-        enemy.getStyleClass().add("setting-box-enemy-on");
-        enemy.setOnMouseClicked(event -> {
+        enemyBtn = new VBox();
+        enemyBtn.setPrefSize(60,60);
+        enemyBtn.getStyleClass().add("setting-box-enemy-on");
+        enemyBtn.setOnMouseClicked(event -> {
             set(OpenEnemyVisualVar, !getb(OpenEnemyVisualVar));
             if(getb(OpenEnemyVisualVar)) {
-                enemy.getStyleClass().removeAll("setting-box-enemy-off");
-                enemy.getStyleClass().add("setting-box-enemy-on");
+                enemyBtn.getStyleClass().removeAll("setting-box-enemy-off");
+                enemyBtn.getStyleClass().add("setting-box-enemy-on");
             }else{
-                enemy.getStyleClass().removeAll("setting-box-enemy-on");
-                enemy.getStyleClass().add("setting-box-enemy-off");
+                enemyBtn.getStyleClass().removeAll("setting-box-enemy-on");
+                enemyBtn.getStyleClass().add("setting-box-enemy-off");
             }
         });
 
-        Label targetLabel = new Label();
-        VBox target = new VBox(20,targetLabel);
-        target.setPrefSize(60,60);
-        target.getStyleClass().add("setting-box-target-on");
-        target.setOnMouseClicked(event -> {
+        targetBtn = new VBox();
+        targetBtn.setPrefSize(60,60);
+        targetBtn.getStyleClass().add("setting-box-target-on");
+        targetBtn.setOnMouseClicked(event -> {
             set(OpenTargetVisualListVar, !getb(OpenTargetVisualListVar));
             if(getb(OpenTargetVisualListVar)) {
-                target.getStyleClass().removeAll("setting-box-target-off");
-                target.getStyleClass().add("setting-box-target-on");
+                targetBtn.getStyleClass().removeAll("setting-box-target-off");
+                targetBtn.getStyleClass().add("setting-box-target-on");
             }else{
-                target.getStyleClass().removeAll("setting-box-target-on");
-                target.getStyleClass().add("setting-box-target-off");
+                targetBtn.getStyleClass().removeAll("setting-box-target-on");
+                targetBtn.getStyleClass().add("setting-box-target-off");
             }
         });
+    }
 
-        addUINode(target,490,10);
-        addUINode(ally,570,10);
-        addUINode(enemy,650,10);
-        addUINode(setting,10,10);
-        addUINode(saveBox,90,10);
-        addUINode(undo,170,10);
+    public static void initButtons(){
+        addUINode(targetBtn,490,10);
+        addUINode(allyBtn,570,10);
+        addUINode(enemyBtn,650,10);
+        addUINode(settingBtn,10,10);
+
+        if (geto(GameTypeVar) == GameType.REPLAY) {
+            addUINode(undoBtn,90,10);
+            addUINode(redoBtn, 170, 10);
+        }
+        else {
+            addUINode(saveBtn, 90, 10);
+            addUINode(undoBtn, 170, 10);
+        }
     }
 
     public static void initLabels(Player downPlayer, Player upPlayer){
@@ -260,57 +275,5 @@ public class InGameUI {
         FXGL.addUINode(timer);
     }
 
-    private static int counter = 0;
-    private static double v = 1d;
-    private static final VBox messagesVB = new VBox(5);
-    private static final ScrollPane messages = new ScrollPane(messagesVB);
-    public static void initChatBox(){
 
-        messagesVB.setMinWidth(375);
-        messagesVB.setMinHeight(370);
-        messagesVB.setMaxWidth(375);
-        messagesVB.setAlignment(Pos.TOP_LEFT);
-        messagesVB.setStyle("-fx-background-color: #FF634720;");
-        messagesVB.setMouseTransparent(true);
-
-        messages.setPrefViewportWidth(375);
-        messages.setPrefViewportHeight(370);
-        messages.setMaxHeight(370);
-        messages.setFitToWidth(true);
-        messages.setStyle("-fx-background-color: transparent;");
-        messages.setLayoutY(215);
-        messages.setLayoutX(760);
-
-        messages.needsLayoutProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                messages.setVvalue(v);
-            }
-        });
-
-        addUINode(messages);
-    }
-
-    public static void addMessage(String str) {
-        Text msg = new Text(str);
-        msg.setFont(new Font(20));
-        if(counter%2==0) {
-            msg.setFill(Color.GRAY);
-        }else{
-            msg.setFill(Color.BLACK);
-        }
-        messagesVB.getChildren().add(counter,msg);
-        counter++;
-    }
-
-    public static void deleteMessage(){
-        counter--;
-        messagesVB.getChildren().remove(counter);
-    }
-
-    public static void deleteAllMessages(){
-        for(int i = 0; i < counter; i++){
-            messagesVB.getChildren().remove(i);
-        }
-        counter = 0;
-    }
 }

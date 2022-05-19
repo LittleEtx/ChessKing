@@ -18,7 +18,7 @@ import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
 import edu.sustech.chessking.ui.PawnPromote;
-import edu.sustech.chessking.ui.inGame.InGameUI;
+import edu.sustech.chessking.ui.inGame.TurnVisual;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -274,7 +274,6 @@ public class ChessComponent extends Component {
                     set(AvailablePositionVar, new ArrayList<Position>());
                     executeMove(computerMove);
                     isAtTargetPos = false;
-                    ChessKingApp.addGraveChess(computerMove);
                     ChessKingApp.enemyEndTurn();
                 }
             }
@@ -425,9 +424,11 @@ public class ChessComponent extends Component {
             }
         }
 
+        ChessKingApp.addGraveChess(move);
+        ChessKingApp.addMoveMessage(move);
+        TurnVisual.spawnExMark(move.getPosition());
         moveTo(pos);
         System.out.println(move);
-        InGameUI.addMessage(move.toString());
         setTargetKingList();
     }
 

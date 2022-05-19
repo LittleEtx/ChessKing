@@ -37,7 +37,9 @@ import edu.sustech.chessking.sound.MusicType;
 import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
+import edu.sustech.chessking.ui.inGame.ChatBox;
 import edu.sustech.chessking.ui.inGame.EatRecorder;
+import edu.sustech.chessking.ui.inGame.TurnVisual;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
@@ -81,6 +83,7 @@ public class ChessKingApp extends GameApplication {
     private static Player localPlayer = new Player();
     private static EatRecorder downEatRecorder;
     private static EatRecorder upEatRecorder;
+    private static ChatBox chatBox;
 
     public static Player getLocalPlayer(){
         return localPlayer;
@@ -108,6 +111,7 @@ public class ChessKingApp extends GameApplication {
     private static DialogBox waitingBox;
     private static boolean isReconnecting = false;
     private static boolean isSyncData = false;
+    private static MoveHistory replayMoveHistory;
 
     // ===============================
     //initialize variables
@@ -233,7 +237,6 @@ public class ChessKingApp extends GameApplication {
                         return;
                     }
                     cc.executeMove(move);
-                    addGraveChess(move);
                 }
 
                 @Override
@@ -320,8 +323,10 @@ public class ChessKingApp extends GameApplication {
                     getGameWorld().removeEntities(getGameWorld().getEntitiesByType(CHESS));
                     downEatRecorder.setFromHistory(moveHistory);
                     upEatRecorder.setFromHistory(moveHistory);
+                    chatBox.setFromHistory(moveHistory);
                     initChess();
                     receiveRecord[0] = true;
+                    TurnVisual.spawnExMark(moveHistory.getLastMove().getPosition());
                     checkReceiveAllInfo();
                 }
 
@@ -408,8 +413,6 @@ public class ChessKingApp extends GameApplication {
         initAvatar();
         initBoard();
         initChess();
-        initChatBox();
-//        spawn("chatBox");
 
         FXGL.getNotificationService().setBackgroundColor(
                 Color.web("#00000080"));
@@ -419,8 +422,16 @@ public class ChessKingApp extends GameApplication {
         downEatRecorder.setFromHistory(gameCore.getGameHistory());
         upEatRecorder = new EatRecorder(downSideColor.reverse());
         upEatRecorder.setFromHistory(gameCore.getGameHistory());
+
+        getop(TurnVar).addListener((ob, ov, nv) -> {
+            TurnVisual.spawnClock((ColorType) nv);
+        });
+        TurnVisual.spawnClock(geto(TurnVar));
     }
 
+    public static void addMoveMessage(Move move) {
+        chatBox.addMessage(move);
+    }
     public static void addGraveChess(Move move) {
         if (!move.getMoveType().isEat())
             return;
@@ -511,6 +522,7 @@ public class ChessKingApp extends GameApplication {
         downPlayer = replay.getDownPlayer();
         upPlayer = replay.getUpPlayer();
         gameType = GameType.REPLAY;
+        replayMoveHistory = replay.getGameHistory();
         getGameController().startNewGame();
         return true;
     }
@@ -720,6 +732,14 @@ public class ChessKingApp extends GameApplication {
         switch (clientEndGameType) {
             case WIN -> {
                 str = "You win the game!";
+                if (gameType == GameType.COMPUTER) {
+                    switch (ai.getDifficulty()) {
+                        case EASY -> localPlayer.incScore(1);
+                        case NORMAL -> localPlayer.incScore(3);
+                        case HARD -> localPlayer.incScore(5);
+                    }
+                }
+
                 if (downSideColor == ColorType.WHITE)
                     endGameType = EndGameType.WHITE_WIN;
                 else
@@ -881,14 +901,14 @@ public class ChessKingApp extends GameApplication {
             @Override
             protected void onActionBegin() {
                 double random = Math.random();
-                addMessage(String.valueOf(random));
+                chatBox.addMessage(String.valueOf(random));
             }
         }, KeyCode.A);
 
         getInput().addAction(new UserAction("delete Message") {
             @Override
             protected void onActionBegin() {
-                deleteMessage();
+                chatBox.deleteMessage();
             }
         }, KeyCode.D);
 
@@ -945,7 +965,6 @@ public class ChessKingApp extends GameApplication {
                         if (gameType == GameType.CLIENT)
                             clientGameCore.moveChess(move);
 
-                        addGraveChess(move);
                         endTurn();
                     });
                 }
@@ -961,6 +980,8 @@ public class ChessKingApp extends GameApplication {
         initLabels(downPlayer, upPlayer);
         initMark();
         initTimer(whiteTimer,blackTimer,downSideColor);
+        chatBox = new ChatBox();
+        chatBox.setFromHistory(gameCore.getGameHistory());
     }
 
     public static void onClickSave() {
@@ -968,6 +989,14 @@ public class ChessKingApp extends GameApplication {
             getNotificationService().pushNotification("Save successful");
         else
             getDialogService().showMessageBox("Unable to save!");
+    }
+
+    public static void onClickRedo() {
+
+
+
+
+
     }
 
     public static void onClickReverse() {
@@ -1015,7 +1044,7 @@ public class ChessKingApp extends GameApplication {
     }
 
     private static void reverseMove(int times) {
-        Move move;
+        Move move = null;
         for (int i = 0; i < times; i++) {
             move = gameCore.reverseMove();
             if (move == null)
@@ -1062,9 +1091,13 @@ public class ChessKingApp extends GameApplication {
             }
 
             chess.getComponent(ChessComponent.class).reverseMove(move);
-            set(TurnVar, ((ColorType)geto(TurnVar)).reverse());
+            if (gameType != GameType.REPLAY)
+                chatBox.deleteMessage();
         }
-
+        if (times % 2 == 1)
+            set(TurnVar, ((ColorType)geto(TurnVar)).reverse());
+        if (move != null)
+            TurnVisual.spawnExMark(move.getPosition());
     }
 
     private static void reverseTimer(GameTimer nowPlayerTimer, GameTimer formerPlayerTimer) {

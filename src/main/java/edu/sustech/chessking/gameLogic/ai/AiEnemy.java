@@ -66,6 +66,9 @@ public class AiEnemy {
     public Player getPlayer() {
         return getPlayer(ai);
     }
+    public AiType getDifficulty() {
+        return ai;
+    }
 
     public static Player getPlayer(AiType aiType) {
         switch (aiType) {

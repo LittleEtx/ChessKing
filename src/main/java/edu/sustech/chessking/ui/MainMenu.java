@@ -19,8 +19,6 @@ import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanGameInfo;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerSearcher;
 import edu.sustech.chessking.sound.MusicPlayer;
 import edu.sustech.chessking.sound.MusicType;
-import edu.sustech.chessking.ui.inGame.InGameUI;
-import edu.sustech.chessking.ui.inGame.LocalReplay;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
@@ -42,7 +40,6 @@ public class MainMenu extends FXGLMenu {
 
     @Override
     public void onEnteredFrom(@NotNull Scene prevState) {
-        InGameUI.deleteAllMessages();
         MusicPlayer.play(MusicType.MENU);
     }
 
