@@ -5,6 +5,8 @@ import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.gameSave.Replay;
+import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
+import edu.sustech.chessking.ui.DeleteSave;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -100,6 +102,15 @@ public class LocalReplay extends SubScene {
         backBtn.setLayoutX(810);
         backBtn.setLayoutY(100);
 
+        Button deleteBtn = new Button();
+        deleteBtn.getStyleClass().add("deleteBtn");
+        deleteBtn.setOnAction(event -> {
+            getSceneService().popSubScene();
+            getSceneService().pushSubScene(new DeleteSave(SaveLoader.readLocalSaveList(ChessKingApp.getLocalPlayer())));
+        });
+        deleteBtn.setLayoutX(350);
+        deleteBtn.setLayoutY(100);
+
         VBox vb = new VBox(20,loadReplaySave,replaySP,doneBtn);
         vb.setAlignment(Pos.CENTER);
         vb.setStyle("-fx-background-radius: 10;" +
@@ -111,6 +122,7 @@ public class LocalReplay extends SubScene {
 
         getContentRoot().getChildren().add(vb);
         getContentRoot().getChildren().add(backBtn);
+        getContentRoot().getChildren().add(deleteBtn);
     }
     private void setTransparent(HashMap<Button, Replay> buttons){
         for (Button button : buttons.keySet()){
