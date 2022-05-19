@@ -178,7 +178,7 @@ public class ChooseLocalPlayer extends SubScene{
         boardVB.setAlignment(Pos.CENTER);
 
         for(int i = 0; i < topNo; i++){
-            Player player = localPlayers.get(i);
+            Player player = localPlayers.get(localPlayers.size()-i-1);
 
             Text name = new Text(player.getName());
             Text score = new Text(String.valueOf(player.getScore()));
