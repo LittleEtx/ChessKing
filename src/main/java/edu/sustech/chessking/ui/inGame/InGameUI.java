@@ -9,6 +9,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.Bloom;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -280,18 +281,6 @@ public class InGameUI {
         messages.setLayoutY(215);
         messages.setLayoutX(760);
 
-        messages.setOnSwipeUp(event -> {
-            if(v >= 0) {
-                v = v - 0.01;
-            }
-        });
-
-        messages.setOnSwipeDown(event -> {
-            if(v<=1){
-                v = v + 0.01;
-            }
-        });
-        
         messages.needsLayoutProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
                 messages.setVvalue(v);

@@ -20,6 +20,7 @@ import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerSearcher;
 import edu.sustech.chessking.sound.MusicPlayer;
 import edu.sustech.chessking.sound.MusicType;
 import edu.sustech.chessking.ui.inGame.InGameUI;
+import edu.sustech.chessking.ui.inGame.LocalReplay;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
@@ -252,7 +253,8 @@ public class MainMenu extends FXGLMenu {
         });
 
         viewGameBtn.setOnAction(event -> {
-           //add method to view your game history here
+            getSceneService().pushSubScene(new LocalReplay(SaveLoader
+                    .readLocalReplayList(ChessKingApp.getLocalPlayer())));
         });
 
         connectLanBtn.setOnAction(event -> {

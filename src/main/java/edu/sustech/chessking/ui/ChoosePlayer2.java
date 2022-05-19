@@ -26,7 +26,7 @@ import static com.almasb.fxgl.dsl.FXGL.getSceneService;
 import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
 
 public class ChoosePlayer2 extends SubScene {
-    Player p2;
+    private Player p2;
     private int gameTime = 90;
     private int turnTime = 5;
     public void setGameTime(int gameTime) {this.gameTime = gameTime;}
