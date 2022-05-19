@@ -171,7 +171,7 @@ public class ChessKingEntityFactory implements EntityFactory {
     @Spawns("chat")
     public Entity newChat(SpawnData data){
         return FXGL.entityBuilder(data)
-                .view(new Rectangle(450,460,Color.PINK))
+                .view(new Rectangle(450,460,Color.web("#F0808060")))
                 .at(735,170)
                 .build();
     }

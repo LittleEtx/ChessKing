@@ -38,9 +38,14 @@ import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
 import edu.sustech.chessking.ui.inGame.EatRecorder;
+import javafx.geometry.Pos;
+import javafx.scene.effect.Bloom;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
@@ -142,7 +147,7 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void onPreInit() {
         getSettings().setGlobalSoundVolume(1);
-        getSettings().setGlobalMusicVolume(0.2);
+        getSettings().setGlobalMusicVolume(0.4);
     }
 
     // ===============================
@@ -944,16 +949,82 @@ public class ChessKingApp extends GameApplication {
         initButtons();
         initLabels(downPlayer, upPlayer);
         initMark();
-        Text gameTime = FXGL.getUIFactoryService().newText(whiteTimer.getGameTimeStr());
-        Text turnTime = FXGL.getUIFactoryService().newText(whiteTimer.getTurnTimeStr());
-        gameTime.setLayoutX(800);
-        gameTime.setLayoutY(200);
-        gameTime.setFill(Color.WHITE);
-        turnTime.setLayoutX(800);
-        turnTime.setLayoutY(400);
-        turnTime.setFill(Color.WHITE);
-        FXGL.addUINode(gameTime);
-        FXGL.addUINode(turnTime);
+        initWhiteTimer();
+    }
+
+    private static void initWhiteTimer() {
+        Text whiteGame = new Text("GameTime: ");
+        whiteGame.setFill(Color.PINK);
+        whiteGame.setStroke(Color.WHITE);
+        whiteGame.setStrokeWidth(1);
+        whiteGame.setFont(new Font(17));
+
+        Text whiteGameTime = FXGL.getUIFactoryService().newText(whiteTimer.getGameTimeStr());
+        whiteGameTime.setStroke(Color.WHITE);
+        whiteGameTime.setStrokeWidth(2);
+
+        HBox whiteGameTimerHB = new HBox(20,whiteGame,whiteGameTime);
+        whiteGameTimerHB.setAlignment(Pos.CENTER);
+
+        Text whiteTurn = new Text("TurnTime:");
+        whiteTurn.setFill(Color.PINK);
+        whiteTurn.setStroke(Color.WHITE);
+        whiteTurn.setStrokeWidth(1);
+        whiteTurn.setFont(new Font(17));
+
+        Text whiteTurnTime = FXGL.getUIFactoryService().newText(whiteTimer.getTurnTimeStr());
+        whiteTurnTime.setFill(Color.WHITE);
+        whiteTurnTime.setStrokeWidth(2);
+
+        HBox whiteTurnTimeHB = new HBox(20,whiteTurn,whiteTurnTime);
+        whiteTurnTimeHB.setAlignment(Pos.CENTER);
+
+        HBox whiteTimer = new HBox(50,whiteGameTimerHB,whiteTurnTimeHB);
+        whiteTimer.setLayoutX(735);
+
+        Text blackGame = new Text("GameTime: ");
+        blackGame.setFill(Color.PINK);
+        blackGame.setStroke(Color.BLACK);
+        blackGame.setStrokeWidth(1);
+        blackGame.setFont(new Font(17));
+
+        Text blackTurn = new Text("TurnTime:");
+        blackTurn.setFill(Color.PINK);
+        blackTurn.setStroke(Color.BLACK);
+        blackTurn.setStrokeWidth(1);
+        blackTurn.setFont(new Font(17));
+
+        Text blackGameTime = FXGL.getUIFactoryService().newText(blackTimer.getGameTimeStr());
+        blackGameTime.setStroke(Color.BLACK);
+        blackGameTime.setStrokeWidth(2);
+
+        HBox blackGameTimerHB = new HBox(20,blackGame,blackGameTime);
+        blackGameTimerHB.setAlignment(Pos.CENTER);
+
+        Text blackTurnTime = FXGL.getUIFactoryService().newText(blackTimer.getTurnTimeStr());
+        blackTurnTime.setFill(Color.BLACK);
+        blackTurnTime.setStrokeWidth(2);
+
+        HBox blackTurnTimeHB = new HBox(20,blackTurn,blackTurnTime);
+        blackTurnTimeHB.setAlignment(Pos.CENTER);
+
+        HBox blackTimer = new HBox(50,blackGameTimerHB,blackTurnTimeHB);
+
+        VBox timer = new VBox(400);
+        timer.setLayoutX(750);
+        timer.setLayoutY(170);
+        timer.setPrefSize(435,460);
+        timer.setAlignment(Pos.CENTER);
+
+        if(downSideColor.equals(ColorType.WHITE)) {
+            timer.getChildren().add(blackTimer);
+            timer.getChildren().add(whiteTimer);
+        }else {
+            timer.getChildren().add(whiteTimer);
+            timer.getChildren().add(blackTimer);
+        }
+
+        FXGL.addUINode(timer);
     }
 
     public static void onClickSave() {
