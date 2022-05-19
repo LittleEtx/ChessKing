@@ -112,7 +112,7 @@ public class ChoosePlayer2 extends SubScene {
         backBtn.setOnAction(event -> {
             getSceneService().popSubScene();
         });
-        backBtn.setLayoutX(350);
+        backBtn.setLayoutX(810);
         backBtn.setLayoutY(100);
 
         VBox vb = new VBox(20,choosePlayerText,playerSP,buttons);

@@ -130,12 +130,15 @@ public class MainMenu extends FXGLMenu {
 //        btn1.setCursor(Cursor.OPEN_HAND);
 
         Button btn2 = new Button("Online Game");
-        btn2.setOnAction(event -> getController().gotoGameMenu());
+        btn2.setOnAction(event ->
+        {
+//            getController().gotoGameMenu();
+        });
         btn2.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
                 if (keyEvent.getCode().equals(KeyCode.ENTER)) {
-                    getController().gotoGameMenu();
+//                    getController().gotoGameMenu();
                 }
             }
         });

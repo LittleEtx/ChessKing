@@ -7,6 +7,7 @@ import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.ai.AiEnemy;
 import edu.sustech.chessking.gameLogic.ai.AiType;
 import edu.sustech.chessking.gameLogic.gameSave.Save;
+import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -31,7 +32,8 @@ public class LoadSave extends SubScene {
 
         getContentRoot().getChildren().addAll(rect);
 
-        var loadSaveText = getUIFactoryService().newText("Load Save", Color.BROWN,35);
+        String message = "Load "+ChessKingApp.getLocalPlayer().getName()+"'s Save";
+        var loadSaveText = getUIFactoryService().newText(message, Color.BROWN,35);
         loadSaveText.setStroke(Color.WHITE);
         loadSaveText.setStrokeWidth(3);
         if(!FXGL.isMobile()){
@@ -118,6 +120,15 @@ public class LoadSave extends SubScene {
         backBtn.setLayoutX(800);
         backBtn.setLayoutY(100);
 
+        Button deleteBtn = new Button();
+        deleteBtn.getStyleClass().add("deleteBtn");
+        deleteBtn.setOnAction(event -> {
+            getSceneService().popSubScene();
+            getSceneService().pushSubScene(new DeleteSave(SaveLoader.readLocalSaveList(ChessKingApp.getLocalPlayer())));
+        });
+        deleteBtn.setLayoutX(350);
+        deleteBtn.setLayoutY(100);
+
         VBox vb = new VBox(20,loadSaveText,saveSP,doneBtn);
         vb.setAlignment(Pos.CENTER);
         vb.setStyle("-fx-background-radius: 10;" +
@@ -128,6 +139,7 @@ public class LoadSave extends SubScene {
         vb.setLayoutY(100);
         getContentRoot().getChildren().add(vb);
         getContentRoot().getChildren().add(backBtn);
+        getContentRoot().getChildren().add(deleteBtn);
     }
 
     private void setTransparent(ArrayList<Button> buttons){

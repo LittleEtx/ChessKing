@@ -120,9 +120,11 @@ public class ChessKingApp extends GameApplication {
         vars.put(UpChessSkinVar, "");
         vars.put(DownSideColorVar, ColorType.WHITE);
         vars.put(GameTypeVar, GameType.LOCAL);
+
         //indicate if the player is moving chess
         vars.put(IsMovingChess, false);
         vars.put(TurnVar, ColorType.WHITE);
+
         //indicate the enemy end his turn
         vars.put(AllayListVar, new ArrayList<Chess>());
         vars.put(EnemyListVar, new ArrayList<Chess>());
@@ -141,7 +143,6 @@ public class ChessKingApp extends GameApplication {
     protected void onPreInit() {
         getSettings().setGlobalSoundVolume(1);
         getSettings().setGlobalMusicVolume(0.2);
-
     }
 
     // ===============================

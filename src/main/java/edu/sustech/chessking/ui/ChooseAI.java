@@ -52,6 +52,14 @@ public class ChooseAI extends SubScene {
         HBox btns = new HBox(10,easy,normal,hard);
         btns.setAlignment(Pos.CENTER);
 
+        Button backBtn = new Button();
+        backBtn.getStyleClass().add("backBtn");
+        backBtn.setOnAction(event -> {
+            getSceneService().popSubScene();
+        });
+        backBtn.setLayoutX(760);
+        backBtn.setLayoutY(300);
+
         VBox vb = new VBox(30,chooseDifficultyText,btns);
         vb.setAlignment(Pos.CENTER);
         vb.setPrefSize(400,200);
@@ -62,5 +70,6 @@ public class ChooseAI extends SubScene {
         vb.setLayoutY(300);
 
         getContentRoot().getChildren().add(vb);
+        getContentRoot().getChildren().add(backBtn);
     }
 }
