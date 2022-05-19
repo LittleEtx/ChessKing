@@ -38,11 +38,15 @@ public class TurnVisual {
     }
 
     public static void spawnExMark(Position position) {
-        if (exMarkEntity != null)
-            FXGL.despawnWithScale(exMarkEntity, Duration.seconds(0.3),
-                    Interpolators.BOUNCE.EASE_IN_OUT());
+        clearExMark();
         Point2D point = toPoint(position).add(50, -10);
         exMarkEntity = FXGL.spawnWithScale("exclamationMark", new SpawnData(point),
                 Duration.seconds(0.3), Interpolators.BOUNCE.EASE_IN_OUT());
+    }
+
+    public static void clearExMark() {
+        if (exMarkEntity != null)
+            FXGL.despawnWithScale(exMarkEntity, Duration.seconds(0.3),
+                    Interpolators.BOUNCE.EASE_IN_OUT());
     }
 }

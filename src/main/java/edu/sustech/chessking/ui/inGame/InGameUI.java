@@ -50,7 +50,7 @@ public class InGameUI {
 
         redoBtn = new VBox();
         redoBtn.setPrefSize(60,60);
-        redoBtn.getStyleClass().add("undo-box");
+        redoBtn.getStyleClass().add("redo-box");
         redoBtn.setOnMouseClicked(event-> ChessKingApp.onClickRedo());
 
         allyBtn = new VBox();

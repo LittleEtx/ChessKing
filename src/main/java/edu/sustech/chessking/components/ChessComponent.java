@@ -425,7 +425,8 @@ public class ChessComponent extends Component {
         }
 
         ChessKingApp.addGraveChess(move);
-        ChessKingApp.addMoveMessage(move);
+        if (geto(GameTypeVar) != GameType.REPLAY)
+            ChessKingApp.addMoveMessage(move);
         TurnVisual.spawnExMark(move.getPosition());
         moveTo(pos);
         System.out.println(move);

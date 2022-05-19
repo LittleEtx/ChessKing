@@ -1,7 +1,9 @@
 package edu.sustech.chessking.components;
 
+import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.component.Component;
+import edu.sustech.chessking.GameType;
 import edu.sustech.chessking.VisualLogic;
 import edu.sustech.chessking.gameLogic.Position;
 import javafx.geometry.Point2D;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 
 import static com.almasb.fxgl.dsl.FXGL.getInput;
 import static com.almasb.fxgl.dsl.FXGL.getop;
+import static edu.sustech.chessking.GameVars.GameTypeVar;
 import static edu.sustech.chessking.VisualLogic.getChessEntity;
 import static edu.sustech.chessking.VisualLogic.toPoint;
 
@@ -76,13 +79,13 @@ public class BoardComponent extends Component {
         if (Math.abs(mouse.getX() - entity.getX() - 40) < 40 &&
                 Math.abs(mouse.getY() - entity.getY() - 40) < 40) {
             entity.setOpacity(0.2);
-            if (chess != null) {
+            if (chess != null && FXGL.geto(GameTypeVar) != GameType.REPLAY) {
                 chess.getComponent(ChessComponent.class).setOutLine(true);
             }
         }
         else {
             entity.setOpacity(1);
-            if (chess != null) {
+            if (chess != null && FXGL.geto(GameTypeVar) != GameType.REPLAY) {
                 chess.getComponent(ChessComponent.class).setOutLine(false);
             }
         }

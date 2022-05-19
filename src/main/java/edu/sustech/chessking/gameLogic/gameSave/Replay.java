@@ -1,5 +1,6 @@
 package edu.sustech.chessking.gameLogic.gameSave;
 
+import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.EndGameType;
 
 /**
@@ -14,5 +15,16 @@ public class Replay extends Save {
 
     public EndGameType getEndGameType() {
         return endGameType;
+    }
+
+    public ColorType getWinnerSide() {
+        if (endGameType == EndGameType.DRAWN ||
+                endGameType == EndGameType.NOT_FINISH)
+            return null;
+
+        if (endGameType == EndGameType.WHITE_WIN)
+            return ColorType.WHITE;
+        else
+            return ColorType.BLACK;
     }
 }

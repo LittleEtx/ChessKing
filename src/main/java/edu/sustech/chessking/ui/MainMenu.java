@@ -250,7 +250,7 @@ public class MainMenu extends FXGLMenu {
         });
 
         viewGameBtn.setOnAction(event -> {
-            getSceneService().pushSubScene(new LocalReplay(SaveLoader
+            getSceneService().pushSubScene(new LoadReplay(SaveLoader
                     .readLocalReplayList(ChessKingApp.getLocalPlayer())));
         });
 

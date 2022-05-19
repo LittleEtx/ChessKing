@@ -112,6 +112,7 @@ public class ChessKingApp extends GameApplication {
     private static boolean isReconnecting = false;
     private static boolean isSyncData = false;
     private static MoveHistory replayMoveHistory;
+    private static List<Double> replayTimeList;
 
     // ===============================
     //initialize variables
@@ -427,6 +428,13 @@ public class ChessKingApp extends GameApplication {
             TurnVisual.spawnClock((ColorType) nv);
         });
         TurnVisual.spawnClock(geto(TurnVar));
+        if (gameCore.getGameHistory().getMoveNum() > 0)
+            TurnVisual.spawnExMark(gameCore.getGameHistory()
+                    .getLastMove().getPosition());
+
+        if (gameType == GameType.REPLAY) {
+            reverseTimer();
+        }
     }
 
     public static void addMoveMessage(Move move) {
@@ -523,6 +531,7 @@ public class ChessKingApp extends GameApplication {
         upPlayer = replay.getUpPlayer();
         gameType = GameType.REPLAY;
         replayMoveHistory = replay.getGameHistory();
+        replayTimeList = new ArrayList<>(replay.getRemainingTime());
         getGameController().startNewGame();
         return true;
     }
@@ -594,8 +603,8 @@ public class ChessKingApp extends GameApplication {
         return true;
     }
 
-    private static GameTimer getDownSideTimer() {
-        if (downSideColor == ColorType.WHITE)
+    private static GameTimer getTimer(ColorType side) {
+        if (side == ColorType.WHITE)
             return whiteTimer;
         else
             return blackTimer;
@@ -675,7 +684,7 @@ public class ChessKingApp extends GameApplication {
         set(TurnVar, gameCore.getTurn());
 
         if (gameType == GameType.CLIENT) {
-            clientGameCore.endTurn(getDownSideTimer()
+            clientGameCore.endTurn(getTimer(downSideColor)
                     .getRemainingGameTime());
             isEnemyOnTurn = true;
         }
@@ -845,7 +854,7 @@ public class ChessKingApp extends GameApplication {
     @Override
     protected void onUpdate(double tpf) {
         //advance the time
-        if (gameType != GameType.VIEW) {
+        if (gameType != GameType.REPLAY) {
             if (geto(TurnVar) == ColorType.WHITE) {
                 whiteTimer.advance(tpf);
             } else {
@@ -917,7 +926,7 @@ public class ChessKingApp extends GameApplication {
             @Override
             protected void onActionBegin() {
                 //if enemy is moving chess or the turn is not over
-                if (isEnemyOnTurn)
+                if (isEnemyOnTurn || gameType == GameType.REPLAY)
                     return;
 
                 //In case move to fast
@@ -992,27 +1001,44 @@ public class ChessKingApp extends GameApplication {
     }
 
     public static void onClickRedo() {
+        int num = gameCore.getGameHistory().getMoveNum();
+        if (num >= replayMoveHistory.getMoveNum())
+            return;
 
+        Double time = replayTimeList.get(remainTime.size());
+        ColorType turn = geto(TurnVar);
+        remainTime.add(time);
+        getTimer(turn).setCurrentGameTime(time);
 
+        Move move = replayMoveHistory.getMove(num);
+        Entity chess = getChessEntity(toPoint(move.getChess().getPosition()));
+        if (chess == null)
+            throw new RuntimeException("Can not find chess!");
 
-
-
+        chess.getComponent(ChessComponent.class).executeMove(move);
+        set(TurnVar, turn.reverse());
     }
 
     public static void onClickReverse() {
         //No move: cannot reverse
         int moveNum = gameCore.getGameHistory().getMoveNum();
-        if (moveNum == 0 ||
-                (gameType != GameType.LOCAL && moveNum == 1)) {
+        if (moveNum == 0 ) {
             FXGL.getNotificationService().pushNotification(
                     "You can't reverse move at the beginning!"
             );
             return;
         }
 
-        //local game can always undo
-        if (gameType == GameType.LOCAL) {
+        //local game and replay game can always undo
+        if (gameType == GameType.LOCAL || gameType == GameType.REPLAY) {
             reverseMove(1);
+            return;
+        }
+
+        if (moveNum == 1) {
+            FXGL.getNotificationService().pushNotification(
+                    "You can't reverse move at the beginning!"
+            );
             return;
         }
 
@@ -1044,7 +1070,7 @@ public class ChessKingApp extends GameApplication {
     }
 
     private static void reverseMove(int times) {
-        Move move = null;
+        Move move;
         for (int i = 0; i < times; i++) {
             move = gameCore.reverseMove();
             if (move == null)
@@ -1084,10 +1110,8 @@ public class ChessKingApp extends GameApplication {
 
             //reset turnTime
             if (gameTimeInSec > 0) {
-                if (geto(TurnVar) == ColorType.WHITE)
-                    reverseTimer(whiteTimer, blackTimer);
-                else
-                    reverseTimer(blackTimer, whiteTimer);
+                reverseTimer();
+                remainTime.remove(remainTime.size() - 1);
             }
 
             chess.getComponent(ChessComponent.class).reverseMove(move);
@@ -1096,11 +1120,16 @@ public class ChessKingApp extends GameApplication {
         }
         if (times % 2 == 1)
             set(TurnVar, ((ColorType)geto(TurnVar)).reverse());
-        if (move != null)
-            TurnVisual.spawnExMark(move.getPosition());
+
+        if (gameCore.getGameHistory().getMoveNum() > 0)
+            TurnVisual.spawnExMark(gameCore.getGameHistory().getLastMove().getPosition());
+        else
+            TurnVisual.clearExMark();
     }
 
-    private static void reverseTimer(GameTimer nowPlayerTimer, GameTimer formerPlayerTimer) {
+    private static void reverseTimer() {
+        GameTimer nowPlayerTimer = getTimer(geto(TurnVar));
+        GameTimer formerPlayerTimer = getTimer(((ColorType) geto(TurnVar)).reverse());
         nowPlayerTimer.resetTurnTime();
 
         //both time trace back once
@@ -1115,8 +1144,6 @@ public class ChessKingApp extends GameApplication {
                     remainTime.get(remainTime.size() - 2));
         else
             nowPlayerTimer.setCurrentGameTime(gameTimeInSec);
-
-        remainTime.remove(remainTime.size() - 1);
     }
 
     // ===============================

@@ -3,6 +3,7 @@ package edu.sustech.chessking.ui;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
+import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.gameSave.Replay;
 import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
 import javafx.geometry.Pos;
@@ -18,13 +19,12 @@ import javafx.scene.text.Font;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.almasb.fxgl.dsl.FXGL.getSceneService;
-import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
+import static com.almasb.fxgl.dsl.FXGL.*;
 
-public class LocalReplay extends SubScene {
+public class LoadReplay extends SubScene {
 
     private Replay wantedReplay;
-    public LocalReplay(List<Replay> replays){
+    public LoadReplay(List<Replay> replays){
         Rectangle rect = new Rectangle(1200,800, Color.web("#00000090"));
         getContentRoot().getChildren().addAll(rect);
 
@@ -38,11 +38,22 @@ public class LocalReplay extends SubScene {
 
         HashMap<Button,Replay> replaysBtn = new HashMap();
         for(Replay replay : replays){
-            /**
-             * change this text to change what you want to display
-             */
-            String text = "?";
-            replaysBtn.put(new Button(text),replay);
+            StringBuilder sb = new StringBuilder();
+            ColorType winnerSide = replay.getWinnerSide();
+            if (winnerSide == null)
+                sb.append("Draw ");
+            else {
+                if (winnerSide == replay.getDefaultDownColor())
+                    sb.append("Win  ");
+                else
+                    sb.append("Lose ");
+            }
+            sb.append(replay.getUpPlayer().getName()).append(" ");
+
+            String str = replay.getSaveDate().toString();
+            str = str.replace('T',' ');
+            str = str.substring(0,19);
+            replaysBtn.put(new Button(sb + str),replay);
         }
 
         VBox replaysBtnVB = new VBox();
@@ -67,10 +78,9 @@ public class LocalReplay extends SubScene {
                         "-fx-border-width: 5;"+
                         "-fx-background-color: transparent;");
 
-                if(event.getClickCount()==2){
-                    /**
-                     * read the replay here
-                     */
+                if (event.getClickCount()==2){
+                    if (!ChessKingApp.loadReplay(wantedReplay))
+                        getDialogService().showMessageBox("Fail to load save!");
                 }
             });
         }
@@ -86,9 +96,8 @@ public class LocalReplay extends SubScene {
         Button doneBtn = new Button("Done");
         doneBtn.getStyleClass().add("newPlayer-subScene-button");
         doneBtn.setOnAction(event -> {
-            /**
-             * read the replay here
-             */
+            if (!ChessKingApp.loadReplay(wantedReplay))
+                getDialogService().showMessageBox("Fail to load save!");
         });
 
         Button backBtn = new Button();
