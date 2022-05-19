@@ -30,4 +30,13 @@ public enum MoveType {
         }
         return "WrongMoveType";
     }
+
+    public boolean isEat() {
+        return this == EAT || this == EAT_PROMOTE;
+    }
+
+    public boolean isPromote() {
+        return this == PROMOTE || this == EAT_PROMOTE;
+    }
+
 }

@@ -76,10 +76,7 @@ public class GameCore {
      */
     public boolean setGame(MoveHistory history) {
         initialGame();
-        int moveNum =  history.getMoveNum();
-        Move move;
-        for (int i = 0; i < moveNum; i++) {
-            move = history.getMove(i);
+        for (Move move : history) {
             if (!moveChess(move)) {
                 initialGame();
                 return false;

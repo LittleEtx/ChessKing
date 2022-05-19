@@ -71,6 +71,10 @@ public class VisualLogic {
     }
 
     public static void setPic(Entity entity, Chess chess) {
+        setPic(entity, chess, 80);
+    }
+
+    public static void setPic(Entity entity, Chess chess, int size) {
         String skin;
         if (chess.getColorType() == geto("downSideColor"))
             skin = gets("downChessSkin");
@@ -79,11 +83,12 @@ public class VisualLogic {
 
         String pic = "chess/" + skin + "/" + skin + " " + chess.getChessType().toString()
                 + "-" + chess.getColorType().toString() + ".png";
-        Texture img = texture(pic, 80, 80);
+        Texture img = texture(pic, size, size);
         ViewComponent viewComponent = entity.getViewComponent();
         viewComponent.clearChildren();
         viewComponent.addChild(img);
     }
+
 
     public static void setToTop(Entity entity) {
         if (entity == null)

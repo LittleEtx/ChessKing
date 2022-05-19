@@ -37,9 +37,11 @@ import edu.sustech.chessking.sound.MusicType;
 import edu.sustech.chessking.ui.EndGameScene;
 import edu.sustech.chessking.ui.Loading;
 import edu.sustech.chessking.ui.MainMenu;
+import edu.sustech.chessking.ui.inGame.EatRecorder;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,7 +57,7 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.getInput;
 import static edu.sustech.chessking.EntityType.CHESS;
 import static edu.sustech.chessking.GameVars.*;
 import static edu.sustech.chessking.VisualLogic.*;
-import static edu.sustech.chessking.ui.InGameUI.*;
+import static edu.sustech.chessking.ui.inGame.InGameUI.*;
 
 public class ChessKingApp extends GameApplication {
 
@@ -78,6 +80,9 @@ public class ChessKingApp extends GameApplication {
     private static List<Double> remainTime = new ArrayList<>();
 
     private static Player localPlayer = new Player();
+    private static EatRecorder downEatRecorder;
+    private static EatRecorder upEatRecorder;
+
     public static Player getLocalPlayer(){
         return localPlayer;
     }
@@ -228,6 +233,7 @@ public class ChessKingApp extends GameApplication {
                         return;
                     }
                     cc.executeMove(move);
+                    addGraveChess(move);
                 }
 
                 @Override
@@ -307,8 +313,13 @@ public class ChessKingApp extends GameApplication {
                 protected void onReceiveMoveHistory(MoveHistory moveHistory) {
                     if (!isSyncData)
                         return;
-                    gameCore.setGame(moveHistory);
+                    if (!gameCore.setGame(moveHistory)) {
+                        getMoveHistory();
+                        return;
+                    }
                     getGameWorld().removeEntities(getGameWorld().getEntitiesByType(CHESS));
+                    downEatRecorder.setFromHistory(moveHistory);
+                    upEatRecorder.setFromHistory(moveHistory);
                     initChess();
                     receiveRecord[0] = true;
                     checkReceiveAllInfo();
@@ -401,6 +412,32 @@ public class ChessKingApp extends GameApplication {
         FXGL.getNotificationService().setBackgroundColor(
                 Color.web("#00000080"));
         FXGL.getNotificationService().setTextColor(Color.WHITE);
+
+        downEatRecorder = new EatRecorder(downSideColor);
+        downEatRecorder.setFromHistory(gameCore.getGameHistory());
+        upEatRecorder = new EatRecorder(downSideColor.reverse());
+        upEatRecorder.setFromHistory(gameCore.getGameHistory());
+    }
+
+    public static void addGraveChess(Move move) {
+        if (!move.getMoveType().isEat())
+            return;
+        Chess chess = (Chess) move.getMoveTarget()[0];
+        if (chess.getColorType() == downSideColor)
+            upEatRecorder.addChess(chess);
+        else
+            downEatRecorder.addChess(chess);
+    }
+
+    private static void removeGraveChess(Move move) {
+        if (!move.getMoveType().isEat())
+            return;
+
+        Chess chess = (Chess) move.getMoveTarget()[0];
+        if (chess.getColorType() == downSideColor)
+            upEatRecorder.removeChess(chess);
+        else
+            downEatRecorder.removeChess(chess);
     }
 
     private static void reconnect() {
@@ -583,11 +620,11 @@ public class ChessKingApp extends GameApplication {
         switch (aiType) {
             case EASY -> {
                 gameTimeInSec = AiEnemy.EasyGameTime;
-                turnTimeInSec = AiEnemy.EasyGameTime;
+                turnTimeInSec = AiEnemy.EasyTurnTime;
             }
             case NORMAL -> {
                 gameTimeInSec = AiEnemy.NormalGameTime;
-                turnTimeInSec = AiEnemy.NormalGameTime;
+                turnTimeInSec = AiEnemy.NormalTurnTime;
             }
             case HARD -> {
                 gameTimeInSec = AiEnemy.HardGameTime;
@@ -756,10 +793,8 @@ public class ChessKingApp extends GameApplication {
     public void initAvatar(){
         spawn("downAvatar", new SpawnData().put("player", downPlayer));
         spawn("upAvatar", new SpawnData().put("player", upPlayer));
-        //spawn("playerInfo",new SpawnData().put("playerSide", "white"));
-        //spawn("playerInfo",new SpawnData().put("playerSide","black"));
-//        spawn("chessGrave",new SpawnData().put("playerSide","black"));
-//        spawn("chessGrave",new SpawnData().put("playerSide","white"));
+        spawn("chessGrave",new SpawnData().put("playerSide","black"));
+        spawn("chessGrave",new SpawnData().put("playerSide","white"));
         spawn("chat");
     }
 
@@ -886,12 +921,14 @@ public class ChessKingApp extends GameApplication {
                                         .getChess().getPosition());
                             return;
                         }
+
                         if (gameType == GameType.CLIENT)
                             clientGameCore.putDownChess(move.getPosition());
                         movingChessComponent.executeMove(move);
                         if (gameType == GameType.CLIENT)
                             clientGameCore.moveChess(move);
 
+                        addGraveChess(move);
                         endTurn();
                     });
                 }
@@ -906,6 +943,16 @@ public class ChessKingApp extends GameApplication {
         initButtons();
         initLabels(downPlayer, upPlayer);
         initMark();
+        Text gameTime = FXGL.getUIFactoryService().newText(whiteTimer.getGameTimeStr());
+        Text turnTime = FXGL.getUIFactoryService().newText(whiteTimer.getTurnTimeStr());
+        gameTime.setLayoutX(800);
+        gameTime.setLayoutY(200);
+        gameTime.setFill(Color.WHITE);
+        turnTime.setLayoutX(800);
+        turnTime.setLayoutY(400);
+        turnTime.setFill(Color.WHITE);
+        FXGL.addUINode(gameTime);
+        FXGL.addUINode(turnTime);
     }
 
     public static void onClickSave() {
@@ -973,10 +1020,11 @@ public class ChessKingApp extends GameApplication {
             Chess originChess = move.getChess();
             chess.setPosition(toPoint(originChess.getPosition()));
             //set back eaten chess
-            if (move.getMoveType() == MoveType.EAT ||
-                    move.getMoveType() == MoveType.EAT_PROMOTE)
+            if (move.getMoveType().isEat()) {
                 spawn("chess", new SpawnData().put("chess",
                         move.getMoveTarget()[0]));
+                removeGraveChess(move);
+            }
 
             //set rook back to castle origin
             if (move.getMoveType() == MoveType.CASTLE) {
@@ -1008,6 +1056,7 @@ public class ChessKingApp extends GameApplication {
             chess.getComponent(ChessComponent.class).reverseMove(move);
             set(TurnVar, ((ColorType)geto(TurnVar)).reverse());
         }
+
     }
 
     private static void reverseTimer(GameTimer nowPlayerTimer, GameTimer formerPlayerTimer) {

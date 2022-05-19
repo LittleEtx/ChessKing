@@ -100,8 +100,8 @@ public class GameTimer {
         else
             timeInSec = 0;
 
-        int sec = timeInSec / 60;
-        int min = timeInSec % 60;
+        int min = timeInSec / 60;
+        int sec = timeInSec % 60;
         return String.format("%02d:%02d", min, sec);
     }
 }

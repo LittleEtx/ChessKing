@@ -1,4 +1,4 @@
-package edu.sustech.chessking.ui;
+package edu.sustech.chessking.ui.inGame;
 
 import com.almasb.fxgl.dsl.FXGL;
 import edu.sustech.chessking.ChessKingApp;

@@ -69,8 +69,7 @@ public class ChessComponent extends Component {
     public void reverseMove(Move move) {
         Chess originChess = move.getChess();
         //set promote chess back to pawn
-        if (move.getMoveType() == MoveType.PROMOTE ||
-                move.getMoveType() == MoveType.EAT_PROMOTE) {
+        if (move.getMoveType().isPromote()) {
             setPic(entity, originChess);
         }
         entity.setPosition(toPoint(originChess.getPosition()));
@@ -273,6 +272,7 @@ public class ChessComponent extends Component {
                     set(AvailablePositionVar, new ArrayList<Position>());
                     executeMove(computerMove);
                     isAtTargetPos = false;
+                    ChessKingApp.addGraveChess(computerMove);
                     ChessKingApp.enemyEndTurn();
                 }
             }
