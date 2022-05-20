@@ -64,7 +64,7 @@ public class LoadReplay extends SubScene {
 
         for(Button btns : replaysBtn.keySet()){
             btns.setStyle("-fx-background-color: transparent");
-            btns.setPrefSize(300,40);
+            btns.setPrefSize(400,40);
             btns.setAlignment(Pos.CENTER);
             btns.setTextFill(Color.WHITE);
             btns.setFont(new Font(20));

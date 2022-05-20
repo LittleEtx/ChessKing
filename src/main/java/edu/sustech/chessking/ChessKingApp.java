@@ -988,9 +988,9 @@ public class ChessKingApp extends GameApplication {
         initButtons();
         initLabels(downPlayer, upPlayer);
         initMark();
-        initTimer(whiteTimer,blackTimer,downSideColor);
         chatBox = new ChatBox();
         chatBox.setFromHistory(gameCore.getGameHistory());
+        initTimer(whiteTimer,blackTimer,downSideColor);
     }
 
     public static void onClickSave() {
