@@ -36,7 +36,16 @@ public class LoadReplay extends SubScene {
             loadReplaySave.setEffect(new Bloom(0.8));
         }
 
-        HashMap<Button,Replay> replaysBtn = new HashMap();
+        VBox replaysBtnVB = new VBox();
+        replaysBtnVB.setAlignment(Pos.TOP_CENTER);
+        replaysBtnVB.setMinHeight(400);
+        replaysBtnVB.setPrefSize(500,replays.size() * 45);
+        replaysBtnVB.setStyle("-fx-background-color: " +
+                "linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, " +
+                "#193237ff 0.0%, #2e4e58ff 50.0%, #39687cff 100.0%);");
+
+
+        HashMap<Button,Replay> replaysBtn = new HashMap<>();
         for(Replay replay : replays){
             StringBuilder sb = new StringBuilder();
             ColorType winnerSide = replay.getWinnerSide();
@@ -53,29 +62,22 @@ public class LoadReplay extends SubScene {
             String str = replay.getSaveDate().toString();
             str = str.replace('T',' ');
             str = str.substring(0,19);
-            replaysBtn.put(new Button(sb + str),replay);
-        }
 
-        VBox replaysBtnVB = new VBox();
-        replaysBtnVB.setAlignment(Pos.TOP_CENTER);
-        replaysBtnVB.setMinHeight(400);
-        replaysBtnVB.setPrefSize(500,replays.size()*40);
-        replaysBtnVB.setStyle("-fx-background-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #193237ff 0.0%, #2e4e58ff 50.0%, #39687cff 100.0%);");
+            Button btn = new Button(sb + str);
+            btn.setStyle("-fx-background-color: transparent;" +
+                    "-fx-border-width: 1;" +
+                    "-fx-border-color: transparent;");
+            btn.setPrefSize(400,40);
+            btn.setAlignment(Pos.CENTER);
+            btn.setTextFill(Color.WHITE);
+            btn.setFont(new Font(20));
+            replaysBtnVB.getChildren().add(btn);
 
-        for(Button btns : replaysBtn.keySet()){
-            btns.setStyle("-fx-background-color: transparent");
-            btns.setPrefSize(400,40);
-            btns.setAlignment(Pos.CENTER);
-            btns.setTextFill(Color.WHITE);
-            btns.setFont(new Font(20));
-            replaysBtnVB.getChildren().add(btns);
-
-            btns.addEventHandler(MouseEvent.MOUSE_CLICKED,event -> {
+            btn.addEventHandler(MouseEvent.MOUSE_CLICKED,event -> {
                 setTransparent(replaysBtn);
-                wantedReplay = replaysBtn.get(btns);
-                System.out.println(wantedReplay);
-                btns.setStyle("-fx-border-color: #20B2AA;"+
-                        "-fx-border-width: 5;"+
+                wantedReplay = replaysBtn.get(btn);
+                btn.setStyle("-fx-border-color: #20B2AA;" +
+                        "-fx-border-width: 5;" +
                         "-fx-background-color: transparent;");
 
                 if (event.getClickCount()==2){
@@ -83,6 +85,8 @@ public class LoadReplay extends SubScene {
                         getDialogService().showMessageBox("Fail to load save!");
                 }
             });
+
+            replaysBtn.put(btn, replay);
         }
 
 
@@ -102,9 +106,7 @@ public class LoadReplay extends SubScene {
 
         Button backBtn = new Button();
         backBtn.getStyleClass().add("backBtn");
-        backBtn.setOnAction(event -> {
-            getSceneService().popSubScene();
-        });
+        backBtn.setOnAction(event -> getSceneService().popSubScene());
         backBtn.setLayoutX(810);
         backBtn.setLayoutY(100);
 
