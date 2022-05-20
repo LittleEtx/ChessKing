@@ -81,13 +81,6 @@ public class MainMenu extends FXGLMenu {
             getSceneService().pushSubScene(chooseLocalPlayer);
         });
 
-        btn1.addEventHandler(KeyEvent.KEY_PRESSED, keyEvent -> {
-            if(keyEvent.getCode().equals(KeyCode.S)){
-                List<Save> save = SaveLoader.readLocalSaveList(ChessKingApp.getLocalPlayer());
-                SubScene loadSave = new LoadSave(save);
-                FXGL.getSceneService().pushSubScene(loadSave);
-            }
-        });
 
         //another way to set the actions;
 //        btn1.setOnAction(new EventHandler<ActionEvent>() {
@@ -197,6 +190,7 @@ public class MainMenu extends FXGLMenu {
         VBox localGameTitle = new VBox(localGame);
         localGameTitle.setLayoutY(250);
         localGameTitle.setLayoutX((getAppWidth()-384)/2);
+        getContentRoot().getChildren().add(localGameTitle);
 
         Button loadSaveBtn = new Button("Load Save");
         loadSaveBtn.getStyleClass().add("menu-button");

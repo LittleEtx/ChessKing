@@ -3,6 +3,7 @@ package edu.sustech.chessking.ui;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
+import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.gameSave.Replay;
 import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
 import javafx.geometry.Pos;
@@ -36,11 +37,22 @@ public class DeleteReplay extends SubScene {
 
         HashMap<Button,Replay> deleteReplayBtn = new HashMap<>();
         for(Replay canDel : replays){
-            String text = "?";
-            /**
-             * remember to change the text after LittleEtx decided
-             */
-            deleteReplayBtn.put(new Button(text),canDel);
+            StringBuilder sb = new StringBuilder();
+            ColorType winnerSide = canDel.getWinnerSide();
+            if (winnerSide == null)
+                sb.append("Draw ");
+            else {
+                if (winnerSide == canDel.getDefaultDownColor())
+                    sb.append("Win  ");
+                else
+                    sb.append("Lose ");
+            }
+            sb.append(canDel.getUpPlayer().getName()).append(" ");
+
+            String str = canDel.getSaveDate().toString();
+            str = str.replace('T',' ');
+            str = str.substring(0,19);
+            deleteReplayBtn.put(new Button(sb+str),canDel);
         }
 
         VBox deleteBtnVB = new VBox();

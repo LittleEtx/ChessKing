@@ -4,6 +4,8 @@ import edu.sustech.chessking.gameLogic.Move;
 import edu.sustech.chessking.gameLogic.MoveHistory;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -27,6 +29,9 @@ public class ChatBox {
         messagesVB.setAlignment(Pos.TOP_LEFT);
         messagesVB.setStyle("-fx-background-color: #FF634720;");
         VBox.setVgrow(messagesVB, Priority.ALWAYS);
+        Label blank = new Label();
+        blank.setPrefHeight(30);
+        messagesVB.getChildren().add(blank);
 
         Group group = new Group();
         group.getChildren().add(messagesVB);
@@ -44,12 +49,18 @@ public class ChatBox {
     }
 
     public void addMessage(String str) {
-        Text msg = new Text(str);
+        Label msg = new Label(str);
         msg.setFont(new Font(20));
         if(counter % 2 == 0) {
-            msg.setFill(Color.GRAY);
+            msg.setTextFill(Color.GRAY);
         }else{
-            msg.setFill(Color.BLACK);
+            msg.setTextFill(Color.BLACK);
+        }
+        msg.setStyle("-fx-border-color: #00000060;");
+        if(messagesVB.getChildren().size()>1) {
+            messagesVB.getChildren().get(counter - 1).setStyle(
+                    "-fx-border-color: transparent"
+            );
         }
         messagesVB.getChildren().add(counter,msg);
         messages.setVvalue(messages.getVmax());
@@ -77,6 +88,11 @@ public class ChatBox {
 
         counter--;
         messagesVB.getChildren().remove(counter);
+        if(messagesVB.getChildren().size()>1) {
+            messagesVB.getChildren().get(counter - 1).setStyle(
+                    "-fx-border-color: #00000060;"
+            );
+        }
         messages.setVvalue(messages.getVmax());
     }
 

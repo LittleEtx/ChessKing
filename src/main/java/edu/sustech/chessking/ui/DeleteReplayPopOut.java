@@ -3,6 +3,7 @@ package edu.sustech.chessking.ui;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
+import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.gameSave.Replay;
 import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
 import javafx.geometry.Pos;
@@ -33,9 +34,8 @@ public class DeleteReplayPopOut extends SubScene {
         Button yesBtn = new Button("Yes");
         yesBtn.setOnAction(event -> {
             getSceneService().popSubScene();
-            /**
-             * delete replay method here
-             */
+            SaveLoader.deleteLocalSave(ChessKingApp.getLocalPlayer(),
+                    replay);
             getSceneService().pushSubScene(new DeleteReplay(SaveLoader.
                     readLocalReplayList(ChessKingApp.getLocalPlayer())));
         });

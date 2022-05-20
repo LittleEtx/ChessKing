@@ -96,7 +96,8 @@ public class LoadReplay extends SubScene {
         Button doneBtn = new Button("Done");
         doneBtn.getStyleClass().add("newPlayer-subScene-button");
         doneBtn.setOnAction(event -> {
-            if (!ChessKingApp.loadReplay(wantedReplay))
+            if (!ChessKingApp.loadReplay(wantedReplay)||
+                        wantedReplay == null)
                 getDialogService().showMessageBox("Fail to load save!");
         });
 
@@ -112,7 +113,8 @@ public class LoadReplay extends SubScene {
         deleteBtn.getStyleClass().add("deleteBtn");
         deleteBtn.setOnAction(event -> {
             getSceneService().popSubScene();
-            getSceneService().pushSubScene(new DeleteSave(SaveLoader.readLocalSaveList(ChessKingApp.getLocalPlayer())));
+            getSceneService().pushSubScene(new DeleteReplay(SaveLoader.
+                    readLocalReplayList(ChessKingApp.getLocalPlayer())));
         });
         deleteBtn.setLayoutX(350);
         deleteBtn.setLayoutY(100);
