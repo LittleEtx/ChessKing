@@ -57,14 +57,26 @@ public class ChessComponent extends Component {
     private static final LocalTimer localTimer = newLocalTimer();
     private Supplier<Point2D> pointGetter;
 
+
+
     private enum AssistState {
         NONE, ALLY, ENEMY, CASTLE
     }
     private AssistState assistState = AssistState.NONE;
     private boolean targetState = false;
-
     public ChessComponent(Chess chess) {
         this.chess = chess;
+    }
+
+    public static void setCheckedKing() {
+        if (gameCore.isChecked(gameCore.getTurn())) {
+            ArrayList<Chess> kingList = new ArrayList<>();
+            kingList.add(gameCore.getChessKing(gameCore.getTurn()));
+            set(TargetKingListVar, kingList);
+        }
+        else
+            set(TargetKingListVar, new ArrayList<Chess>());
+
     }
 
     public void reverseMove(Move move) {
@@ -540,13 +552,10 @@ public class ChessComponent extends Component {
     }
 
     private void setTargetKingList() {
-        if (gameCore.isChecked(gameCore.getTurn()) && !isMovingKing()) {
-            ArrayList<Chess> kingList = new ArrayList<>();
-            kingList.add(gameCore.getChessKing(gameCore.getTurn()));
-            set(TargetKingListVar, kingList);
-        }
-        else
+        if (isMovingKing())
             set(TargetKingListVar, new ArrayList<Chess>());
+        else
+            setCheckedKing();
     }
 
     private boolean isMovingKing() {

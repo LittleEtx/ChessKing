@@ -428,11 +428,14 @@ public class ChessKingApp extends GameApplication {
             TurnVisual.spawnClock((ColorType) nv);
         });
         TurnVisual.spawnClock(geto(TurnVar));
-        if (gameCore.getGameHistory().getMoveNum() > 0)
+        if (gameCore.getGameHistory().getMoveNum() > 0) {
             TurnVisual.spawnExMark(gameCore.getGameHistory()
                     .getLastMove().getPosition());
 
-        if (gameType == GameType.REPLAY) {
+            ChessComponent.setCheckedKing();
+        }
+
+        if (gameType == GameType.REPLAY && gameTimeInSec > 0) {
             reverseTimer();
         }
     }
@@ -531,7 +534,7 @@ public class ChessKingApp extends GameApplication {
         upPlayer = replay.getUpPlayer();
         gameType = GameType.REPLAY;
         replayMoveHistory = replay.getGameHistory();
-        replayTimeList = new ArrayList<>(replay.getRemainingTime());
+        replayTimeList = replay.getRemainingTime();
         getGameController().startNewGame();
         return true;
     }
@@ -699,12 +702,15 @@ public class ChessKingApp extends GameApplication {
     public static void enemyEndTurn() {
         //After enemy end moving chess
         timerSwitchTurn();
-        checkIfEndGame();
         set(TurnVar, gameCore.getTurn());
         isEnemyOnTurn = false;
+        checkIfEndGame();
     }
 
     private static void timerSwitchTurn() {
+        if (gameTimeInSec < 0)
+            return;
+
         if (geto(TurnVar) == ColorType.WHITE) {
             remainTime.add(whiteTimer.getRemainingGameTime());
             whiteTimer.resetTurnTime();
@@ -1007,10 +1013,12 @@ public class ChessKingApp extends GameApplication {
         if (num >= replayMoveHistory.getMoveNum())
             return;
 
-        Double time = replayTimeList.get(remainTime.size());
         ColorType turn = geto(TurnVar);
-        remainTime.add(time);
-        getTimer(turn).setCurrentGameTime(time);
+        if (gameTimeInSec > 0) {
+            Double time = replayTimeList.get(remainTime.size());
+            remainTime.add(time);
+            getTimer(turn).setCurrentGameTime(time);
+        }
 
         Move move = replayMoveHistory.getMove(num);
         Entity chess = getChessEntity(toPoint(move.getChess().getPosition()));
