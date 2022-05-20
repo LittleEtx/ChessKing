@@ -553,14 +553,13 @@ public class ChessKingApp extends GameApplication {
     }
 
     /**
-     * start a new game
-     * @param gameType choose from LOCAL, LAN, and NET
+     * start a new local game
      * @param opponent the opponent player
      */
-    public static void newGame(GameType gameType, Player opponent,
-                               double gameTime, double turnTime) {
+    public static void newLocalGame(Player opponent,
+                                    double gameTime, double turnTime) {
         randomSide();
-        createNewGame(gameType);
+        createNewGame(GameType.LOCAL);
         upPlayer = opponent;
         gameTimeInSec = gameTime;
         turnTimeInSec = turnTime;
@@ -991,7 +990,6 @@ public class ChessKingApp extends GameApplication {
         initButtons();
         initLabels(downPlayer, upPlayer);
         initMark();
-
         initTimer(whiteTimer,blackTimer,downSideColor);
         chatBox = new ChatBox();
         chatBox.setFromHistory(gameCore.getGameHistory());
@@ -1112,18 +1110,20 @@ public class ChessKingApp extends GameApplication {
                 rook.getComponent(ChessComponent.class).moveTo(rookOriginPos);
             }
 
-            //reset turnTime
-            if (gameTimeInSec > 0) {
-                reverseTimer();
-                remainTime.remove(remainTime.size() - 1);
-            }
+
 
             chess.getComponent(ChessComponent.class).reverseMove(move);
             if (gameType != GameType.REPLAY)
                 chatBox.deleteMessage();
-        }
-        if (times % 2 == 1)
+
             set(TurnVar, ((ColorType)geto(TurnVar)).reverse());
+
+            //reset turnTime
+            if (gameTimeInSec > 0) {
+                remainTime.remove(remainTime.size() - 1);
+                reverseTimer();
+            }
+        }
 
         if (gameCore.getGameHistory().getMoveNum() > 0)
             TurnVisual.spawnExMark(gameCore.getGameHistory().getLastMove().getPosition());
@@ -1137,9 +1137,9 @@ public class ChessKingApp extends GameApplication {
         nowPlayerTimer.resetTurnTime();
 
         //both time trace back once
-        if (remainTime.size() >= 3)
+        if (remainTime.size() >= 1)
             formerPlayerTimer.setCurrentGameTime(
-                    remainTime.get(remainTime.size() - 3));
+                    remainTime.get(remainTime.size() - 1));
         else
             formerPlayerTimer.setCurrentGameTime(gameTimeInSec);
 

@@ -3,8 +3,6 @@ package edu.sustech.chessking.ui;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
-import edu.sustech.chessking.GameType;
-import edu.sustech.chessking.gameLogic.GameTimer;
 import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
 import javafx.geometry.Pos;
@@ -76,7 +74,7 @@ public class ChoosePlayer2 extends SubScene {
 
                 if(event.getClickCount()==2){
                     getSceneService().popSubScene();
-                    ChessKingApp.newGame(GameType.LOCAL,p2,200,200);
+                    ChessKingApp.newLocalGame(p2,200,200);
                 }
             });
         }
@@ -103,7 +101,7 @@ public class ChoosePlayer2 extends SubScene {
                 opponent.setName("YourOpponent");
                 opponent.setAvatar("avatar5");
                 getSceneService().popSubScene();
-                ChessKingApp.newGame(GameType.LOCAL, opponent, gameTime, turnTime);
+                ChessKingApp.newLocalGame(opponent, gameTime, turnTime);
             }else{
                 System.out.println("no player2 detected");
             }

@@ -4,8 +4,6 @@ import edu.sustech.chessking.gameLogic.Move;
 import edu.sustech.chessking.gameLogic.MoveHistory;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -13,25 +11,26 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.almasb.fxgl.dsl.FXGL.addUINode;
 
 public class ChatBox {
-    private int counter = 0;
     private final VBox messagesVB;
     private final ScrollPane messages;
     private Move.StringType stringType = Move.StringType.CONCISE;
+    private final List<Text> msgList = new ArrayList<>();
+    private int hlIndex = -1;
 
     public ChatBox() {
         messagesVB = new VBox(5);
         messagesVB.setMinWidth(375);
-        messagesVB.setMinHeight(370);
         messagesVB.setMaxWidth(375);
+        messagesVB.setMinHeight(370);
         messagesVB.setAlignment(Pos.TOP_LEFT);
         messagesVB.setStyle("-fx-background-color: #FF634720;");
         VBox.setVgrow(messagesVB, Priority.ALWAYS);
-        Label blank = new Label();
-        blank.setPrefHeight(30);
-        messagesVB.getChildren().add(blank);
 
         Group group = new Group();
         group.getChildren().add(messagesVB);
@@ -41,7 +40,7 @@ public class ChatBox {
         messages.setPrefViewportHeight(370);
         messages.setMaxHeight(370);
         messages.setFitToWidth(true);
-        messages.setStyle("-fx-background-color: transparent;");
+        messages.setStyle("-fx-background-color: #FF634720;");
 
         messages.setLayoutY(215);
         messages.setLayoutX(760);
@@ -49,26 +48,37 @@ public class ChatBox {
     }
 
     public void addMessage(String str) {
-        Label msg = new Label(str);
+        Text msg = new Text(str);
         msg.setFont(new Font(20));
-        if(counter % 2 == 0) {
-            msg.setTextFill(Color.GRAY);
+        if(msgList.size() % 2 == 0) {
+            msg.setFill(Color.GRAY);
         }else{
-            msg.setTextFill(Color.BLACK);
+            msg.setFill(Color.BLACK);
         }
-        msg.setStyle("-fx-border-color: #00000060;");
-        if(messagesVB.getChildren().size()>1) {
-            messagesVB.getChildren().get(counter - 1).setStyle(
-                    "-fx-border-color: transparent"
-            );
-        }
-        messagesVB.getChildren().add(counter,msg);
+        messagesVB.getChildren().add(msg);
+        msgList.add(msg);
+        shiftHighlight(1);
+        System.out.println(messagesVB.getLayoutBounds().getMaxY());
+
         messages.setVvalue(messages.getVmax());
-        counter++;
     }
 
     public void addMessage(Move move) {
         addMessage(move.toString(stringType));
+    }
+
+    public void shiftHighlight(int forward) {
+        int newIndex  = hlIndex + forward;
+        if (hlIndex < msgList.size() && hlIndex >= 0)
+            msgList.get(hlIndex).setStyle("-fx-border-width: 0;");
+
+        hlIndex = newIndex;
+
+        if (hlIndex < msgList.size() && hlIndex >= 0) {
+            Text text = msgList.get(newIndex);
+            text.setStyle("-fx-border-color: #20f1e5;" +
+                    "-fx-border-width: 5;");
+        }
     }
 
     public void setFromHistory(MoveHistory moveHistory) {
@@ -83,21 +93,16 @@ public class ChatBox {
     }
 
     public void deleteMessage(){
-        if (counter  == 0)
+        if (msgList.isEmpty())
             return;
 
-        counter--;
-        messagesVB.getChildren().remove(counter);
-        if(messagesVB.getChildren().size()>1) {
-            messagesVB.getChildren().get(counter - 1).setStyle(
-                    "-fx-border-color: #00000060;"
-            );
-        }
+        shiftHighlight(-1);
+        msgList.remove(msgList.size() - 1);
+        messagesVB.getChildren().remove(msgList.size());
         messages.setVvalue(messages.getVmax());
     }
 
     public void deleteAllMessages(){
         messagesVB.getChildren().removeAll();
-        counter = 0;
     }
 }
