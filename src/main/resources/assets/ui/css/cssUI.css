@@ -467,3 +467,11 @@
     -fx-pref-height: 35;
     -fx-pref-width: 35;
 }
+
+.scroll-pane{
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .viewport{
+    -fx-background-color: transparent;
+}
