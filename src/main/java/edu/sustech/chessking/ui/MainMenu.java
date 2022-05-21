@@ -2,21 +2,14 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.MenuType;
-import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
-import com.almasb.fxgl.net.Connection;
 import com.almasb.fxgl.scene.Scene;
 import com.almasb.fxgl.scene.SubScene;
 import com.almasb.fxgl.texture.Texture;
-import com.almasb.fxgl.ui.DialogBox;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.gameLogic.Player;
-import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.gameSave.Save;
 import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
-import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanClientCore;
-import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanGameInfo;
-import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerSearcher;
 import edu.sustech.chessking.sound.MusicPlayer;
 import edu.sustech.chessking.sound.MusicType;
 import javafx.event.EventHandler;
@@ -29,7 +22,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,7 +69,6 @@ public class MainMenu extends FXGLMenu {
             setLocalGameBtn();
             ArrayList<Player> playerArrayList = SaveLoader.readPlayerList();
             SubScene chooseLocalPlayer = new ChooseLocalPlayer(playerArrayList);
-            System.out.println("read player list" + playerArrayList.size());
             getSceneService().pushSubScene(chooseLocalPlayer);
         });
 
@@ -155,8 +146,12 @@ public class MainMenu extends FXGLMenu {
 
         Button btn4 = new Button("Exit");
         btn4.setOnAction(event -> {
-            getController().exit();
-            btn4.setCursor(Cursor.CLOSED_HAND);
+            getDialogService().showConfirmationBox("Are you sure to exit the game?", yes -> {
+                if (yes) {
+                    getController().exit();
+                    btn4.setCursor(Cursor.CLOSED_HAND);
+                }
+            });
         });
         btn4.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
@@ -189,7 +184,7 @@ public class MainMenu extends FXGLMenu {
         }
         VBox localGameTitle = new VBox(localGame);
         localGameTitle.setLayoutY(250);
-        localGameTitle.setLayoutX((getAppWidth()-384)/2);
+        localGameTitle.setLayoutX((getAppWidth()-384.0)/2);
         getContentRoot().getChildren().add(localGameTitle);
 
         Button loadSaveBtn = new Button("Load Save");
@@ -207,8 +202,8 @@ public class MainMenu extends FXGLMenu {
         Button viewGameBtn = new Button("Replay");
         viewGameBtn.getStyleClass().add("menu-button");
 
-        Button setSkinbtn = new Button("Customize");
-        setSkinbtn.getStyleClass().add("menu-button");
+        Button setSkinBtn = new Button("Customize");
+        setSkinBtn.getStyleClass().add("menu-button");
 
         Button connectLanBtn = new Button("Connect Lan");
         connectLanBtn.getStyleClass().add("menu-button");
@@ -222,7 +217,7 @@ public class MainMenu extends FXGLMenu {
         localGameBoxc1.setLayoutY(420);
         localGameBoxc1.setLayoutX(600 - 170);
 
-        VBox localGameBoxc2 = new VBox(20,loadSaveBtn,connectLanBtn,setSkinbtn);
+        VBox localGameBoxc2 = new VBox(20,loadSaveBtn,connectLanBtn,setSkinBtn);
         localGameBoxc2.setLayoutY(420);
         localGameBoxc2.setLayoutX(600 + 20);
 
@@ -239,65 +234,17 @@ public class MainMenu extends FXGLMenu {
             getSceneService().pushSubScene(loadSave);
         });
 
-        localAIbtn.setOnAction(event -> {
-            getSceneService().pushSubScene(new ChooseAI());
-        });
+        localAIbtn.setOnAction(event -> getSceneService().pushSubScene(new ChooseAI()));
 
-        viewGameBtn.setOnAction(event -> {
-            getSceneService().pushSubScene(new LoadReplay(SaveLoader
-                    .readLocalReplayList(ChessKingApp.getLocalPlayer())));
-        });
+        viewGameBtn.setOnAction(event -> getSceneService().pushSubScene(new LoadReplay(SaveLoader
+                .readLocalReplayList(ChessKingApp.getLocalPlayer()))));
 
         connectLanBtn.setOnAction(event -> {
-            //just for test purpose
-            DialogBox box = getDialogService().showProgressBox("Connecting to server");
-            Thread thread = new Thread(() -> {
-                try {
-                    LanServerSearcher lanServerSearcher = new LanServerSearcher();
-                    lanServerSearcher.start();
-                    while (true) {
-                        if (!lanServerSearcher.getGameInfoList().isEmpty()) break;
-                    }
-                    LanGameInfo gameInfo = lanServerSearcher.getGameInfoList().get(0);
-                    Connection<Bundle> connection = gameInfo.getClient().getConnections().get(0);
-                    Player localPlayer = ChessKingApp.getLocalPlayer();
-                    LanClientCore lanClient = new LanClientCore(connection, localPlayer);
-
-                    lanClient.setOnGameStart(whitePlayer -> {
-                        if (whitePlayer.equals(localPlayer))
-                            ChessKingApp.newClientGame(gameInfo, ColorType.WHITE, true);
-                        else
-                            ChessKingApp.newClientGame(gameInfo, ColorType.BLACK, true);
-                    });
-
-                    lanClient.setOnReconnectToGame(whitePlayer -> {
-                        if (whitePlayer.equals(localPlayer))
-                            ChessKingApp.newClientGame(gameInfo, ColorType.WHITE, false);
-                        else
-                            ChessKingApp.newClientGame(gameInfo, ColorType.BLACK, false);
-                    });
-
-                    lanClient.joinIn(accept -> {
-                        box.close();
-                        if (!accept) {
-                            getDialogService().showMessageBox("Fail to join in",
-                                    lanClient::leave);
-                        }
-                        else
-                            getDialogService().showProgressBox(
-                                    "Successfully join in! Game start in 5 seconds");
-                    });
-
-                } catch(IOException e) {
-                    box.close();
-                    getDialogService().showMessageBox("Fail to connect to lan!");
-                }
-            });
-            thread.setDaemon(true);
-            thread.start();
+            SubScene lanGame = new LanGameSubScene();
+            getSceneService().pushSubScene(lanGame);
         });
 
-        setSkinbtn.setOnAction(event -> {
+        setSkinBtn.setOnAction(event -> {
             SubScene newPlayer = new NewPlayer(ChessKingApp.getLocalPlayer());
             getSceneService().pushSubScene(newPlayer);
         });

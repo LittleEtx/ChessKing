@@ -100,6 +100,7 @@ public class LoadSave extends SubScene {
         saveSP.setPrefViewportWidth(400);
         saveSP.setFitToWidth(true);
         saveSP.setMaxHeight(400);
+        saveSP.setStyle("-fx-background-color: transparent");
 
         Button doneBtn = new Button("Done");
         doneBtn.getStyleClass().add("newPlayer-subScene-button");
