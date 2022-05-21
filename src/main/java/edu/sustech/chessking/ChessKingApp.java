@@ -39,6 +39,7 @@ import edu.sustech.chessking.ui.*;
 import edu.sustech.chessking.ui.inGame.ChatBox;
 import edu.sustech.chessking.ui.inGame.EatRecorder;
 import edu.sustech.chessking.ui.inGame.TurnVisual;
+import edu.sustech.chessking.ui.inGame.WaitingPanel;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
@@ -266,13 +267,12 @@ public class ChessKingApp extends GameApplication {
 
                 @Override
                 protected void onReplyReverse(boolean result) {
-                    waitingBox.close();
                     if (result) {
-                        getNotificationService().pushNotification("Agree reverse");
+                        WaitingPanel.agree();
                         reverseMove(2);
                     }
                     else
-                        getNotificationService().pushNotification("Refuse reverse!");
+                        WaitingPanel.disagree();
                 }
 
                 @Override
@@ -288,12 +288,12 @@ public class ChessKingApp extends GameApplication {
 
                 @Override
                 protected void onReplyDrawn(boolean result) {
-                    waitingBox.close();
                     if (result) {
+                        WaitingPanel.agree();
                         endGame(ClientEndGameType.DRAWN);
                     }
                     else
-                        getNotificationService().pushNotification("Refuse drawn!");
+                        WaitingPanel.disagree();
                 }
 
                 @Override
@@ -1106,13 +1106,18 @@ public class ChessKingApp extends GameApplication {
             }
         }
         else if (gameType == GameType.CLIENT) {
+            if (WaitingPanel.isWaiting()) {
+                getNotificationService().pushNotification(
+                        "You have purposed a request!");
+                return;
+            }
+
             getDialogService().showConfirmationBox(
                     "Arr you sure to ask for reverse?\n" +
                             "Your opponent may refuse and you can't ask again",
                     sure -> {
                         if (sure) {
-                            waitingBox = getDialogService().
-                                    showProgressBox("Waiting for your opponent to agree");
+                            WaitingPanel.startWaiting();
                             clientGameCore.requestReverse();
                         }
 
@@ -1120,9 +1125,33 @@ public class ChessKingApp extends GameApplication {
             );
         }
     }
-
     public static void onSuggestDraw() {
+        if (geto(TurnVar) != downSideColor) {
+            getNotificationService().pushNotification(
+                    "you can only suggest draw in your turn!");
+            return;
+        }
 
+        getDialogService().showConfirmationBox(
+                "Are you sure to propose a draw?", yes -> {
+                    if (yes) {
+                        getGameController().gotoPlay();
+                        WaitingPanel.startWaiting();
+
+                        if (gameType == GameType.COMPUTER) {
+                            if (ai.suggestDraw(downSideColor.reverse())) {
+                                WaitingPanel.agree();
+                                endGame(ClientEndGameType.DRAWN);
+                            }
+                            else
+                                WaitingPanel.disagree();
+                        }
+                        else if (gameType == GameType.CLIENT) {
+                            clientGameCore.requestDrawn();
+                        }
+                    }
+                }
+        );
     }
 
     public static void onGiveUp() {

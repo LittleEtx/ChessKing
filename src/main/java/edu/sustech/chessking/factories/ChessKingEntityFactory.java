@@ -187,4 +187,11 @@ public class ChessKingEntityFactory implements EntityFactory {
                 .view(texture("ExclamationMark.png", 40, 40))
                 .build();
     }
+
+    @Spawns("waitingMark")
+    public Entity newWaitingMark(SpawnData data){
+        return FXGL.entityBuilder(data)
+                .view(texture("Waiting.png", 40, 40))
+                .build();
+    }
 }

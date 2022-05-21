@@ -236,7 +236,7 @@ public class EvaluationMethod {
         return 0;
     }
 
-    private static int getChessScore(Chess chess) {
+    public static int getChessScore(Chess chess) {
         switch (chess.getChessType()) {
             case PAWN -> {
                 return PawnScore;

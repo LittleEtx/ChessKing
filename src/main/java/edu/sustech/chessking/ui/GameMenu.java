@@ -22,6 +22,8 @@ public class GameMenu extends FXGLMenu {
 
     @Override
     public void onCreate() {
+        getContentRoot().getChildren().clear();
+
         Rectangle rect = new Rectangle(1200,800, Color.web("#00000050"));
         getContentRoot().getChildren().addAll(rect);
 
@@ -45,11 +47,7 @@ public class GameMenu extends FXGLMenu {
 
         Button drawBtn = new Button("Suggest Draw");
         drawBtn.getStyleClass().add("menu-button");
-        drawBtn.setOnAction(event -> getDialogService().
-                showConfirmationBox("Are you sure to propose a draw?", yes -> {
-                    if (yes)
-                        ChessKingApp.onSuggestDraw();
-                }));
+        drawBtn.setOnAction(event -> ChessKingApp.onSuggestDraw());
 
         Button loseBtn = new Button("Give Up");
         loseBtn.getStyleClass().add("menu-button");

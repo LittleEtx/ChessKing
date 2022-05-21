@@ -2,11 +2,14 @@ package edu.sustech.chessking.gameLogic.ai;
 
 import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.dsl.FXGL;
+import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.gameLogic.Move;
 import edu.sustech.chessking.gameLogic.Player;
+import edu.sustech.chessking.gameLogic.enumType.ColorType;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static edu.sustech.chessking.gameLogic.MoveRule.isEatKing;
 import static edu.sustech.chessking.gameLogic.ai.EvaluationMethod.getAccurateScore;
@@ -206,5 +209,20 @@ public class AiEnemy {
             minScore = Math.min(minScore, score);
         }
         return minScore;
+    }
+
+    public boolean suggestDraw(ColorType aiSide) {
+        List<Chess> chessList = gameCore.getChessList();
+        int aiChessScore = 0;
+        int playerChessScore = 0;
+
+        for (Chess chess : chessList) {
+            if (chess.getColorType() == aiSide)
+                aiChessScore += EvaluationMethod.getChessScore(chess);
+            else
+                playerChessScore += EvaluationMethod.getChessScore(chess);
+        }
+
+        return playerChessScore - aiChessScore > 15000;
     }
 }
