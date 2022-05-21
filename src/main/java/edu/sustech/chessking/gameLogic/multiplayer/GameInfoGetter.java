@@ -32,11 +32,11 @@ abstract public class GameInfoGetter {
     };
 
     public final void startListening() {
-        connection.addMessageHandler(gameInfoListener);
+        connection.addMessageHandlerFX(gameInfoListener);
     }
 
     public final void stopListening() {
-        connection.removeMessageHandler(gameInfoListener);
+        connection.removeMessageHandlerFX(gameInfoListener);
     }
 
     private void send(String key, Serializable msg) {
@@ -44,7 +44,7 @@ abstract public class GameInfoGetter {
             onDisconnecting();
             return;
         }
-
+        System.out.println("send " + key);
         Bundle bundle = new Bundle("");
         bundle.put(key, msg);
         connection.send(bundle);

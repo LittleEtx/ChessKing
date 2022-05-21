@@ -6,6 +6,7 @@ import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.LoadingScene;
 import com.almasb.fxgl.app.scene.SceneFactory;
+import com.almasb.fxgl.app.scene.StartupScene;
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
@@ -34,9 +35,7 @@ import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerInfo;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameInfo;
 import edu.sustech.chessking.sound.MusicPlayer;
 import edu.sustech.chessking.sound.MusicType;
-import edu.sustech.chessking.ui.EndGameScene;
-import edu.sustech.chessking.ui.Loading;
-import edu.sustech.chessking.ui.MainMenu;
+import edu.sustech.chessking.ui.*;
 import edu.sustech.chessking.ui.inGame.ChatBox;
 import edu.sustech.chessking.ui.inGame.EatRecorder;
 import edu.sustech.chessking.ui.inGame.TurnVisual;
@@ -176,11 +175,17 @@ public class ChessKingApp extends GameApplication {
                 return new Loading();
             }
 
-//            @Override
-//            public FXGLMenu newGameMenu() {
-//                return new SimpleGameMenu();
-//                //rewrite Game Menu later
-//            }
+            @NotNull
+            @Override
+            public StartupScene newStartup(int width, int height) {
+                return new Startup(width, height);
+            }
+
+            @NotNull
+            @Override
+            public FXGLMenu newGameMenu() {
+                return new GameMenu();
+            }
         });
     }
 
@@ -292,13 +297,27 @@ public class ChessKingApp extends GameApplication {
                 }
 
                 @Override
-                protected void onDisconnect() {
-                    ChessKingApp.reconnect();
+                protected void onEndGame(ColorType winSide) {
+                    if (gameType == GameType.CLIENT)
+                        endGame(ClientEndGameType.WIN);
+                    //view
+                    else {
+                        if (winSide == ColorType.WHITE)
+                            endGame(ClientEndGameType.WHITE_WIN);
+                        else
+                            endGame(ClientEndGameType.BLACK_WIN);
+                    }
+
                 }
 
                 @Override
                 protected void onDataNotSync() {
                     syncData();
+                }
+
+                @Override
+                protected void onDisconnect() {
+                    ChessKingApp.reconnect();
                 }
             };
             clientGameCore.startListening();
@@ -328,7 +347,10 @@ public class ChessKingApp extends GameApplication {
                     initChess();
                     receiveRecord[0] = true;
                     TurnVisual.spawnExMark(moveHistory.getLastMove().getPosition());
+                    ChessComponent.setCheckedKing();
                     checkReceiveAllInfo();
+
+                    System.out.println("ChessKingApp.onReceiveMoveHistory");
                 }
 
                 @Override
@@ -340,6 +362,8 @@ public class ChessKingApp extends GameApplication {
                         isEnemyOnTurn = true;
                     receiveRecord[1] = true;
                     checkReceiveAllInfo();
+
+                    System.out.println("ChessKingApp.onReceiveTurn");
                 }
                 @Override
                 protected void onReceiveGameTimeList(List<Double> timeList) {
@@ -348,6 +372,8 @@ public class ChessKingApp extends GameApplication {
                     remainTime = timeList;
                     receiveRecord[2] = true;
                     checkReceiveAllInfo();
+
+                    System.out.println("ChessKingApp.onReceiveGameTimeList");
                 }
                 @Override
                 protected void onReceiveGameTime(ColorType color, double gameTime) {
@@ -362,6 +388,8 @@ public class ChessKingApp extends GameApplication {
                         receiveRecord[4] = true;
                     }
                     checkReceiveAllInfo();
+
+                    System.out.println("ChessKingApp.onReceiveGameTime");
                 }
 
                 @Override
@@ -436,7 +464,7 @@ public class ChessKingApp extends GameApplication {
         }
 
         if (gameType == GameType.REPLAY && gameTimeInSec > 0) {
-            reverseTimer();
+            resetTimer();
         }
     }
 
@@ -630,6 +658,16 @@ public class ChessKingApp extends GameApplication {
         waitingBox = getDialogService().showProgressBox(
                 "Synchronizing data..."
         );
+
+        runOnce(() -> {
+            if (!isSyncData)
+                return;
+
+            waitingBox.close();
+            getDialogService().showMessageBox("Cannot connect to server",
+                    () -> getGameController().gotoGameMenu());
+        }, Duration.seconds(30));
+
         isSyncData = true;
         set(IsMovingChess, false);
 
@@ -1072,11 +1110,25 @@ public class ChessKingApp extends GameApplication {
                     "Arr you sure to ask for reverse?\n" +
                             "Your opponent may refuse and you can't ask again",
                     sure -> {
-                        if (sure)
-                            waitingBox = getDialogService().showProgressBox("Waiting for your opponent to agree");
+                        if (sure) {
+                            waitingBox = getDialogService().
+                                    showProgressBox("Waiting for your opponent to agree");
+                            clientGameCore.requestReverse();
+                        }
+
                     }
             );
         }
+    }
+
+    public static void onSuggestDraw() {
+
+    }
+
+    public static void onGiveUp() {
+        if (gameType == GameType.CLIENT)
+            clientGameCore.quit();
+        endGame(ClientEndGameType.LOST);
     }
 
     private static void reverseMove(int times) {
@@ -1129,7 +1181,7 @@ public class ChessKingApp extends GameApplication {
             //reset turnTime
             if (gameTimeInSec > 0) {
                 remainTime.remove(remainTime.size() - 1);
-                reverseTimer();
+                resetTimer();
             }
         }
 
@@ -1139,7 +1191,7 @@ public class ChessKingApp extends GameApplication {
             TurnVisual.clearExMark();
     }
 
-    private static void reverseTimer() {
+    private static void resetTimer() {
         GameTimer nowPlayerTimer = getTimer(geto(TurnVar));
         GameTimer formerPlayerTimer = getTimer(((ColorType) geto(TurnVar)).reverse());
         nowPlayerTimer.resetTurnTime();

@@ -111,7 +111,7 @@ abstract public class LanServerCore {
 
                     opponentConn = conn;
                     game.setGameState(GameState.ON_GOING);
-                    serverGameCore.rejoinIn(1, opponentConn);
+                    serverGameCore.rejoinIn(2, opponentConn);
                     send(opponentConn, SuccessfullyReconnect, whitePlayer);
                     onOpponentReconnect();
                 }
@@ -148,9 +148,6 @@ abstract public class LanServerCore {
                         broadcast(SendGameInfo, game);
                         onOpponentDropOut();
                     }
-                    //end game
-                    else
-                        onOpponentLeaveGame();
                 }
                 //viewer connection
                 else {
@@ -185,7 +182,6 @@ abstract public class LanServerCore {
     abstract protected void onOpponentDropOut();
     abstract protected void onOpponentDisconnect();
     abstract protected void onOpponentReconnect();
-    abstract protected void onOpponentLeaveGame();
 
     public void sendDataNotSync() {
         send(opponentConn, DataNotSync, "");

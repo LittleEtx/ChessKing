@@ -46,18 +46,21 @@ abstract public class ServerGameCore {
     };
 
     private final MessageHandler<Bundle> playerListener = (conn, msg) -> {
-        if (waitingForRejoin)
+        if (waitingForRejoin) {
+//            if (!conn.equals(player1))
+//                System.out.println("still waiting for rejoining!");
             return;
+        }
 
         Connection<Bundle> opponent;
-        if (conn == player1)
+        if (conn.equals(player1))
             opponent = player2;
-        else if (conn == player2)
+        else if (conn.equals(player2))
             opponent = player1;
         else
             throw new RuntimeException("Give Listener to a none player connection!");
 
-        if (msg.exists(Color)) {
+        if (msg.exists(Color) || msg.exists(Quit)) {
             if (!opponent.isConnected()) {
                 waitingForRejoin = true;
                 onDisconnecting(opponent);
@@ -103,15 +106,21 @@ abstract public class ServerGameCore {
     public void rejoinIn(int index, Connection<Bundle> player) {
         if (!waitingForRejoin || !player.isConnected())
             return;
-
         if (index == 1)
             player1 = player;
         else if (index == 2)
             player2 = player;
 
+        System.out.println(player1.isConnected());
+        System.out.println(player2.isConnected());
         //if both player are connected, continue
-        if (player1.isConnected() && player2.isConnected())
-            waitingForRejoin = false;
+        if (!player1.isConnected() || !player2.isConnected())
+            return;
+
+        waitingForRejoin = false;
+        //add handler to the new connection
+        player.addMessageHandler(playerListener);
+        player.addMessageHandler(gameInfoListener);
     }
 
     private void broadcastViewer(Bundle msg) {

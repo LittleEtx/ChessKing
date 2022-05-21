@@ -86,6 +86,7 @@ abstract public class GameEventListener {
 
     abstract protected void onRequestDrawn();
     abstract protected void onReplyDrawn(boolean result);
+    abstract protected void onEndGame(ColorType winSide);
 
     /**
      * start listening for game event

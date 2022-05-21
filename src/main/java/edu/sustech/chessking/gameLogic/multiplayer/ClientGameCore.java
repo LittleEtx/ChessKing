@@ -11,6 +11,7 @@ import javafx.geometry.Point2D;
 import java.io.Serializable;
 
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.*;
+import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.Quit;
 
 abstract public class ClientGameCore extends GameEventListener{
     private final ColorType side;
@@ -84,5 +85,9 @@ abstract public class ClientGameCore extends GameEventListener{
 
     public final void sendMousePt(Point2D pt) {
         sendMsg(Mouse, toDouble(pt));
+    }
+
+    public final void quit() {
+        sendMsg(Quit, "");
     }
 }

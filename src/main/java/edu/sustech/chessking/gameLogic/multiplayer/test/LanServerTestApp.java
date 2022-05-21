@@ -16,7 +16,6 @@ import javafx.geometry.Point2D;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.PickUpChess;
 
@@ -92,12 +91,6 @@ public class LanServerTestApp extends GameApplication {
                 protected void onOpponentReconnect() {
                     System.out.println("[Server] Opponent reconnected");
                 }
-
-                @Override
-                protected void onOpponentLeaveGame() {
-                    System.out.println("[Server] Opponent leave game");
-                    this.stop();
-                }
             };
             client = lanServerCore.getLocalClient();
             System.out.println("[Server] Successfully open!");
@@ -108,16 +101,30 @@ public class LanServerTestApp extends GameApplication {
                 return;
 
             if (!lanServerCore.startGame(opponent,
-                    this::getMoveHistory,
                     () -> {
+                        System.out.println("[server] receive GameHistoryRequest");
+                        return  getMoveHistory();
+                    },
+                    () -> {
+                        System.out.println("[server] receive getTurn request");
                         if (!isAiCalculating)
                             return gameCore.getTurn();
                         else
                             //ai's turn
                             return ColorType.BLACK;
                     },
-                    () -> new ArrayList<>(List.of(new Double[getMoveHistory().getMoveNum()])),
-                    colorType -> -1.0)) {
+                    () ->  {
+                        ArrayList<Double> list = new ArrayList<>();
+                        for (int i = 0; i < getMoveHistory().getMoveNum(); i++) {
+                            list.add(-1.0);
+                        }
+                        System.out.println("[server] receive getTimeList request");
+                        return list;
+                    },
+                    colorType -> {
+                        System.out.println("[server] receive getTime request");
+                        return  -1.0;
+                    })) {
                 System.out.println("[Server] Fail to start game!");
                 return;
             }
@@ -173,6 +180,8 @@ public class LanServerTestApp extends GameApplication {
                 @Override
                 protected void onRequestReverse() {
                     System.out.println("[Server] Opponent request reverse move");
+                    gameCore.reverseMove();
+                    gameCore.reverseMove();
                     replyReverse(true);
                 }
 
@@ -190,6 +199,12 @@ public class LanServerTestApp extends GameApplication {
                 @Override
                 protected void onReplyDrawn(boolean result) {
                     System.out.println("[Server] opponent's opinion on drawn: " + result);
+                }
+
+                @Override
+                protected void onEndGame(ColorType winSide) {
+                    System.out.println("[Server] Opponent quit game!");
+                    lanServerCore.stop();
                 }
 
                 @Override

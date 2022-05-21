@@ -58,7 +58,6 @@ public class ChatBox {
         messagesVB.getChildren().add(msg);
         msgList.add(msg);
         shiftHighlight(1);
-        System.out.println(messagesVB.getLayoutBounds().getMaxY());
 
         messages.setVvalue(messages.getVmax());
     }
