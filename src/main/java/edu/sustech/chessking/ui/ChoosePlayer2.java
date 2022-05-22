@@ -25,10 +25,10 @@ import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
 
 public class ChoosePlayer2 extends SubScene {
     private Player p2;
-    private int gameTime = 90;
-    private int turnTime = 5;
-    public void setGameTime(int gameTime) {this.gameTime = gameTime;}
-    public void setTurnTime(int turnTime) {this.turnTime = turnTime;}
+    private static double gameTime = 3600;
+    private static double turnTime = 300;
+    public static void setGameTime(double a) {gameTime = a;}
+    public static void setTurnTime(double a) {turnTime = a;}
     public ChoosePlayer2(Player player){
         Rectangle bg = new Rectangle(1200,800, Color.web("#00000080"));
         getContentRoot().getChildren().add(bg);
@@ -74,7 +74,7 @@ public class ChoosePlayer2 extends SubScene {
 
                 if(event.getClickCount()==2){
                     getSceneService().popSubScene();
-                    ChessKingApp.newLocalGame(p2,200,200);
+                    ChessKingApp.newLocalGame(p2,gameTime,turnTime);
                 }
             });
         }

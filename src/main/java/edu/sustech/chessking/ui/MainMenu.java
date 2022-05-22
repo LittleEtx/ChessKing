@@ -13,11 +13,13 @@ import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
 import edu.sustech.chessking.sound.MusicPlayer;
 import edu.sustech.chessking.sound.MusicType;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.effect.Bloom;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
@@ -193,6 +195,14 @@ public class MainMenu extends FXGLMenu {
         Button localFight = new Button("New Duel");
         localFight.getStyleClass().add("menu-button");
 
+        Button setTimeBtn = new Button();
+        setTimeBtn.getStyleClass().add("setTime-button");
+        setTimeBtn.setLayoutY(500+10);
+        setTimeBtn.setLayoutX(600-170-40);
+        getContentRoot().getChildren().add(setTimeBtn);
+        setTimeBtn.setOnAction(event -> {
+            getSceneService().pushSubScene(new SetTimeDuel());
+        });
 
         //start a new game with AI when clicked
         Button localAIbtn = new Button("Fight AI");
@@ -214,6 +224,7 @@ public class MainMenu extends FXGLMenu {
         backBtn.setLayoutY(700);
 
         VBox localGameBoxc1 = new VBox(20,localAIbtn,localFight,viewGameBtn);
+        localGameBoxc1.setAlignment(Pos.CENTER_RIGHT);
         localGameBoxc1.setLayoutY(420);
         localGameBoxc1.setLayoutX(600 - 170);
 

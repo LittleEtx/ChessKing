@@ -475,3 +475,11 @@
 .scroll-pane .viewport{
     -fx-background-color: transparent;
 }
+
+.setTime-button{
+    -fx-background-color: transparent;
+    -fx-background-image: url("Clock.png");
+    -fx-background-size: 40 40;
+    -fx-pref-height: 40;
+    -fx-pref-width: 40;
+}

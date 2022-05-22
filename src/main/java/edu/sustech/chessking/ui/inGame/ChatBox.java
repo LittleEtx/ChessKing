@@ -9,6 +9,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 import java.util.ArrayList;
@@ -50,10 +51,13 @@ public class ChatBox {
     public void addMessage(String str) {
         Text msg = new Text(str);
         msg.setFont(new Font(20));
+        msg.setStrokeWidth(0.3);
         if(msgList.size() % 2 == 0) {
-            msg.setFill(Color.GRAY);
+            msg.setFill(Color.WHITE);
+            msg.setStroke(Color.WHITE);
         }else{
             msg.setFill(Color.BLACK);
+            msg.setStroke(Color.BLACK);
         }
         messagesVB.getChildren().add(msg);
         msgList.add(msg);
