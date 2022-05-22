@@ -10,9 +10,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
 
 public class WaitingPanel {
@@ -20,7 +17,7 @@ public class WaitingPanel {
 
     private static Pane pane;
 
-    private static Timer timer;
+    private static WaitingMark waitingMark;
     private static Texture waitTexture;
     private static Text text;
 
@@ -38,17 +35,11 @@ public class WaitingPanel {
                 "#193237ff 0.0%, #2e4e58ff 50.0%, #39687cff 100.0%);" +
                 "-fx-background-size: 80 60;");
 
-        waitTexture = texture("Waiting.png", 52, 52);
+
+        waitingMark = new WaitingMark();
+        waitTexture = waitingMark.get();
         waitTexture.setLayoutX(50);
         waitTexture.setLayoutY(20);
-
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                waitTexture.setRotate(waitTexture.getRotate() + 30);
-            }
-        }, 200,200);
 
         text = FXGL.getUIFactoryService().newText(
                 "Waiting for \n opponent to agree", Color.WHITE, 15);
@@ -72,7 +63,7 @@ public class WaitingPanel {
     }
 
     public static void agree() {
-        timer.cancel();
+        waitingMark.stop();
         pane.getChildren().remove(waitTexture);
         Texture agreeTexture  = texture("GreenTick.png", 52, 52);
         agreeTexture.setLayoutX(50);
@@ -84,7 +75,7 @@ public class WaitingPanel {
     }
 
     public static void disagree() {
-        timer.cancel();
+        waitingMark.stop();
         pane.getChildren().remove(waitTexture);
         Texture refuseTexture  = texture("RedCross.png", 52, 52);
         refuseTexture.setLayoutX(50);

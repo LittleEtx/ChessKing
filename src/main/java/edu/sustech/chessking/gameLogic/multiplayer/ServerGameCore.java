@@ -60,7 +60,7 @@ abstract public class ServerGameCore {
         else
             throw new RuntimeException("Give Listener to a none player connection!");
 
-        if (msg.exists(Color) || msg.exists(Quit)) {
+        if (msg.exists(Color)) {
             if (!opponent.isConnected()) {
                 waitingForRejoin = true;
                 onDisconnecting(opponent);
@@ -111,8 +111,6 @@ abstract public class ServerGameCore {
         else if (index == 2)
             player2 = player;
 
-        System.out.println(player1.isConnected());
-        System.out.println(player2.isConnected());
         //if both player are connected, continue
         if (!player1.isConnected() || !player2.isConnected())
             return;
@@ -124,7 +122,14 @@ abstract public class ServerGameCore {
     }
 
     private void broadcastViewer(Bundle msg) {
-        viewerList.forEach(conn -> conn.send(msg));
+        List<Connection<Bundle>> copyList =
+                new ArrayList<>(viewerList);
+        copyList.forEach(conn -> {
+            if (!conn.isConnected())
+                viewerList.remove(conn);
+            else
+                conn.send(msg);
+        });
     }
 
     public void startGame() {

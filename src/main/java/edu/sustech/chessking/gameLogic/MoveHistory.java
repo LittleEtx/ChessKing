@@ -14,7 +14,7 @@ public class MoveHistory implements Serializable, Iterable<Move> {
 
     private final ArrayList<Move> moveHistory;
 
-    MoveHistory() {
+    public MoveHistory() {
        moveHistory  = new ArrayList<>();
     }
 

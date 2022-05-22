@@ -90,7 +90,7 @@ public class GameTimer {
     }
 
 
-    private String getTimeStr(Double second) {
+    public static String getTimeStr(Double second) {
         if (second == null)
             return DefaultTime;
 

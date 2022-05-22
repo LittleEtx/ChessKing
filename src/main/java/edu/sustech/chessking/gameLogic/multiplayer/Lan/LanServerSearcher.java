@@ -17,12 +17,14 @@ import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.*
 
 public class LanServerSearcher extends Thread{
     private final MulticastSocket socket;
+    private final Thread thread;
     private Consumer<String> onFailToSearch;
     private final List<LanServerInfo> entryList = new LinkedList<>();
     private final List<LanGameInfo> gameInfoList = new LinkedList<>();
 
 
     public LanServerSearcher() throws IOException {
+        thread = Thread.currentThread();
         socket = new MulticastSocket(Port);
         socket.setSoTimeout(5000);
         socket.joinGroup(new InetSocketAddress(
@@ -32,7 +34,7 @@ public class LanServerSearcher extends Thread{
     @Override
     public void run() {
         byte[] bs = new byte[1024];
-        while (!this.isInterrupted()) {
+        while (!this.isInterrupted() && thread.isAlive()) {
             DatagramPacket datagramPocket = new DatagramPacket(bs, bs.length);
             try {
                 socket.receive(datagramPocket);
