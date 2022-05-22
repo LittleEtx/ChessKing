@@ -7,7 +7,7 @@ import edu.sustech.chessking.gameLogic.MoveHistory;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.ArrayList;
 
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.*;
 
@@ -79,7 +79,7 @@ abstract public class GameInfoGetter {
 
     abstract protected void onReceiveMoveHistory(MoveHistory moveHistory);
     abstract protected void onReceiveTurn(ColorType turn);
-    abstract protected void onReceiveGameTimeList(List<Double> timeList);
+    abstract protected void onReceiveGameTimeList(ArrayList<Double> timeList);
     abstract protected void onReceiveGameTime(ColorType color, double gameTime);
     abstract protected void onDisconnecting();
 }

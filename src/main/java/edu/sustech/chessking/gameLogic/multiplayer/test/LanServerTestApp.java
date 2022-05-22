@@ -11,11 +11,11 @@ import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.multiplayer.ClientGameCore;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerCore;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.NewGameInfo;
+import javafx.animation.PauseTransition;
 import javafx.geometry.Point2D;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.PickUpChess;
 
@@ -68,7 +68,7 @@ public class LanServerTestApp extends GameApplication {
             this.aiEnemy = aiEnemy;
             lanServerCore = new LanServerCore(newGameInfo) {
 
-                private Timer timer;
+                private PauseTransition pt;
 
                 @Override
                 protected void onOpponentAddIn(Player opponent) {
@@ -76,19 +76,16 @@ public class LanServerTestApp extends GameApplication {
                     System.out.println("[Server] Game start after 5 seconds");
                     ServerHelper.this.opponent = opponent;
                     isOpponentAddIn = true;
-                    timer = new Timer();
-                    timer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                           readyStartGame();
-                        }
-                    }, 5000);
+                    pt = new PauseTransition(Duration.seconds(5));
+                    pt.setOnFinished(event -> {
+                        readyStartGame();
+                    });
                 }
 
                 @Override
                 protected void onOpponentDropOut() {
                     System.out.println("[Server] Opponent left");
-                    timer.cancel();
+                    pt.pause();
                     isOpponentAddIn = false;
                 }
 
@@ -107,8 +104,10 @@ public class LanServerTestApp extends GameApplication {
         }
 
         private void readyStartGame() {
-            if (!isOpponentAddIn)
+            if (!isOpponentAddIn) {
+                System.out.println("No opponent add in");
                 return;
+            }
 
             if (!lanServerCore.startGame(opponent,
                     () -> {

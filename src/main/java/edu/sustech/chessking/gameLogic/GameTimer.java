@@ -71,7 +71,7 @@ public class GameTimer {
             this.currentGameTime = null;
         else
             this.currentGameTime = currentGameTime;
-        gameTimeSp.set(getTimeStr(currentGameTime));
+        gameTimeSp.set(getTimeStr(this.currentGameTime));
     }
 
     public StringProperty getGameTimeStr() {

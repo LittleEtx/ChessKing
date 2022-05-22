@@ -6,7 +6,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 public class GameInfo implements Serializable {
-    private final Player player1;
+    private Player player1;
     private Player player2 = null;
     private GameState gameState = GameState.WAITING_JOIN;
     private final double gameTime;
@@ -67,5 +67,11 @@ public class GameInfo implements Serializable {
 
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
+    }
+
+    public void reversePlayer() {
+        Player tempPlayer = player1;
+        player1 = player2;
+        player2 = tempPlayer;
     }
 }

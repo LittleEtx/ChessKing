@@ -7,7 +7,6 @@ import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class Save {
     private final long uuid;
@@ -18,7 +17,7 @@ public class Save {
     private final double gameTime;
     private final double turnTime;
 
-    private final List<Double> remainingTime;
+    private final ArrayList<Double> remainingTime;
     private final MoveHistory gameHistory;
 
 
@@ -28,7 +27,7 @@ public class Save {
     public Save(long uuid, LocalDateTime saveDate,
                 Player whitePlayer, Player blackPlayer,
                 ColorType defaultDownColor, double gameTime, double turnTime,
-                List<Double> remainingTime,
+                ArrayList<Double> remainingTime,
                 MoveHistory gameHistory) {
         this.uuid = uuid;
         this.saveDate = saveDate;
@@ -115,7 +114,7 @@ public class Save {
         return turnTime;
     }
 
-    public List<Double> getRemainingTime() {
+    public ArrayList<Double> getRemainingTime() {
         return remainingTime;
     }
 

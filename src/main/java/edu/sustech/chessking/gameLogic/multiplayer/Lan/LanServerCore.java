@@ -31,7 +31,7 @@ abstract public class LanServerCore {
     private final int port;
 
     private final LanServerBroadcaster lanServerBroadcaster;
-    private Connection<Bundle> serverSideConn;
+    private Connection<Bundle> serverSideConn = null;
 
     private Connection<Bundle> opponentConn = null;
     private final Client<Bundle> localClient;
@@ -71,13 +71,13 @@ abstract public class LanServerCore {
         game = new GameInfo(gameInfo);
         server = FXGL.getNetService().newTCPServer(port);
         localClient = FXGL.getNetService().newTCPClient(localhost, port);
-        localClient.setOnConnected(connection -> {
-            startBroadcast();
-            lanServerBroadcaster.start();
-        });
+
         server.setOnConnected(connection -> {
-            if (serverSideConn == null)
+            if (serverSideConn == null) {
                 serverSideConn = connection;
+                startBroadcast();
+                lanServerBroadcaster.start();
+            }
         });
 
         server.startAsync();
