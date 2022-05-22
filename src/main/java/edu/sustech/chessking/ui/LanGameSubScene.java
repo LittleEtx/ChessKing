@@ -9,14 +9,13 @@ import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.gameLogic.GameTimer;
 import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
-import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanClientCore;
-import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanGameInfo;
-import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerCore;
-import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerSearcher;
+import edu.sustech.chessking.gameLogic.multiplayer.Lan.*;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameInfo;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameState;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.NewGameInfo;
 import edu.sustech.chessking.ui.inGame.WaitingMark;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -34,8 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static com.almasb.fxgl.dsl.FXGL.getDialogService;
-import static com.almasb.fxgl.dsl.FXGL.getSceneService;
+import static com.almasb.fxgl.dsl.FXGL.*;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getUIFactoryService;
 
 public class LanGameSubScene extends SubScene {
@@ -129,14 +127,15 @@ public class LanGameSubScene extends SubScene {
         }
         lanServerSearcher.start();
         gameInfoList = lanServerSearcher.getGameInfoList();
+        waitingMark = new WaitingMark();
     }
 
     private final class ServerBtn{
         private final LanGameInfo info;
         private final Button btn;
         private boolean isSelected = false;
-        private Text state;
-        private Text ping;
+        private final Text state;
+        private final Text ping;
 
 
         public ServerBtn(LanGameInfo info) {
@@ -270,8 +269,14 @@ public class LanGameSubScene extends SubScene {
                     getDialogService().showMessageBox("Unable to join in",
                             lanClient::leave);
                 }
-                else
-                    pushClientWaitingPane(lanClient);
+                else {
+                    pushWaitingPane("Waiting for game start", event -> {
+                        lanClient.leave();
+                        getContentRoot().getChildren().remove(waitingPane);
+                        waitingPane = null;
+                    });
+                    isWaiting = true;
+                }
             });
         }
         else {
@@ -284,74 +289,104 @@ public class LanGameSubScene extends SubScene {
     private void newGame() {
         NewGameInfo info = new NewGameInfo(ChessKingApp.getLocalPlayer(),
                 -1, -1 , true);
-        LanServerCore lanServerCore = new LanServerCore(info) {
-            @Override
-            protected void onOpponentAddIn(Player opponent) {
 
-            }
+        LanServerCore lanServerCore;
+        try {
+             lanServerCore = new LanServerCore(info) {
+                @Override
+                protected void onOpponentAddIn(Player opponent) {
 
-            @Override
-            protected void onOpponentDropOut() {
+                }
 
-            }
+                @Override
+                protected void onOpponentDropOut() {
 
-            @Override
-            protected void onOpponentDisconnect() {
+                }
 
-            }
+                @Override
+                protected void onOpponentDisconnect() {
 
-            @Override
-            protected void onOpponentReconnect() {
+                }
 
-            }
-        };
+                @Override
+                protected void onOpponentReconnect() {
 
+                }
+            };
+        }
+        catch (FailToAccessLanException e) {
+            getDialogService().showMessageBox("Unable to create server!");
+            return;
+        }
 
-
-
-
+        pushWaitingPane("Waiting for others to join in", event -> lanServerCore.stop());
+        pushStartPane(lanServerCore);
 
     }
 
-    private void pushClientWaitingPane(LanClientCore lanClient) {
+    private void pushWaitingPane(String msg, EventHandler<ActionEvent> quitHandler) {
+        if (waitingPane != null)
+            getContentRoot().getChildren().remove(waitingPane);
         waitingPane = new Pane();
         waitingPane.setPrefSize(800, 600);
         waitingPane.setStyle("-fx-background-color: #00000090;" +
-                "-fx-background-radius:20;");
+                "-fx-background-radius:10;");
         waitingPane.setLayoutX(200);
         waitingPane.setLayoutY(100);
 
-        waitingMark = new WaitingMark();
         Texture waitTexture = waitingMark.get();
         waitTexture.setLayoutX(474);
         waitTexture.setLayoutY(170);
 
-        Text text = getUIFactoryService().newText("Waiting for owner to start game", Color.WHITE, 20);
-        text.setLayoutX(350);
+        Text text = getUIFactoryService().
+                newText(msg, Color.WHITE, 20);
+        text.setLayoutX(400);
         text.setLayoutY(300);
 
         Button quitButton = new Button("Quit");
         quitButton.getStyleClass().add("menu-button");
         quitButton.setLayoutX(425);
         quitButton.setLayoutY(400);
-        quitButton.setOnAction(event -> {
-            lanClient.leave();
-            getContentRoot().getChildren().remove(waitingPane);
-            waitingMark.stop();
-        });
+        quitButton.setOnAction(quitHandler);
 
         waitingPane.getChildren().addAll(waitTexture, text, quitButton);
         getContentRoot().getChildren().add(waitingPane);
-        isWaiting = true;
     }
 
-    private void pushServerWaitingPane() {
+    private void pushStartPane(LanServerCore lanServer) {
+        if (waitingPane == null)
+            return;
 
+        waitingPane.getChildren().clear();
 
+        Texture tick = texture("GreenTick.png");
+        tick.setLayoutX(474);
+        tick.setLayoutY(170);
 
+        Text text = getUIFactoryService().
+                newText("Ready!", Color.WHITE, 20);
+        text.setLayoutX(480);
+        text.setLayoutY(300);
 
+        Button quitButton = new Button("Quit");
+        quitButton.getStyleClass().add("menu-button");
+        quitButton.setLayoutX(365);
+        quitButton.setLayoutY(400);
+        quitButton.setOnAction(event -> {
+            getDialogService().showConfirmationBox(
+                    "Are you sure to quit the game?", yes -> {
+                        lanServer.stop();
+                        getContentRoot().getChildren().remove(waitingPane);
+                        waitingPane = null;
+            });
+        });
 
+        Button startButton = new Button("Start");
+        startButton.getStyleClass().add("menu-button");
+        startButton.setLayoutX(525);
+        startButton.setLayoutY(400);
 
+        waitingPane.getChildren().addAll(tick, text, quitButton, startButton);
     }
 
 
@@ -375,11 +410,15 @@ public class LanGameSubScene extends SubScene {
             }
         }
         //clear expire client
-        map.keySet().removeIf(gameInfo -> !gameInfo
-                .getClient().getConnections().get(0).isConnected());
+        map.keySet().removeIf(gameInfo -> {
+            if (gameInfo.getClient().getConnections().size() < 1) {
+                gameBox.getChildren().remove(map.get(gameInfo).getBtn());
+                return true;
+            }
+            return false;
+        });
 
-        if (isWaiting && !selectedGame.getClient()
-                .getConnections().get(0).isConnected()) {
+        if (isWaiting && selectedGame.getClient().getConnections().size() < 1) {
             getContentRoot().getChildren().remove(waitingPane);
             isWaiting = false;
             getDialogService().showMessageBox("Game owner leave game!");

@@ -44,7 +44,7 @@ abstract public class LanServerCore {
      * Creating a lan server will automatically open on a free port
      * @throws FailToAccessLanException when unable to open lan
      */
-    public LanServerCore(NewGameInfo gameInfo) {
+    public LanServerCore(NewGameInfo gameInfo) throws FailToAccessLanException{
         //get a new port
         try (ServerSocket serverSocket = new ServerSocket(0)){
             port = serverSocket.getLocalPort();
@@ -262,6 +262,7 @@ abstract public class LanServerCore {
         lanServerBroadcaster.interrupt();
         if (game.getState().isGameStart())
             serverGameCore.endGame();
+        server.getConnections().forEach(Connection::terminate);
         server.stop();
     }
 }

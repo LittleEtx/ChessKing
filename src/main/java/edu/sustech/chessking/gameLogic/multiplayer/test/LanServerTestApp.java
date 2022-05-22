@@ -228,6 +228,11 @@ public class LanServerTestApp extends GameApplication {
                 }
             };
             clientGame.startListening();
+            if (client.getConnections().size() < 1) {
+                System.out.println("[Sever] Error! Local client disconnected");
+                return;
+            }
+
             client.getConnections().get(0).addMessageHandler((conn, msg) -> {
                 if (msg.exists(PickUpChess))
                     System.out.println("[Client] receive pick up chess" + msg.get(PickUpChess));
