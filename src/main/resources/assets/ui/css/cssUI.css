@@ -476,6 +476,23 @@
     -fx-background-color: transparent;
 }
 
+.server-game-button{
+    -fx-min-width: 500;
+    -fx-pref-height:100;
+    -fx-background-color:#40404080;
+    -fx-background-radius:20;
+    -fx-font-size: 20;
+    -fx-border-color:black;
+    -fx-border-style:solid;
+    -fx-border-radius: 20;
+    -fx-border-width: 5;
+}
+
+.server-game-button:hover{
+    -fx-background-color:#404040;
+}
+
+
 .setTime-button{
     -fx-background-color: transparent;
     -fx-background-image: url("Clock.png");

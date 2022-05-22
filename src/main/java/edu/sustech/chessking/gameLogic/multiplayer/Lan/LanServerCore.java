@@ -167,6 +167,10 @@ abstract public class LanServerCore {
     }
 
     private void send(Connection<Bundle> conn, String key, Serializable msg) {
+        if (!conn.isConnected()) {
+            return;
+        }
+
         Bundle info = new Bundle("");
         info.put(key, msg);
         conn.send(info);

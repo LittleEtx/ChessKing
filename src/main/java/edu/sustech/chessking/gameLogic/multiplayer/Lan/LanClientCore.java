@@ -10,11 +10,9 @@ import java.util.function.Consumer;
 
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.*;
 
-public class LanClientCore {
+abstract public class LanClientCore {
     private final Connection<Bundle> connection;
     private final Player player;
-    private Consumer<Player> onGameStart;
-    private Consumer<Player> onReconnectToGame;
     private boolean isInGame = false;
     private Consumer<Boolean> joinInCallback;
     private final MessageHandler<Bundle> listener = (conn, msg) -> {
@@ -24,10 +22,10 @@ public class LanClientCore {
             joinInCallback.accept(false);
 
         if (msg.exists(StartGame))
-            onGameStart.accept(msg.get(StartGame));
+            onGameStart(msg.get(StartGame));
 
         if (msg.exists(SuccessfullyReconnect))
-            onReconnectToGame.accept(msg.get(SuccessfullyReconnect));
+            onReconnectToGame(msg.get(SuccessfullyReconnect));
     };
 
     /**
@@ -40,11 +38,11 @@ public class LanClientCore {
         this.player = player;
     }
 
-    public void joinIn(Consumer<Boolean> callback) {
+    public final void joinIn(Consumer<Boolean> callback) {
         sendAndJoin(JoinGame, callback);
     }
 
-    public void joinInView(Consumer<Boolean> callback) {
+    public final void joinInView(Consumer<Boolean> callback) {
         sendAndJoin(JoinView, callback);
     }
 
@@ -58,21 +56,14 @@ public class LanClientCore {
         connection.addMessageHandlerFX(listener);
     }
 
-    /**
-     * @param onGameStart actions to do when game start, Player is the white player
-     */
-    public void setOnGameStart(Consumer<Player> onGameStart) {
-        this.onGameStart = onGameStart;
-    }
+    abstract public void onGameStart(Player whitePlayer);
 
-    public void setOnReconnectToGame(Consumer<Player> onReconnectToGame) {
-        this.onReconnectToGame = onReconnectToGame;
-    }
+    abstract public void onReconnectToGame(Player whitePlayer);
 
     /**
      * Whenever leave a server (including being refuse join in, use the method）
      */
-    public void leave() {
+    public final void leave() {
         connection.removeMessageHandler(listener);
         send(Quit, "");
     }

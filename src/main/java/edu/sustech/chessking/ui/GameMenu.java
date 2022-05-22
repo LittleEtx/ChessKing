@@ -68,12 +68,14 @@ public class GameMenu extends FXGLMenu {
         quitBtn.setOnAction(event -> {
             String text = localize("dialog.exitGame");
             getDialogService().showConfirmationBox(text, yes -> {
-                if (yes)
+                if (yes) {
                     getGameController().gotoMainMenu();
+                }
             });
         });
 
-        vb.getChildren().add(quitBtn);
+        if (geto(GameTypeVar) != GameType.CLIENT)
+            vb.getChildren().add(quitBtn);
         getContentRoot().getChildren().add(vb);
     }
 }

@@ -3,7 +3,6 @@ package edu.sustech.chessking.gameLogic.multiplayer.test;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.core.serialization.Bundle;
-import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.net.Client;
 import edu.sustech.chessking.gameLogic.*;
 import edu.sustech.chessking.gameLogic.ai.AiEnemy;
@@ -13,9 +12,10 @@ import edu.sustech.chessking.gameLogic.multiplayer.ClientGameCore;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerCore;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.NewGameInfo;
 import javafx.geometry.Point2D;
-import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.PickUpChess;
 
@@ -55,7 +55,7 @@ public class LanServerTestApp extends GameApplication {
         private final LanServerCore lanServerCore;
         private final GameCore gameCore;
         private final AiEnemy aiEnemy;
-        private MoveHistory tempHistory;
+        private MoveHistory tempHistory = new MoveHistory();
         private final Client<Bundle> client;
         private boolean isAiCalculating = false;
 
@@ -67,18 +67,28 @@ public class LanServerTestApp extends GameApplication {
             this.gameCore = gameCore;
             this.aiEnemy = aiEnemy;
             lanServerCore = new LanServerCore(newGameInfo) {
+
+                private Timer timer;
+
                 @Override
                 protected void onOpponentAddIn(Player opponent) {
                     System.out.println("[Server] Opponent join in");
                     System.out.println("[Server] Game start after 5 seconds");
                     ServerHelper.this.opponent = opponent;
                     isOpponentAddIn = true;
-                    FXGL.runOnce(() -> readyStartGame(), Duration.seconds(5));
+                    timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                           readyStartGame();
+                        }
+                    }, 5000);
                 }
 
                 @Override
                 protected void onOpponentDropOut() {
                     System.out.println("[Server] Opponent left");
+                    timer.cancel();
                     isOpponentAddIn = false;
                 }
 
@@ -103,7 +113,7 @@ public class LanServerTestApp extends GameApplication {
             if (!lanServerCore.startGame(opponent,
                     () -> {
                         System.out.println("[server] receive GameHistoryRequest");
-                        return  getMoveHistory();
+                        return getMoveHistory();
                     },
                     () -> {
                         System.out.println("[server] receive getTurn request");
