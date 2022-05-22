@@ -14,7 +14,6 @@ public class WaitingMark {
     public WaitingMark() {
         texture = texture("Waiting.png", 52, 52);
         Thread thread = Thread.currentThread();
-        System.out.println(thread.getName());
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override

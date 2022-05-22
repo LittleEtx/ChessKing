@@ -44,6 +44,6 @@ public class InGameProtocol {
 
     public static final String DataNotSync = "dataNotSync"; //empty
 
-    public static final String Quit = "quit"; // Player
+    public static final String Quit = "quit"; //empty
 
 }

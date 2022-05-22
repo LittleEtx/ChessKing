@@ -19,7 +19,6 @@ import javafx.scene.control.Button;
 import javafx.scene.effect.Bloom;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
@@ -262,7 +261,7 @@ public class MainMenu extends FXGLMenu {
 
         backBtn.setOnAction(event -> {
            getContentRoot().getChildren().removeAll(localGameBoxc1,
-                   localGameBoxc2,localGameTitle,viewGameBtn,backBtn);
+                   localGameBoxc2,localGameTitle,viewGameBtn,backBtn, setTimeBtn);
            setMainMenuBtn();
         });
     }

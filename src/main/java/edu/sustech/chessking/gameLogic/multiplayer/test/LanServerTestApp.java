@@ -212,7 +212,7 @@ public class LanServerTestApp extends GameApplication {
                 }
 
                 @Override
-                protected void onEndGame(ColorType winSide) {
+                protected void onQuit() {
                     System.out.println("[Server] Opponent quit game!");
                     lanServerCore.stop();
                 }

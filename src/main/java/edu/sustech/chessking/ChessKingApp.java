@@ -297,17 +297,10 @@ public class ChessKingApp extends GameApplication {
                 }
 
                 @Override
-                protected void onEndGame(ColorType winSide) {
+                protected void onQuit() {
                     if (gameType == GameType.CLIENT)
                         endGame(ClientEndGameType.WIN);
                     //view
-                    else {
-                        if (winSide == ColorType.WHITE)
-                            endGame(ClientEndGameType.WHITE_WIN);
-                        else
-                            endGame(ClientEndGameType.BLACK_WIN);
-                    }
-
                 }
 
                 @Override
@@ -420,8 +413,11 @@ public class ChessKingApp extends GameApplication {
             if (gameType == GameType.LOCAL)
                 endGame(ClientEndGameType.BLACK_WIN);
             else {
-                if (downSideColor == ColorType.WHITE)
+                if (downSideColor == ColorType.WHITE) {
+                    if (gameType == GameType.CLIENT)
+                        clientGameCore.reachTimeLimit();
                     endGame(ClientEndGameType.LOST);
+                }
                 else
                     endGame(ClientEndGameType.WIN);
             }
@@ -431,8 +427,11 @@ public class ChessKingApp extends GameApplication {
             if (gameType == GameType.LOCAL)
                 endGame(ClientEndGameType.WHITE_WIN);
             else {
-                if (downSideColor == ColorType.BLACK)
+                if (downSideColor == ColorType.BLACK) {
+                    if (gameType == GameType.CLIENT)
+                        clientGameCore.reachTimeLimit();
                     endGame(ClientEndGameType.LOST);
+                }
                 else
                     endGame(ClientEndGameType.WIN);
             }

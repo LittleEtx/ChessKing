@@ -13,10 +13,10 @@ import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameInfo;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameState;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.NewGameInfo;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.function.Function;
@@ -57,9 +57,14 @@ abstract public class LanServerCore {
         try {
             localhost = InetAddress.getLocalHost().getHostAddress();
             lanServerBroadcaster = new LanServerBroadcaster(
-                    localhost + ":" + port);
+                    localhost + ":" + port) {
+                @Override
+                protected void onFailToOpen(String msg) {
+                    throw new FailToAccessLanException("Fail to broadcast msg");
+                }
+            };
             lanServerBroadcaster.setDaemon(true);
-        } catch (UnknownHostException e) {
+        } catch (IOException e) {
             throw new FailToAccessLanException("Fail to get local host");
         }
 

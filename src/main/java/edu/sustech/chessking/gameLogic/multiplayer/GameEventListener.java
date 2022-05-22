@@ -47,6 +47,8 @@ abstract public class GameEventListener {
 
         if (msg.exists(ReachTimeLimit))
             onReachTimeLimit();
+        if (msg.exists(Quit))
+            onQuit();
     };
 
     /**
@@ -86,7 +88,7 @@ abstract public class GameEventListener {
 
     abstract protected void onRequestDrawn();
     abstract protected void onReplyDrawn(boolean result);
-    abstract protected void onEndGame(ColorType winSide);
+    abstract protected void onQuit();
 
     /**
      * start listening for game event

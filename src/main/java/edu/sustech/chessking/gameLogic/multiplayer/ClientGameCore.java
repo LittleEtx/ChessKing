@@ -2,6 +2,7 @@ package edu.sustech.chessking.gameLogic.multiplayer;
 
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.net.Connection;
+import com.almasb.fxgl.net.MessageHandler;
 import edu.sustech.chessking.gameLogic.Chess;
 import edu.sustech.chessking.gameLogic.Move;
 import edu.sustech.chessking.gameLogic.Position;
@@ -14,7 +15,14 @@ import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtoco
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.Quit;
 
 abstract public class ClientGameCore extends GameEventListener{
-    private final ColorType side;
+    private ColorType side;
+    private final MessageHandler<Bundle> listener = (conn, msg) -> {
+        if (!msg.exists(Color) || msg.get(Color) == side)
+            return;
+        if (msg.exists(DataNotSync))
+            onDataNotSync();
+    };
+
 
     /**
      * @param connection connection to the server
@@ -24,6 +32,12 @@ abstract public class ClientGameCore extends GameEventListener{
         super(connection, side.reverse());
         this.connection = connection;
         this.side = side;
+    }
+
+    @Override
+    public void startListening() {
+        super.startListening();
+        connection.addMessageHandlerFX(listener);
     }
 
     //=============================================
@@ -89,5 +103,7 @@ abstract public class ClientGameCore extends GameEventListener{
 
     public final void quit() {
         sendMsg(Quit, "");
+        stopListening();
+        connection.removeMessageHandlerFX(listener);
     }
 }
