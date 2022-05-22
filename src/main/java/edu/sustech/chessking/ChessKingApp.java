@@ -41,11 +41,9 @@ import edu.sustech.chessking.ui.inGame.ChatBox;
 import edu.sustech.chessking.ui.inGame.EatRecorder;
 import edu.sustech.chessking.ui.inGame.TurnVisual;
 import edu.sustech.chessking.ui.inGame.WaitingPanel;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-import org.jetbrains.annotations.NotNull;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -167,25 +165,21 @@ public class ChessKingApp extends GameApplication {
         gameSettings.setDefaultCursor(getCursor(cursorDefault));
 
         gameSettings.setSceneFactory(new SceneFactory(){
-            @NotNull
             @Override
             public FXGLMenu newMainMenu() {
                 return new MainMenu();
             }
 
-            @NotNull
             @Override
             public LoadingScene newLoadingScene() {
                 return new Loading();
             }
 
-            @NotNull
             @Override
             public StartupScene newStartup(int width, int height) {
                 return new Startup(width, height);
             }
 
-            @NotNull
             @Override
             public FXGLMenu newGameMenu() {
                 return new GameMenu();
@@ -987,34 +981,34 @@ public class ChessKingApp extends GameApplication {
     //initialize the inputs
     @Override
     protected void initInput() {
-        getInput().addAction(new UserAction("Win") {
-            @Override
-            protected void onActionBegin() {
-                endGame(ClientEndGameType.WIN);
-            }
-        }, KeyCode.W);
-
-        getInput().addAction(new UserAction("Lose") {
-            @Override
-            protected void onActionBegin() {
-                endGame(ClientEndGameType.LOST);
-            }
-        }, KeyCode.L);
-
-        getInput().addAction(new UserAction("add Message") {
-            @Override
-            protected void onActionBegin() {
-                double random = Math.random();
-                chatBox.addMessage(String.valueOf(random));
-            }
-        }, KeyCode.A);
-
-        getInput().addAction(new UserAction("delete Message") {
-            @Override
-            protected void onActionBegin() {
-                chatBox.deleteMessage();
-            }
-        }, KeyCode.D);
+//        getInput().addAction(new UserAction("Win") {
+//            @Override
+//            protected void onActionBegin() {
+//                endGame(ClientEndGameType.WIN);
+//            }
+//        }, KeyCode.W);
+//
+//        getInput().addAction(new UserAction("Lose") {
+//            @Override
+//            protected void onActionBegin() {
+//                endGame(ClientEndGameType.LOST);
+//            }
+//        }, KeyCode.L);
+//
+//        getInput().addAction(new UserAction("add Message") {
+//            @Override
+//            protected void onActionBegin() {
+//                double random = Math.random();
+//                chatBox.addMessage(String.valueOf(random));
+//            }
+//        }, KeyCode.A);
+//
+//        getInput().addAction(new UserAction("delete Message") {
+//            @Override
+//            protected void onActionBegin() {
+//                chatBox.deleteMessage();
+//            }
+//        }, KeyCode.D);
 
         //left click action
         getInput().addAction(new UserAction("LeftClick") {
@@ -1074,6 +1068,20 @@ public class ChessKingApp extends GameApplication {
                 }
             }
         }, MouseButton.PRIMARY);
+
+        getInput().addAction(new UserAction("RightClick") {
+            @Override
+            protected void onActionBegin() {
+                if (isEnemyOnTurn || gameType == GameType.REPLAY || !getb(IsMovingChess))
+                    return;
+
+                set(IsMovingChess, false);
+                movingChessComponent.putBackChess();
+                if (gameType == GameType.CLIENT)
+                    clientGameCore.putDownChess(movingChessComponent
+                            .getChess().getPosition());
+            }
+        }, MouseButton.SECONDARY);
     }
 
     // ===============================

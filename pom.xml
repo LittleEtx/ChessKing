@@ -8,10 +8,10 @@
     <artifactId>ChessKing</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-    </properties>
+<!--    <properties>-->
+<!--        <maven.compiler.source>17</maven.compiler.source>-->
+<!--        <maven.compiler.target>17</maven.compiler.target>-->
+<!--    </properties>-->
 
     <dependencies>
         <dependency>
@@ -20,4 +20,34 @@
             <version>17.1</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.0</version>
+                <configuration>
+                    <release>17</release>
+                    <encoding>utf-8</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.8</version>
+                <configuration>
+                    <stripDebug>true</stripDebug>
+                    <compress>2</compress>
+                    <noHeaderFiles>true</noHeaderFiles>
+                    <noManPages>true</noManPages>
+                    <launcher>chessKing</launcher>
+                    <jlinkImageName>chessKing</jlinkImageName>
+                    <jlinkZipName>chessKingZip</jlinkZipName>
+                    <mainClass>edu.sustech.chessking.ChessKingApp</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

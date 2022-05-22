@@ -10,13 +10,11 @@ import edu.sustech.chessking.gameLogic.Move;
 import edu.sustech.chessking.gameLogic.MoveHistory;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import javafx.util.Duration;
-import org.jetbrains.annotations.NotNull;
 
 public class EatRecorder {
     private final ColorType side;
     private final Entity[] chessList = new Entity[5];
 
-    @NotNull
     private Entity newGraveEntity(Chess chess, int num, int index) {
         return FXGL.spawnWithScale("grave",
                 new SpawnData().put("chess", chess)

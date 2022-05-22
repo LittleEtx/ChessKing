@@ -373,6 +373,13 @@ public class ChessComponent extends Component {
         }
     }
 
+    public void putBackChess() {
+        clearMovingChessVisual();
+        play("put.wav");
+        entity.setPosition(toPoint(chess.getPosition()));
+        setTargetKingList();
+    }
+
     public void putChess(Position position) {
         clearMovingChessVisual();
         entity.setPosition(toPoint(position));
