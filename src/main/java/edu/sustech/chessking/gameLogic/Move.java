@@ -5,7 +5,6 @@ import edu.sustech.chessking.gameLogic.enumType.ChessType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.enumType.MoveType;
 import edu.sustech.chessking.gameLogic.exception.ConstructorException;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -189,7 +188,7 @@ public class Move implements Serializable {
         return sb.toString();
     }
 
-    public String toString(@NotNull StringType type) {
+    public String toString(StringType type) {
         if (type == StringType.DETAILED)
             return this.toString();
 

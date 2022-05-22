@@ -21,7 +21,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,7 @@ public class MainMenu extends FXGLMenu {
     public Button btn1 = new Button("Local Game");
 
     @Override
-    public void onEnteredFrom(@NotNull Scene prevState) {
+    public void onEnteredFrom(Scene prevState) {
         MusicPlayer.play(MusicType.MENU);
     }
 

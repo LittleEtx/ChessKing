@@ -1,7 +1,5 @@
 package edu.sustech.chessking.gameLogic;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -97,7 +95,6 @@ public class MoveHistory implements Serializable, Iterable<Move> {
         return -1;
     }
 
-    @NotNull
     @Override
     public Iterator<Move> iterator() {
         return Collections.unmodifiableList(moveHistory).iterator();
