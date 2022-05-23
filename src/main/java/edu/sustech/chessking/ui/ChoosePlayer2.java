@@ -123,7 +123,7 @@ public class ChoosePlayer2 extends SubScene {
         setTimeBtn.setLayoutY(100);
         setTimeBtn.setLayoutX(350);
         setTimeBtn.setOnAction(event -> {
-            getSceneService().pushSubScene(new SetTimeDuel(gameTime, turnTime));
+            getSceneService().pushSubScene(new SetTime(gameTime, turnTime));
         });
 
         VBox vb = new VBox(20,choosePlayerText,playerSP,buttons);
