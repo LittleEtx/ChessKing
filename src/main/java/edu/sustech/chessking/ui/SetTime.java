@@ -16,6 +16,8 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+import java.util.function.BiConsumer;
+
 import static com.almasb.fxgl.dsl.FXGL.getSceneService;
 import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
 
@@ -26,7 +28,12 @@ public class SetTime extends SubScene {
 
     private final Slider turnTimeSlider = new Slider(10,600,300);
     private final Label turnTimeValueText = new Label();
-    public SetTimeDuel(DoubleProperty gameTimePro, DoubleProperty turnTimePro) {
+
+    private final Button doneBtn;
+
+    private final CheckBox noTimeCB;
+
+    {
         Rectangle bg = new Rectangle(1200,800, Color.web("#00000080"));
         getContentRoot().getChildren().add(bg);
 
@@ -79,43 +86,62 @@ public class SetTime extends SubScene {
         HBox turnTime = new HBox(20,turnTimeText,turnTimeSlider,turnTimeValueText);
         turnTime.setAlignment(Pos.CENTER);
 
-        CheckBox noTimeCB = new CheckBox("No time limit");
+        noTimeCB = new CheckBox("No time limit");
         noTimeCB.setTextFill(Color.WHITE);
         noTimeCB.setFont(new Font(20));
 
-        Button doneBtn = new Button("Done");
+        doneBtn = new Button("Done");
         doneBtn.getStyleClass().add("newPlayer-subScene-button");
-        doneBtn.setOnAction(event -> {
-            if(!noTimeCB.isSelected()) {
-                gameTimePro.set(gameTimeSlider.getValue());
-                turnTimePro.set(turnTimeSlider.getValue());
-            }else{
-                gameTimePro.set(-1);
-                turnTimePro.set(-1);
-            }
-            getSceneService().popSubScene();
-        });
 
-        windowBg.getChildren().addAll(gameTime,turnTime,noTimeCB,doneBtn);
+
+        windowBg.getChildren().addAll(gameTime,turnTime, noTimeCB, doneBtn);
         windowBg.setAlignment(Pos.TOP_CENTER);
 
         getContentRoot().getChildren().add(window);
         getContentRoot().getChildren().addAll(windowBg,backBtn);
     }
 
-    @Override
-    protected void onUpdate(double tpf) {
-
-        gameTimeValueText.setText(getTime(gameTimeSlider.getValue()));
-        turnTimeValueText.setText(getTime(turnTimeSlider.getValue()));
-
+    public SetTime(DoubleProperty gameTimePro, DoubleProperty turnTimePro) {
+        doneBtn.setOnAction(event -> {
+            if(!noTimeCB.isSelected()) {
+                gameTimePro.set(getTime(gameTimeSlider.getValue()));
+                turnTimePro.set(getTime(turnTimeSlider.getValue()));
+            }else{
+                gameTimePro.set(-1);
+                turnTimePro.set(-1);
+            }
+            getSceneService().popSubScene();
+        });
     }
 
-    private String getTime(double second){
-        int gameTimeSecond = (int) Math.floor(second);
-        gameTimeSecond = gameTimeSecond-gameTimeSecond%30;
-        int gameTimeMinute = gameTimeSecond / 60;
-        gameTimeSecond = gameTimeSecond - gameTimeMinute * 60;
-        return String.format("%d:%02d",gameTimeMinute,gameTimeSecond);
+    public SetTime(BiConsumer<Double, Double> setTimeCallBack) {
+        doneBtn.setOnAction(event -> {
+            getSceneService().popSubScene();
+            if(!noTimeCB.isSelected()) {
+                setTimeCallBack.accept((double) getTime(gameTimeSlider.getValue()),
+                        (double) getTime(turnTimeSlider.getValue()));
+            }else{
+                setTimeCallBack.accept(-1.0, -1.0);
+            }
+        });
+    }
+
+    @Override
+    protected void onUpdate(double tpf) {
+        gameTimeValueText.setText(getTimeStr(gameTimeSlider.getValue()));
+        turnTimeValueText.setText(getTimeStr(turnTimeSlider.getValue()));
+    }
+
+    private String getTimeStr(double second){
+        int timeInSecond = getTime(second);
+        int timeInMinute = timeInSecond / 60;
+        timeInSecond = timeInSecond - timeInMinute * 60;
+        return String.format("%d:%02d",timeInMinute,timeInSecond);
+    }
+
+    private int getTime(double second) {
+        int time = (int) Math.floor(second);
+        time = time - time % 30;
+        return time;
     }
 }

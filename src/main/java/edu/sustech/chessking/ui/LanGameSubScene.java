@@ -17,8 +17,6 @@ import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameState;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.NewGameInfo;
 import edu.sustech.chessking.ui.inGame.WaitingMark;
 import javafx.animation.PauseTransition;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -26,6 +24,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.Bloom;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -47,6 +46,7 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.getUIFactoryService;
 public class LanGameSubScene extends SubScene {
 
     private final VBox gameBox;
+    private final VBox waitingBox;
     private LanServerSearcher lanServerSearcher;
     private double timer = 0;
     private List<LanGameInfo> gameInfoList;
@@ -54,7 +54,7 @@ public class LanGameSubScene extends SubScene {
     private LanGameInfo selectedGame = null;
     private boolean isStartGame = false;
     private WaitingMark waitingMark;
-    private Pane waitingPane;
+    private final Pane waitingPane;
     private boolean isWaiting;
     private final Map<LanGameInfo, ServerBtn> map = new HashMap<>();
     private GameInfo serverGameInfo;
@@ -102,6 +102,19 @@ public class LanGameSubScene extends SubScene {
 
         btnBox.getChildren().addAll(newGameBtn, joinBtn);
         getContentRoot().getChildren().add(btnBox);
+
+        waitingPane = new Pane();
+        waitingPane.setPrefSize(800, 600);
+        waitingPane.setStyle("-fx-background-color: #00000090;" +
+                "-fx-background-radius:10;");
+        waitingPane.setLayoutX(200);
+        waitingPane.setLayoutY(100);
+
+        waitingBox = new VBox(30);
+        waitingBox.setPrefSize(500, 600);
+        waitingBox.setAlignment(Pos.CENTER);
+        waitingBox.setLayoutX(250);
+        waitingPane.getChildren().add(waitingBox);
 
         gameBox = new VBox(10);
         gameBox.setPrefWidth(500);
@@ -164,13 +177,16 @@ public class LanGameSubScene extends SubScene {
             gameInfo.setLayoutX(20);
             gameInfo.setLayoutY(20);
 
+//            System.out.println(game.getGameTime());
+//            System.out.println(game.getTurnTime());
+
             Text gameTime = getUIFactoryService().newText("Game Time: " +
                             GameTimer.getTimeStr(game.getGameTime() > 0 ? game.getGameTime(): null),
                     Color.WHITE, 15);
             gameTime.setLayoutX(20);
             gameTime.setLayoutY(50);
             Text turnTime = getUIFactoryService().newText("Turn Time: " +
-                            GameTimer.getTimeStr(game.getTurnTime() > 0 ? game.getGameTime(): null),
+                            GameTimer.getTimeStr(game.getTurnTime() > 0 ? game.getTurnTime(): null),
                     Color.WHITE, 15);
             turnTime.setLayoutX(180);
             turnTime.setLayoutY(50);
@@ -302,7 +318,6 @@ public class LanGameSubScene extends SubScene {
                 pushWaitingPane("Waiting for owner to start game", event -> {
                     lanClient.leave();
                     getContentRoot().getChildren().remove(waitingPane);
-                    waitingPane = null;
                 });
                 isWaiting = true;
             }
@@ -322,141 +337,118 @@ public class LanGameSubScene extends SubScene {
     }
 
     private void newGame() {
-        DoubleProperty gameTime = new SimpleDoubleProperty();
-        DoubleProperty turnTime = new SimpleDoubleProperty();
-        SubScene scene =  new SetTimeDuel(gameTime, turnTime);
-        getSceneService().pushSubScene(scene);
+        SubScene scene =  new SetTime((gameTime, turnTime) -> {
+            NewGameInfo info = new NewGameInfo(ChessKingApp.getLocalPlayer(),
+                    gameTime, turnTime, true);
 
-        //do sth here
+            serverGameInfo = new GameInfo(info);
 
-        NewGameInfo info = new NewGameInfo(ChessKingApp.getLocalPlayer(),
-                -1, -1 , true);
+            LanServerCore lanServerCore;
+            try {
+                lanServerCore = new LanServerCore(info) {
 
-        serverGameInfo = new GameInfo(info);
+                    private DialogBox box;
+                    private PauseTransition pt;
 
-        LanServerCore lanServerCore;
-        try {
-             lanServerCore = new LanServerCore(info) {
+                    @Override
+                    protected void onOpponentAddIn(Player opponent) {
+                        serverGameInfo.setPlayer2(opponent);
+                        pushStartPane(this);
+                    }
 
-                 private DialogBox box;
-                 private PauseTransition pt;
+                    @Override
+                    protected void onOpponentDropOut() {
+                        serverGameInfo.setPlayer2(null);
+                        pushWaitingPane("Waiting for others to join in", event -> {
+                            this.stop();
+                        });
+                    }
 
-                 @Override
-                protected void onOpponentAddIn(Player opponent) {
-                     serverGameInfo.setPlayer2(opponent);
-                     pushStartPane(this);
-                }
+                    @Override
+                    protected void onOpponentDisconnect() {
+                        box = getDialogService().showProgressBox("Opponent disconnected! Waiting for rejoin in");
+                        pt = new PauseTransition(Duration.minutes(5));
+                        pt.setOnFinished(event -> {
+                            box.close();
+                            this.stop();
+                            getDialogService().showMessageBox(
+                                    "Opponent failed to reconnect!",
+                                    ()-> getGameController().gotoMainMenu());
+                        });
+                    }
 
-                @Override
-                protected void onOpponentDropOut() {
-                     serverGameInfo.setPlayer2(null);
-                    pushWaitingPane("Waiting for others to join in", event -> {
-                        this.stop();
-                        getContentRoot().getChildren().remove(waitingPane);
-                        waitingPane = null;
-                    });
-                }
-
-                @Override
-                protected void onOpponentDisconnect() {
-                    box = getDialogService().showProgressBox("Opponent disconnected! Waiting for rejoin in");
-                    pt = new PauseTransition(Duration.minutes(5));
-                    pt.setOnFinished(event -> {
+                    @Override
+                    protected void onOpponentReconnect() {
+                        pt.pause();
                         box.close();
-                        this.stop();
-                        getDialogService().showMessageBox(
-                                "Opponent failed to reconnect!",
-                                ()-> getGameController().gotoMainMenu());
-                    });
-                }
+                    }
+                };
+            }
+            catch (FailToAccessLanException e) {
+                getDialogService().showMessageBox("Unable to create server!");
+                return;
+            }
 
-                @Override
-                protected void onOpponentReconnect() {
-                     pt.pause();
-                     box.close();
-                }
-            };
-        }
-        catch (FailToAccessLanException e) {
-            getDialogService().showMessageBox("Unable to create server!");
-            return;
-        }
-
-        pushWaitingPane("Waiting for others to join in", event -> {
-            lanServerCore.stop();
-            getContentRoot().getChildren().remove(waitingPane);
-            waitingPane = null;
+            pushWaitingPane("Waiting for others to join in", event -> {
+                lanServerCore.stop();
+            });
         });
+
+        getSceneService().pushSubScene(scene);
     }
 
     private void pushWaitingPane(String msg, EventHandler<ActionEvent> quitHandler) {
-        if (waitingPane != null)
-            getContentRoot().getChildren().remove(waitingPane);
-        waitingPane = new Pane();
-        waitingPane.setPrefSize(800, 600);
-        waitingPane.setStyle("-fx-background-color: #00000090;" +
-                "-fx-background-radius:10;");
-        waitingPane.setLayoutX(200);
-        waitingPane.setLayoutY(100);
-
+        waitingBox.getChildren().clear();
         Texture waitTexture = waitingMark.get();
-        waitTexture.setLayoutX(474);
-        waitTexture.setLayoutY(170);
 
         Text text = getUIFactoryService().
                 newText(msg, Color.WHITE, 20);
-        text.setLayoutX(375);
-        text.setLayoutY(300);
 
         Button quitButton = new Button("Quit");
         quitButton.getStyleClass().add("menu-button");
-        quitButton.setLayoutX(425);
-        quitButton.setLayoutY(400);
-        quitButton.setOnAction(quitHandler);
+        quitButton.setOnAction(event -> {
+            getContentRoot().getChildren().remove(waitingPane);
+            quitHandler.handle(event);
+        });
 
-        waitingPane.getChildren().addAll(waitTexture, text, quitButton);
+        waitingBox.getChildren().addAll(waitTexture, text, quitButton);
         getContentRoot().getChildren().add(waitingPane);
     }
 
     private void pushStartPane(LanServerCore lanServer) {
-        if (waitingPane == null || serverGameInfo.getPlayer2() == null)
+        if (serverGameInfo.getPlayer2() == null)
             return;
-
-        waitingPane.getChildren().clear();
+        getContentRoot().getChildren().remove(waitingPane);
+        waitingBox.getChildren().clear();
 
         Texture tick = texture("GreenTick.png");
-        tick.setLayoutX(474);
-        tick.setLayoutY(170);
-
         Text text = getUIFactoryService().
                 newText("Ready!", Color.WHITE, 20);
-        text.setLayoutX(480);
-        text.setLayoutY(300);
 
         Button quitButton = new Button("Quit");
         quitButton.getStyleClass().add("menu-button");
-        quitButton.setLayoutX(365);
-        quitButton.setLayoutY(400);
         quitButton.setOnAction(event -> getDialogService().showConfirmationBox(
                 "Are you sure to quit the game?", yes -> {
                     lanServer.stop();
                     getContentRoot().getChildren().remove(waitingPane);
-                    waitingPane = null;
         }));
 
         Button startButton = new Button("Start");
         startButton.getStyleClass().add("menu-button");
-        startButton.setLayoutX(525);
-        startButton.setLayoutY(400);
         startButton.setOnAction(event ->  {
             getContentRoot().getChildren().remove(waitingPane);
-            waitingPane = null;
             if (!ChessKingApp.newServerGame(lanServer, serverGameInfo)) {
                 lanServer.stop();
+                showMessage("Can not open game!");
             }
         });
 
-        waitingPane.getChildren().addAll(tick, text, quitButton, startButton);
+        HBox hBox = new HBox(30);
+        hBox.setAlignment(Pos.CENTER);
+        hBox.getChildren().addAll(quitButton, startButton);
+
+        waitingBox.getChildren().addAll(tick, text, hBox);
+        getContentRoot().getChildren().add(waitingPane);
     }
 
 

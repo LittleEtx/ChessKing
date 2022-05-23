@@ -95,6 +95,8 @@ abstract public class LanServerCore {
                 connection.addMessageHandlerFX((conn, msg) -> {
             //when client search for the game
             if (msg.exists(HasGame)) {
+//                System.out.println(game.getTurnTime());
+//                System.out.println(game.getGameTime());
                 send(conn, SendGameInfo, game);
                 return;
             }

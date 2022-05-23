@@ -252,7 +252,7 @@ public class ChessKingApp extends GameApplication {
         @Override
         protected void onEndTurn(double remainTime) {
             //opponent timer
-            getTimer(side.reverse()).setCurrentGameTime(remainTime);
+            getTimer(side).setCurrentGameTime(remainTime);
             enemyEndTurn();
         }
 
@@ -262,9 +262,9 @@ public class ChessKingApp extends GameApplication {
                 endGame(ClientEndGameType.WIN);
             else {
                 if (side == ColorType.WHITE)
-                    endGame(ClientEndGameType.WHITE_WIN);
-                else
                     endGame(ClientEndGameType.BLACK_WIN);
+                else
+                    endGame(ClientEndGameType.WHITE_WIN);
             }
         }
 
@@ -281,7 +281,7 @@ public class ChessKingApp extends GameApplication {
                 );
             }
             else {
-                WaitingPanel.startWaiting("Waiting for" +
+                WaitingPanel.startWaiting("Waiting for " +
                         getOpponent().getName() + "\nto agree reverse");
             }
         }
@@ -318,7 +318,7 @@ public class ChessKingApp extends GameApplication {
                 );
             }
             else {
-                WaitingPanel.startWaiting("Waiting for" +
+                WaitingPanel.startWaiting("Waiting for " +
                         getOpponent().getName() + "\nto agree a draw");
             }
         }
@@ -363,11 +363,11 @@ public class ChessKingApp extends GameApplication {
                 clientGameCore = new ClientGameCore(connection, downSideColor) {
                     @Override
                     protected void onDisconnect() {
-                        syncData();
+                        ChessKingApp.reconnect();
                     }
                     @Override
                     protected void onDataNotSync() {
-                        ChessKingApp.reconnect();
+                        syncData();
                     }
                 };
                 clientGameCore.startListening();
@@ -564,12 +564,12 @@ public class ChessKingApp extends GameApplication {
         );
         isReconnecting = true;
 
-        PauseTransition pt = new PauseTransition(Duration.seconds(30));
+        PauseTransition pt = new PauseTransition(Duration.seconds(5));
         pt.setOnFinished(event -> {
             if (!isReconnecting)
                 return;
             waitingBox.close();
-            getDialogService().showMessageBox("Can't connect to server!",
+            getDialogService().showMessageBox("Can not connect to server!",
                     () -> {
                         saveGame(getSave());
                         getGameController().gotoMainMenu();
@@ -1057,6 +1057,13 @@ public class ChessKingApp extends GameApplication {
     //methods used every frame
     @Override
     protected void onUpdate(double tpf) {
+        //disconnect
+        if (gameType == GameType.VIEW &&
+                lanGameInfo.getClient().getConnections().size() < 1) {
+            reconnect();
+        }
+
+
         //advance the time
         if (gameType != GameType.REPLAY) {
             if (geto(TurnVar) == ColorType.WHITE) {
