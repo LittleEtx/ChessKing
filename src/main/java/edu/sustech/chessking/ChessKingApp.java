@@ -42,6 +42,7 @@ import edu.sustech.chessking.ui.inGame.ChatBox;
 import edu.sustech.chessking.ui.inGame.EatRecorder;
 import edu.sustech.chessking.ui.inGame.TurnVisual;
 import edu.sustech.chessking.ui.inGame.WaitingPanel;
+import javafx.animation.PauseTransition;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
@@ -70,7 +71,7 @@ public class ChessKingApp extends GameApplication {
     private static MoveHistory tempHistory;
     public static ColorType downSideColor;
     private static LanGameInfo lanGameInfo;
-    private static boolean isNewClientGame;
+    private static boolean isNewClientGame = true;
     private ChessComponent movingChessComponent;
     private LocalTimer betweenClickTimer;
     private static String serverIP = "localhost";
@@ -511,7 +512,9 @@ public class ChessKingApp extends GameApplication {
         getop(TurnVar).addListener((ob, ov, nv) -> {
             TurnVisual.spawnClock((ColorType) nv);
         });
+
         TurnVisual.spawnClock(geto(TurnVar));
+
         if (gameCore.getGameHistory().getMoveNum() > 0) {
             TurnVisual.spawnExMark(gameCore.getGameHistory()
                     .getLastMove().getPosition());
@@ -554,7 +557,8 @@ public class ChessKingApp extends GameApplication {
         );
         isReconnecting = true;
 
-        runOnce(() -> {
+        PauseTransition pt = new PauseTransition(Duration.seconds(30));
+        pt.setOnFinished(event -> {
             if (!isReconnecting)
                 return;
             waitingBox.close();
@@ -563,7 +567,8 @@ public class ChessKingApp extends GameApplication {
                         saveGame(getSave());
                         getGameController().gotoMainMenu();
                     });
-        }, Duration.seconds(30));
+        });
+        pt.play();
 
         LanServerInfo serverInfo = lanGameInfo.getServerInfo();
         Client<Bundle> newClient = getNetService().newTCPClient(
@@ -742,7 +747,8 @@ public class ChessKingApp extends GameApplication {
         return newClientGame(info, downSideColor, true);
     }
 
-    public static boolean newViewGame(LanGameInfo lanGameInfo, Player whitePlayer, boolean isNewGame) {
+    public static boolean newViewGame(LanGameInfo lanGameInfo,
+                                      Player whitePlayer, boolean isNewGame) {
         if (lanGameInfo.getClient().getConnections().size() < 1 ||
                 lanGameInfo.getGameInfo().getPlayer2() == null) {
             return false;
@@ -752,10 +758,16 @@ public class ChessKingApp extends GameApplication {
         gameCore.initialGame();
         loadGameInfo(lanGameInfo);
         GameInfo gameInfo = lanGameInfo.getGameInfo();
-        if (whitePlayer.equals(gameInfo.getPlayer1()))
+        if (whitePlayer.equals(gameInfo.getPlayer1())) {
             downSideColor = ColorType.WHITE;
-        else if (whitePlayer.equals(gameInfo.getPlayer2()))
+            downPlayer = gameInfo.getPlayer1();
+            upPlayer = gameInfo.getPlayer2();
+        }
+        else if (whitePlayer.equals(gameInfo.getPlayer2())) {
             downSideColor = ColorType.BLACK;
+            downPlayer = gameInfo.getPlayer2();
+            upPlayer = gameInfo.getPlayer1();
+        }
         else
             return false;
 
@@ -1059,7 +1071,7 @@ public class ChessKingApp extends GameApplication {
             thread.start();
         }
 
-        if (gameType == GameType.CLIENT && !isNewClientGame) {
+        if (!isNewClientGame) {
             syncData();
             isNewClientGame = true;
         }

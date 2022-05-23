@@ -189,14 +189,12 @@ public class LanGameSubScene extends SubScene {
             btn.getStyleClass().add("server-game-button");
 
             btn.addEventHandler(MouseEvent.MOUSE_CLICKED , event -> {
-                System.out.println("click!");
                 if (!isSelected) {
                     btn.setStyle("-fx-border-color: #20f1e5");
                     isSelected = true;
                     selectedGame = info;
                 }
                 else  {
-                    System.out.println("isSelected");
                     isSelected = false;
                     btn.setStyle("-fx-border-color: #000000");
                     joinGame();

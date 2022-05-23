@@ -79,13 +79,15 @@ public class BoardComponent extends Component {
         if (Math.abs(mouse.getX() - entity.getX() - 40) < 40 &&
                 Math.abs(mouse.getY() - entity.getY() - 40) < 40) {
             entity.setOpacity(0.2);
-            if (chess != null && FXGL.geto(GameTypeVar) != GameType.REPLAY) {
+            if (chess != null && FXGL.geto(GameTypeVar) != GameType.REPLAY
+                    && FXGL.geto(GameTypeVar) != GameType.VIEW) {
                 chess.getComponent(ChessComponent.class).setOutLine(true);
             }
         }
         else {
             entity.setOpacity(1);
-            if (chess != null && FXGL.geto(GameTypeVar) != GameType.REPLAY) {
+            if (chess != null && FXGL.geto(GameTypeVar) != GameType.REPLAY
+                    && FXGL.geto(GameTypeVar) != GameType.VIEW) {
                 chess.getComponent(ChessComponent.class).setOutLine(false);
             }
         }
