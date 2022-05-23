@@ -3,6 +3,7 @@ package edu.sustech.chessking.ui;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.MenuType;
 import com.almasb.fxgl.dsl.FXGL;
+import com.almasb.fxgl.scene.Scene;
 import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.GameType;
@@ -16,8 +17,59 @@ import static com.almasb.fxgl.dsl.FXGL.*;
 import static edu.sustech.chessking.GameVars.GameTypeVar;
 
 public class GameMenu extends FXGLMenu {
+
+    private VBox vb;
+
     public GameMenu() {
         super(MenuType.GAME_MENU);
+    }
+
+    @Override
+    public void onEnteredFrom(Scene prevState) {
+        if (!(prevState instanceof MainMenu)) {
+            Button resumeBtn = new Button("Resume");
+            resumeBtn.getStyleClass().add("menu-button");
+            resumeBtn.setOnAction(event -> getGameController().gotoPlay());
+            vb.getChildren().add(resumeBtn);
+
+            Button drawBtn = new Button("Suggest Draw");
+            drawBtn.getStyleClass().add("menu-button");
+            drawBtn.setOnAction(event -> ChessKingApp.onSuggestDraw());
+
+            Button loseBtn = new Button("Give Up");
+            loseBtn.getStyleClass().add("menu-button");
+            loseBtn.setOnAction(event -> getDialogService().
+                    showConfirmationBox("Are you sure to give up?", yes -> {
+                        if (yes) {
+                            getGameController().gotoPlay();
+                            ChessKingApp.onGiveUp();
+                        }
+                    }));
+
+            if (geto(GameTypeVar) == GameType.COMPUTER ||
+                    geto(GameTypeVar) == GameType.CLIENT)
+                vb.getChildren().addAll(drawBtn, loseBtn);
+
+            Button quitBtn = new Button("Quit");
+            quitBtn.getStyleClass().add("menu-button");
+            quitBtn.setOnAction(event -> {
+                String text = localize("dialog.exitGame");
+                getDialogService().showConfirmationBox(text, yes -> {
+                    if (yes) {
+                        getGameController().gotoMainMenu();
+                    }
+                });
+            });
+
+            if (geto(GameTypeVar) != GameType.CLIENT)
+                vb.getChildren().add(quitBtn);
+        }
+        else {
+            Button backBtn = new Button("Back");
+            backBtn.getStyleClass().add("menu-button");
+            backBtn.setOnAction(event -> getGameController().gotoMainMenu());
+            vb.getChildren().add(backBtn);
+        }
     }
 
     @Override
@@ -27,7 +79,7 @@ public class GameMenu extends FXGLMenu {
         Rectangle rect = new Rectangle(1200,800, Color.web("#00000050"));
         getContentRoot().getChildren().addAll(rect);
 
-        VBox vb = new VBox(20);
+        vb = new VBox(20);
         vb.setAlignment(Pos.CENTER);
         vb.setStyle("-fx-background-radius: 10;" +
                 "-fx-background-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #193237ff 0.0%, #2e4e58ff 50.0%, #39687cff 100.0%);" +
@@ -40,42 +92,11 @@ public class GameMenu extends FXGLMenu {
         texture.resize(100, 120);
         vb.getChildren().add(texture);
 
-        Button resumeBtn = new Button("Resume");
-        resumeBtn.getStyleClass().add("menu-button");
-        resumeBtn.setOnAction(event -> getGameController().gotoPlay());
-        vb.getChildren().add(resumeBtn);
+        /*
+            Add a method here to change the volume of the music
+         */
 
-        Button drawBtn = new Button("Suggest Draw");
-        drawBtn.getStyleClass().add("menu-button");
-        drawBtn.setOnAction(event -> ChessKingApp.onSuggestDraw());
 
-        Button loseBtn = new Button("Give Up");
-        loseBtn.getStyleClass().add("menu-button");
-        loseBtn.setOnAction(event -> getDialogService().
-                showConfirmationBox("Are you sure to give up?", yes -> {
-                    if (yes) {
-                        getGameController().gotoPlay();
-                        ChessKingApp.onGiveUp();
-                    }
-                }));
-
-        if (geto(GameTypeVar) == GameType.COMPUTER ||
-                geto(GameTypeVar) == GameType.CLIENT)
-            vb.getChildren().addAll(drawBtn, loseBtn);
-
-        Button quitBtn = new Button("Quit");
-        quitBtn.getStyleClass().add("menu-button");
-        quitBtn.setOnAction(event -> {
-            String text = localize("dialog.exitGame");
-            getDialogService().showConfirmationBox(text, yes -> {
-                if (yes) {
-                    getGameController().gotoMainMenu();
-                }
-            });
-        });
-
-        if (geto(GameTypeVar) != GameType.CLIENT)
-            vb.getChildren().add(quitBtn);
         getContentRoot().getChildren().add(vb);
     }
 }

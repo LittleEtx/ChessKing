@@ -20,11 +20,11 @@ import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
 
 public class SetTimeDuel extends SubScene {
 
-    private Slider gameTimeSlider = new Slider(0,7200,3600);
-    private Label gameTimeValueText = new Label();
+    private final Slider gameTimeSlider = new Slider(0,7200,3600);
+    private final Label gameTimeValueText = new Label();
 
-    private Slider turnTimeSlider = new Slider(10,600,300);
-    private Label turnTimeValueText = new Label();
+    private final Slider turnTimeSlider = new Slider(10,600,300);
+    private final Label turnTimeValueText = new Label();
     public SetTimeDuel() {
         Rectangle bg = new Rectangle(1200,800, Color.web("#00000080"));
         getContentRoot().getChildren().add(bg);
@@ -115,7 +115,6 @@ public class SetTimeDuel extends SubScene {
         int gameTimeSecond = (int) second;
         int gameTimeMinute = gameTimeSecond / 60;
         gameTimeSecond = gameTimeSecond - gameTimeMinute * 60;
-        String timeValue = String.format("%03d:%02d",gameTimeMinute,gameTimeSecond);
-        return timeValue;
+        return String.format("%03d:%02d",gameTimeMinute,gameTimeSecond);
     }
 }

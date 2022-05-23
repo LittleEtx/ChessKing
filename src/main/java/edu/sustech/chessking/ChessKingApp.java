@@ -182,6 +182,7 @@ public class ChessKingApp extends GameApplication {
 
             @Override
             public FXGLMenu newGameMenu() {
+                //return new SimpleGameMenu();
                 return new GameMenu();
             }
         });
