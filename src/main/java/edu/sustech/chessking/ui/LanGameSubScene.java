@@ -7,6 +7,7 @@ import com.almasb.fxgl.scene.SubScene;
 import com.almasb.fxgl.texture.Texture;
 import com.almasb.fxgl.ui.DialogBox;
 import edu.sustech.chessking.ChessKingApp;
+import edu.sustech.chessking.GameType;
 import edu.sustech.chessking.gameLogic.GameTimer;
 import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
@@ -31,7 +32,11 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameController;
@@ -43,7 +48,6 @@ public class LanGameSubScene extends SubScene {
     private LanServerSearcher lanServerSearcher;
     private double timer = 0;
     private List<LanGameInfo> gameInfoList;
-    private final List<ServerBtn> btnList = new LinkedList<>();
 
     private LanGameInfo selectedGame = null;
     private boolean isStartGame = false;
@@ -52,6 +56,7 @@ public class LanGameSubScene extends SubScene {
     private boolean isWaiting;
     private final Map<LanGameInfo, ServerBtn> map = new HashMap<>();
     private GameInfo serverGameInfo;
+    private GameType gameType;
 
     public LanGameSubScene() {
         double firstRow = 240d;
@@ -258,49 +263,62 @@ public class LanGameSubScene extends SubScene {
             @Override
             public void onGameStart(Player whitePlayer) {
                 isStartGame = true;
-                if (whitePlayer.equals(localPlayer))
-                    ChessKingApp.newClientGame(selectedGame, ColorType.WHITE, true);
+                if (gameType == GameType.CLIENT) {
+                    if (whitePlayer.equals(localPlayer))
+                        ChessKingApp.newClientGame(selectedGame,
+                                ColorType.WHITE, true);
+                    else
+                        ChessKingApp.newClientGame(selectedGame,
+                                ColorType.BLACK, true);
+                }
                 else
-                    ChessKingApp.newClientGame(selectedGame, ColorType.BLACK, true);
+                    ChessKingApp.newViewGame(selectedGame, whitePlayer, true);
             }
 
             @Override
             public void onReconnectToGame(Player whitePlayer) {
                 isStartGame = true;
-                if (whitePlayer.equals(localPlayer))
-                    ChessKingApp.newClientGame(selectedGame, ColorType.WHITE, false);
+                if (gameType == GameType.CLIENT) {
+                    if (whitePlayer.equals(localPlayer))
+                        ChessKingApp.newClientGame(selectedGame,
+                                ColorType.WHITE, false);
+                    else
+                        ChessKingApp.newClientGame(selectedGame,
+                                ColorType.BLACK, false);
+                }
                 else
-                    ChessKingApp.newClientGame(selectedGame, ColorType.BLACK, false);
+                    ChessKingApp.newViewGame(selectedGame, whitePlayer, false);
             }
-
         };
 
         Player player2 = selectedGame.getGameInfo().getPlayer2();
+        Consumer<Boolean> joinHandler = accept -> {
+            box.close();
+            if (!accept) {
+                getDialogService().showMessageBox("Unable to join in",
+                        lanClient::leave);
+            }
+            else {
+                pushWaitingPane("Waiting for owner to start game", event -> {
+                    lanClient.leave();
+                    getContentRoot().getChildren().remove(waitingPane);
+                    waitingPane = null;
+                });
+                isWaiting = true;
+            }
+        };
+
+
         if ((player2 == null && !selectedGame.getGameInfo().getPlayer1().equals(localPlayer)) ||
                 (selectedGame.getGameInfo().getState() == GameState.RECONNECTING &&
                         Objects.equals(player2, localPlayer))) {
-
-            lanClient.joinIn(accept -> {
-                box.close();
-                if (!accept) {
-                    getDialogService().showMessageBox("Unable to join in",
-                            lanClient::leave);
-                }
-                else {
-                    pushWaitingPane("Waiting for owner to start game", event -> {
-                        lanClient.leave();
-                        getContentRoot().getChildren().remove(waitingPane);
-                        waitingPane = null;
-                    });
-                    isWaiting = true;
-                }
-            });
+            gameType = GameType.CLIENT;
+            lanClient.joinIn(joinHandler);
         }
+
         else {
-            box.close();
-            lanClient.joinInView(accept -> {
-                System.out.println("join view");
-            });
+            gameType = GameType.VIEW;
+            lanClient.joinInView(joinHandler);
         }
     }
 
@@ -413,14 +431,12 @@ public class LanGameSubScene extends SubScene {
         quitButton.getStyleClass().add("menu-button");
         quitButton.setLayoutX(365);
         quitButton.setLayoutY(400);
-        quitButton.setOnAction(event -> {
-            getDialogService().showConfirmationBox(
-                    "Are you sure to quit the game?", yes -> {
-                        lanServer.stop();
-                        getContentRoot().getChildren().remove(waitingPane);
-                        waitingPane = null;
-            });
-        });
+        quitButton.setOnAction(event -> getDialogService().showConfirmationBox(
+                "Are you sure to quit the game?", yes -> {
+                    lanServer.stop();
+                    getContentRoot().getChildren().remove(waitingPane);
+                    waitingPane = null;
+        }));
 
         Button startButton = new Button("Start");
         startButton.getStyleClass().add("menu-button");
@@ -445,7 +461,6 @@ public class LanGameSubScene extends SubScene {
             return;
         timer = 0;
 
-        System.out.println("search game: " + gameInfoList.size());
         for (LanGameInfo gameInfo : gameInfoList) {
             if (map.containsKey(gameInfo)) {
                 ServerBtn btn = map.get(gameInfo);

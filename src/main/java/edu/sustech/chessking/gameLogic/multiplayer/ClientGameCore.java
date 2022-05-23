@@ -14,7 +14,8 @@ import java.io.Serializable;
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.InGameProtocol.*;
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.Quit;
 
-abstract public class ClientGameCore extends GameEventListener{
+abstract public class ClientGameCore{
+    private Connection<Bundle> connection;
     private ColorType side;
     private final MessageHandler<Bundle> listener = (conn, msg) -> {
         if (!msg.exists(Color) || msg.get(Color) == side)
@@ -29,14 +30,11 @@ abstract public class ClientGameCore extends GameEventListener{
      * @param side the side of the client
      */
     public ClientGameCore(Connection<Bundle> connection, ColorType side) {
-        super(connection, side.reverse());
         this.connection = connection;
         this.side = side;
     }
 
-    @Override
     public void startListening() {
-        super.startListening();
         connection.addMessageHandlerFX(listener);
     }
 
@@ -103,7 +101,11 @@ abstract public class ClientGameCore extends GameEventListener{
 
     public final void quit() {
         sendMsg(Quit, "");
-        stopListening();
         connection.removeMessageHandlerFX(listener);
+    }
+
+    public final void reconnect(Connection<Bundle> connection) {
+        this.connection = connection;
+        connection.addMessageHandlerFX(listener);
     }
 }

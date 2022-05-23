@@ -9,6 +9,7 @@ import edu.sustech.chessking.gameLogic.ai.AiEnemy;
 import edu.sustech.chessking.gameLogic.ai.AiType;
 import edu.sustech.chessking.gameLogic.enumType.ColorType;
 import edu.sustech.chessking.gameLogic.multiplayer.ClientGameCore;
+import edu.sustech.chessking.gameLogic.multiplayer.GameEventListener;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerCore;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.NewGameInfo;
 import javafx.animation.PauseTransition;
@@ -62,6 +63,7 @@ public class LanServerTestApp extends GameApplication {
         private boolean isOpponentAddIn = false;
 
         private Player opponent;
+        private GameEventListener listener;
 
         public ServerHelper(NewGameInfo newGameInfo, GameCore gameCore, AiEnemy aiEnemy) {
             this.gameCore = gameCore;
@@ -140,6 +142,20 @@ public class LanServerTestApp extends GameApplication {
 
             clientGame = new ClientGameCore(client.getConnections().get(0), ColorType.BLACK) {
                 @Override
+                protected void onDisconnect() {
+                    System.out.println("[Server] Error: local client disconnect from server!");
+                }
+
+                @Override
+                protected void onDataNotSync() {
+                    System.out.println("[Server] Error: local client data not sync!");
+                }
+            };
+
+            clientGame.startListening();
+
+            listener = new GameEventListener(client.getConnections().get(0), ColorType.WHITE) {
+                @Override
                 protected void onPickUpChess(Chess chess) {
                     System.out.println("[Server] Opponent pick up chess");
                 }
@@ -175,10 +191,10 @@ public class LanServerTestApp extends GameApplication {
                     Move nextMove = aiEnemy.getNextMove();
                     isAiCalculating = false;
                     gameCore.moveChess(nextMove);
-                    pickUpChess(nextMove.getChess());
-                    putDownChess(nextMove.getPosition());
-                    moveChess(nextMove);
-                    endTurn(-1);
+                    clientGame.pickUpChess(nextMove.getChess());
+                    clientGame.putDownChess(nextMove.getPosition());
+                    clientGame.moveChess(nextMove);
+                    clientGame.endTurn(-1);
                 }
 
                 @Override
@@ -191,7 +207,7 @@ public class LanServerTestApp extends GameApplication {
                     System.out.println("[Server] Opponent request reverse move");
                     gameCore.reverseMove();
                     gameCore.reverseMove();
-                    replyReverse(true);
+                    clientGame.replyReverse(true);
                 }
 
                 @Override
@@ -202,7 +218,7 @@ public class LanServerTestApp extends GameApplication {
                 @Override
                 protected void onRequestDrawn() {
                     System.out.println("[Server] Opponent request drawn");
-                    replyDrawn(false);
+                    clientGame.replyDrawn(false);
                 }
 
                 @Override
@@ -215,18 +231,9 @@ public class LanServerTestApp extends GameApplication {
                     System.out.println("[Server] Opponent quit game!");
                     lanServerCore.stop();
                 }
-
-                @Override
-                protected void onDisconnect() {
-                    System.out.println("[Server] Error: local client disconnect from server!");
-                }
-
-                @Override
-                protected void onDataNotSync() {
-                    System.out.println("[Server] Error: local client data not sync!");
-                }
             };
-            clientGame.startListening();
+            listener.startListening();
+
             if (client.getConnections().size() < 1) {
                 System.out.println("[Sever] Error! Local client disconnected");
                 return;

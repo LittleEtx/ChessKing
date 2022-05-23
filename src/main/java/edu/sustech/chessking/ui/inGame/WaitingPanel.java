@@ -21,7 +21,7 @@ public class WaitingPanel {
     private static Texture waitTexture;
     private static Text text;
 
-    public static void startWaiting() {
+    public static void startWaiting(String msg) {
         if (isWaiting)
             return;
 
@@ -41,8 +41,7 @@ public class WaitingPanel {
         waitTexture.setLayoutX(50);
         waitTexture.setLayoutY(20);
 
-        text = FXGL.getUIFactoryService().newText(
-                "Waiting for \n opponent to agree", Color.WHITE, 15);
+        text = FXGL.getUIFactoryService().newText(msg, Color.WHITE, 15);
         text.setTextAlignment(TextAlignment.CENTER);
         text.setLayoutY(90);
         text.setLayoutX(5);
@@ -56,6 +55,10 @@ public class WaitingPanel {
         tt.setToX(10);
         tt.setInterpolator(Interpolators.BACK.EASE_OUT());
         tt.play();
+    }
+
+    public static void startWaiting() {
+        startWaiting("Waiting for \n opponent to agree");
     }
 
     public static boolean isWaiting() {

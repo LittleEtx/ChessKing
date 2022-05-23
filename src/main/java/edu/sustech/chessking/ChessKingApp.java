@@ -29,6 +29,7 @@ import edu.sustech.chessking.gameLogic.gameSave.Replay;
 import edu.sustech.chessking.gameLogic.gameSave.Save;
 import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
 import edu.sustech.chessking.gameLogic.multiplayer.ClientGameCore;
+import edu.sustech.chessking.gameLogic.multiplayer.GameEventListener;
 import edu.sustech.chessking.gameLogic.multiplayer.GameInfoGetter;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanGameInfo;
 import edu.sustech.chessking.gameLogic.multiplayer.Lan.LanServerCore;
@@ -86,6 +87,8 @@ public class ChessKingApp extends GameApplication {
     private static EatRecorder downEatRecorder;
     private static EatRecorder upEatRecorder;
     private static ChatBox chatBox;
+    private static AppGameEventListener downSideListener;
+    private static AppGameEventListener upSideListener;
 
     public static Player getLocalPlayer(){
         return localPlayer;
@@ -199,121 +202,178 @@ public class ChessKingApp extends GameApplication {
         }
     }
 
+    private static final class AppGameEventListener extends GameEventListener {
+        private final ColorType side;
+        private ChessComponent cc;
+
+        private boolean isMovingChess = false;
+        public AppGameEventListener(Connection<Bundle> connection, ColorType side) {
+            super(connection, side);
+            this.side = side;
+        }
+
+        @Override
+        protected void onPickUpChess(Chess chess) {
+            Entity chessEntity = getChessEntity(toPoint(chess.getPosition()));
+            //cannot find chess or not the turn
+            if (chessEntity == null || geto(TurnVar) != side) {
+                syncData();
+                return;
+            }
+            cc = chessEntity.getComponent(ChessComponent.class);
+            if (side == downSideColor)
+                cc.moveChess(this::getMousePt);
+            else
+                cc.moveChess(() -> VisualLogic.rotateMouse(getMousePt()));
+            isMovingChess = true;
+        }
+
+        @Override
+        protected void onPutDownChess(Position position) {
+            if (isMovingChess) {
+                cc.putChess(position);
+                isMovingChess = false;
+            }
+            else
+                syncData();
+        }
+
+        @Override
+        protected void onMoveChess(Move move) {
+            if (cc == null || !gameCore.isMoveAvailable(move)) {
+                syncData();
+                return;
+            }
+            cc.executeMove(move);
+        }
+
+        @Override
+        protected void onEndTurn(double remainTime) {
+            //opponent timer
+            getTimer(side.reverse()).setCurrentGameTime(remainTime);
+            enemyEndTurn();
+        }
+
+        @Override
+        protected void onReachTimeLimit() {
+            if (gameType == GameType.CLIENT)
+                endGame(ClientEndGameType.WIN);
+            else {
+                if (side == ColorType.WHITE)
+                    endGame(ClientEndGameType.WHITE_WIN);
+                else
+                    endGame(ClientEndGameType.BLACK_WIN);
+            }
+        }
+
+        @Override
+        protected void onRequestReverse() {
+            if (gameType == GameType.CLIENT) {
+                getDialogService().showConfirmationBox(
+                        "Your opponent asked for reversing, do you agree?",
+                        agree -> clientGameCore.replyReverse(agree)
+                );
+            }
+            else {
+                WaitingPanel.startWaiting("Waiting for" + getOpponent().getName() +
+                        "\nto agree reverse");
+            }
+        }
+
+        private Player getOpponent() {
+            Player player;
+            if (side == downSideColor)
+                player = upPlayer;
+            else
+                player = downPlayer;
+            return player;
+        }
+
+        @Override
+        protected void onReplyReverse(boolean result) {
+            if (result) {
+                WaitingPanel.agree();
+                reverseMove(2);
+            }
+            else
+                WaitingPanel.disagree();
+        }
+
+        @Override
+        protected void onRequestDrawn() {
+            if (gameType == GameType.CLIENT) {
+                getDialogService().showConfirmationBox(
+                        "Your opponent purpose a draw, do you agree?",
+                        accept -> {
+                            clientGameCore.replyDrawn(accept);
+                            endGame(ClientEndGameType.DRAWN);
+                        }
+                );
+            }
+            else {
+                WaitingPanel.startWaiting("Waiting for" + getOpponent().getName() +
+                        "\nto agree a draw");
+            }
+        }
+
+        @Override
+        protected void onReplyDrawn(boolean result) {
+            if (result) {
+                WaitingPanel.agree();
+                endGame(ClientEndGameType.DRAWN);
+            }
+            else
+                WaitingPanel.disagree();
+        }
+
+        @Override
+        protected void onQuit() {
+            if (gameType == GameType.CLIENT)
+                endGame(ClientEndGameType.WIN);
+            else {
+                if (side == ColorType.WHITE)
+                    endGame(ClientEndGameType.BLACK_WIN);
+                else
+                    endGame(ClientEndGameType.WHITE_WIN);
+            }
+        }
+    }
+
 
     // ===============================
     //initialize the game
     @Override
     protected void initGame() {
         MusicPlayer.play(MusicType.IN_GAME);
+
         //receive method for client
-        if (gameType == GameType.CLIENT) {
+        if (gameType == GameType.CLIENT || gameType == GameType.VIEW) {
             Connection<Bundle> connection = lanGameInfo.getClient()
                     .getConnections().get(0);
-            clientGameCore = new ClientGameCore(connection, downSideColor) {
-                private ChessComponent cc;
-                private boolean isMovingChess = false;
 
-                @Override
-                protected void onPickUpChess(Chess chess) {
-                    Entity chessEntity = getChessEntity(toPoint(chess.getPosition()));
-                    //cannot find chess or not enemy's turn
-                    if (chessEntity == null || geto(TurnVar) == downSideColor) {
+
+            if (gameType == GameType.CLIENT) {
+                clientGameCore = new ClientGameCore(connection, downSideColor) {
+                    @Override
+                    protected void onDisconnect() {
                         syncData();
-                        return;
                     }
-                    cc = chessEntity.getComponent(ChessComponent.class);
-                    cc.moveChess(() -> VisualLogic.rotateMouse(getMousePt()));
-                    isMovingChess = true;
-                }
-
-                @Override
-                protected void onPutDownChess(Position position) {
-                    if (isMovingChess) {
-                        cc.putChess(position);
-                        isMovingChess = false;
+                    @Override
+                    protected void onDataNotSync() {
+                        ChessKingApp.reconnect();
                     }
-                    else
-                        syncData();
-                }
+                };
+                clientGameCore.startListening();
+            }
 
-                @Override
-                protected void onMoveChess(Move move) {
-                    if (cc == null) {
-                        syncData();
-                        return;
-                    }
-                    cc.executeMove(move);
-                }
+            //note that listen the reverse side
+            upSideListener = new AppGameEventListener(connection, downSideColor.reverse());
+            upSideListener.startListening();
 
-                @Override
-                protected void onEndTurn(double remainTime) {
-                    //opponent timer
-                    getTimer(downSideColor.reverse()).setCurrentGameTime(remainTime);
-                    enemyEndTurn();
-                }
-
-                @Override
-                protected void onReachTimeLimit() {
-                    endGame(ClientEndGameType.WIN);
-                }
-
-                @Override
-                protected void onRequestReverse() {
-                    getDialogService().showConfirmationBox(
-                            "Your opponent asked for reversing, do you agree?",
-                            this::replyReverse
-                    );
-                }
-
-                @Override
-                protected void onReplyReverse(boolean result) {
-                    if (result) {
-                        WaitingPanel.agree();
-                        reverseMove(2);
-                    }
-                    else
-                        WaitingPanel.disagree();
-                }
-
-                @Override
-                protected void onRequestDrawn() {
-                    getDialogService().showConfirmationBox(
-                            "Your opponent purpose a draw, do you agree?",
-                            accept -> {
-                                replyDrawn(accept);
-                                endGame(ClientEndGameType.DRAWN);
-                            }
-                    );
-                }
-
-                @Override
-                protected void onReplyDrawn(boolean result) {
-                    if (result) {
-                        WaitingPanel.agree();
-                        endGame(ClientEndGameType.DRAWN);
-                    }
-                    else
-                        WaitingPanel.disagree();
-                }
-
-                @Override
-                protected void onQuit() {
-                    if (gameType == GameType.CLIENT)
-                        endGame(ClientEndGameType.WIN);
-                    //view
-                }
-
-                @Override
-                protected void onDataNotSync() {
-                    syncData();
-                }
-
-                @Override
-                protected void onDisconnect() {
-                    ChessKingApp.reconnect();
-                }
-            };
-            clientGameCore.startListening();
+            if (gameType == GameType.VIEW) {
+                downSideListener = new AppGameEventListener(connection, downSideColor);
+                downSideListener.startListening();
+            }
             clientGameInfoGetter = new GameInfoGetter(connection) {
                 private final boolean[] receiveRecord = new boolean[5];
                 private void checkReceiveAllInfo() {
@@ -347,8 +407,6 @@ public class ChessKingApp extends GameApplication {
                     TurnVisual.spawnExMark(moveHistory.getLastMove().getPosition());
                     ChessComponent.setCheckedKing();
                     checkReceiveAllInfo();
-
-                    System.out.println("ChessKingApp.onReceiveMoveHistory");
                 }
 
                 @Override
@@ -360,8 +418,6 @@ public class ChessKingApp extends GameApplication {
                         isEnemyOnTurn = true;
                     receiveRecord[1] = true;
                     checkReceiveAllInfo();
-
-                    System.out.println("ChessKingApp.onReceiveTurn");
                 }
                 @Override
                 protected void onReceiveGameTimeList(ArrayList<Double> timeList) {
@@ -370,8 +426,6 @@ public class ChessKingApp extends GameApplication {
                     remainTime = timeList;
                     receiveRecord[2] = true;
                     checkReceiveAllInfo();
-
-                    System.out.println("ChessKingApp.onReceiveGameTimeList");
                 }
                 @Override
                 protected void onReceiveGameTime(ColorType color, double gameTime) {
@@ -386,8 +440,6 @@ public class ChessKingApp extends GameApplication {
                         receiveRecord[4] = true;
                     }
                     checkReceiveAllInfo();
-
-                    System.out.println("ChessKingApp.onReceiveGameTime");
                 }
 
                 @Override
@@ -520,6 +572,12 @@ public class ChessKingApp extends GameApplication {
             isReconnecting = false;
             clientGameCore.reconnect(conn);
             clientGameInfoGetter.reconnect(conn);
+            if (gameType == GameType.CLIENT)
+                upSideListener.reconnect(conn);
+            else {
+                upSideListener.reconnect(conn);
+                downSideListener.reconnect(conn);
+            }
             syncData();
             waitingBox.close();
         });
@@ -684,7 +742,7 @@ public class ChessKingApp extends GameApplication {
         return newClientGame(info, downSideColor, true);
     }
 
-    private static boolean newViewGame(LanGameInfo lanGameInfo, Player whitePlayer, boolean isNewGame) {
+    public static boolean newViewGame(LanGameInfo lanGameInfo, Player whitePlayer, boolean isNewGame) {
         if (lanGameInfo.getClient().getConnections().size() < 1 ||
                 lanGameInfo.getGameInfo().getPlayer2() == null) {
             return false;
@@ -1049,7 +1107,7 @@ public class ChessKingApp extends GameApplication {
             @Override
             protected void onActionBegin() {
                 //if enemy is moving chess or the turn is not over
-                if (isEnemyOnTurn || gameType == GameType.REPLAY)
+                if (isEnemyOnTurn || gameType == GameType.REPLAY || gameType == GameType.VIEW)
                     return;
 
                 //In case move to fast
@@ -1106,7 +1164,8 @@ public class ChessKingApp extends GameApplication {
         getInput().addAction(new UserAction("RightClick") {
             @Override
             protected void onActionBegin() {
-                if (isEnemyOnTurn || gameType == GameType.REPLAY || !getb(IsMovingChess))
+                if (isEnemyOnTurn || gameType == GameType.REPLAY ||
+                        gameType == GameType.VIEW || !getb(IsMovingChess))
                     return;
 
                 set(IsMovingChess, false);
@@ -1220,6 +1279,12 @@ public class ChessKingApp extends GameApplication {
         if (geto(TurnVar) != downSideColor) {
             getNotificationService().pushNotification(
                     "you can only suggest draw in your turn!");
+            return;
+        }
+
+        if (WaitingPanel.isWaiting()) {
+            getNotificationService().pushNotification(
+                    "You have purposed a request!");
             return;
         }
 

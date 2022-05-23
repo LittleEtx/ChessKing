@@ -121,7 +121,6 @@ abstract public class LanServerCore {
 
                     PauseTransition pt = new PauseTransition(Duration.seconds(0.5));
                     pt.setOnFinished(event -> {
-                        System.out.println("Rejoin");
                         serverGameCore.rejoinIn(2, opponentConn);
                         send(opponentConn, SuccessfullyReconnect, whitePlayer);
                         onOpponentReconnect();
@@ -146,7 +145,7 @@ abstract public class LanServerCore {
                 else {
                     PauseTransition pt = new PauseTransition(Duration.seconds(0.5));
                     pt.setOnFinished(event -> {
-                        send(conn, SuccessfullyJoinIn, "");
+                        send(conn, SuccessfullyReconnect, whitePlayer);
                         serverGameCore.joinView(conn);
                     });
                     pt.play();

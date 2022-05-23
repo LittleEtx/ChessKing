@@ -15,8 +15,10 @@ public class LanProtocol {
 
     //server side
     public static final String SendGameInfo = "sendGameInfo"; //GameInfo
+    //for both view and client
     public static final String SuccessfullyJoinIn = "successfullyJoinIn"; //empty
-    public static final String SuccessfullyReconnect = "successfullyReconnect"; //empty
+    //for both view and client game
+    public static final String SuccessfullyReconnect = "successfullyReconnect"; //Player : white player
     public static final String FailToJoin = "failToJoinIn"; //String msg
     public static final String StartGame = "startGame"; //Player : white player
 }
