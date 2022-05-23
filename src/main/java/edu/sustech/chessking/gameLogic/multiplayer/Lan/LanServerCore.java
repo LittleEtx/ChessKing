@@ -12,6 +12,8 @@ import edu.sustech.chessking.gameLogic.multiplayer.ServerGameCore;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameInfo;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameState;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.NewGameInfo;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -116,9 +118,15 @@ abstract public class LanServerCore {
 
                     opponentConn = conn;
                     game.setGameState(GameState.ON_GOING);
-                    serverGameCore.rejoinIn(2, opponentConn);
-                    send(opponentConn, SuccessfullyReconnect, whitePlayer);
-                    onOpponentReconnect();
+
+                    PauseTransition pt = new PauseTransition(Duration.seconds(0.5));
+                    pt.setOnFinished(event -> {
+                        System.out.println("Rejoin");
+                        serverGameCore.rejoinIn(2, opponentConn);
+                        send(opponentConn, SuccessfullyReconnect, whitePlayer);
+                        onOpponentReconnect();
+                    });
+                    pt.play();
                 }
                 else {
                     send(conn, FailToJoin, "");
@@ -136,8 +144,12 @@ abstract public class LanServerCore {
                     send(conn, SuccessfullyJoinIn, "");
                 }
                 else {
-                    send(conn, SuccessfullyJoinIn, "");
-                    serverGameCore.joinView(conn);
+                    PauseTransition pt = new PauseTransition(Duration.seconds(0.5));
+                    pt.setOnFinished(event -> {
+                        send(conn, SuccessfullyJoinIn, "");
+                        serverGameCore.joinView(conn);
+                    });
+                    pt.play();
                 }
                 return;
             }

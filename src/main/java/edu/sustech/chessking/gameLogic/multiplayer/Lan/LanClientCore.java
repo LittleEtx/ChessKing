@@ -64,7 +64,7 @@ abstract public class LanClientCore {
      * Whenever leave a server (including being refuse join in, use the method）
      */
     public final void leave() {
-        connection.removeMessageHandler(listener);
+        connection.removeMessageHandlerFX(listener);
         send(Quit, "");
     }
 

@@ -1,8 +1,9 @@
 package edu.sustech.chessking.ui;
 
+import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
-import edu.sustech.chessking.gameLogic.ai.AiType;
+import edu.sustech.chessking.GameType;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.effect.Bloom;
@@ -14,6 +15,7 @@ import javafx.scene.text.Text;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameController;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.getUIFactoryService;
+import static edu.sustech.chessking.GameVars.GameTypeVar;
 
 public class EndGameScene extends SubScene {
     public EndGameScene(String str) {
@@ -30,19 +32,20 @@ public class EndGameScene extends SubScene {
 
         Button exitBtn = new Button("Exit");
         exitBtn.getStyleClass().add("endGame-button");
-        exitBtn.setOnAction(event -> {
-            getGameController().gotoMainMenu();
-        });
+        exitBtn.setOnAction(event -> getGameController().gotoMainMenu());
 
-        Button newGame = new Button("New Game");
-        newGame.getStyleClass().add("endGame-button");
-        newGame.setOnAction(event -> {
-            ChessKingApp.newAiGame(AiType.NORMAL);
-        });
-
-        HBox box = new HBox(50,exitBtn,newGame);
+        HBox box = new HBox(50,exitBtn);
+        box.setAlignment(Pos.CENTER);
         box.setLayoutX(600-185);
         box.setLayoutY(600);
+
+        if (FXGL.geto(GameTypeVar) == GameType.COMPUTER) {
+            Button newGame = new Button("New Game");
+            newGame.getStyleClass().add("endGame-button");
+            newGame.setOnAction(event -> ChessKingApp.restartGame());
+            box.getChildren().add(newGame);
+        }
+
 
         VBox vb = new VBox(100,text,box);
         vb.setAlignment(Pos.CENTER);

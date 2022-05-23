@@ -121,12 +121,19 @@ public class LanGameSubScene extends SubScene {
     @Override
     public void onCreate() {
         try {
-            lanServerSearcher = new LanServerSearcher();
+            lanServerSearcher = new LanServerSearcher() {
+                @Override
+                protected void onFailToSearch(String msg) {
+                    getDialogService().showMessageBox(msg,
+                            () -> getSceneService().popSubScene());
+                }
+            };
         } catch (IOException e) {
             getDialogService().showMessageBox("Can not connect to local lan!",
                     () -> getSceneService().popSubScene());
             return;
         }
+        lanServerSearcher.setDaemon(true);
         lanServerSearcher.start();
         gameInfoList = lanServerSearcher.getGameInfoList();
         waitingMark = new WaitingMark();
@@ -238,6 +245,13 @@ public class LanGameSubScene extends SubScene {
         if (selectedGame == null)
             return;
 
+        if (selectedGame.getClient().getConnections().size() < 1) {
+            getDialogService().showMessageBox("Can not access server!");
+            return;
+        }
+
+        DialogBox box = getDialogService().showProgressBox("Joining in...");
+
         Connection<Bundle> connection = selectedGame.getClient().getConnections().get(0);
         Player localPlayer = ChessKingApp.getLocalPlayer();
         LanClientCore lanClient = new LanClientCore(connection, localPlayer) {
@@ -267,6 +281,7 @@ public class LanGameSubScene extends SubScene {
                         Objects.equals(player2, localPlayer))) {
 
             lanClient.joinIn(accept -> {
+                box.close();
                 if (!accept) {
                     getDialogService().showMessageBox("Unable to join in",
                             lanClient::leave);
@@ -282,6 +297,7 @@ public class LanGameSubScene extends SubScene {
             });
         }
         else {
+            box.close();
             lanClient.joinInView(accept -> {
                 System.out.println("join view");
             });

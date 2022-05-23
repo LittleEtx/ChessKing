@@ -41,6 +41,7 @@ import edu.sustech.chessking.ui.inGame.ChatBox;
 import edu.sustech.chessking.ui.inGame.EatRecorder;
 import edu.sustech.chessking.ui.inGame.TurnVisual;
 import edu.sustech.chessking.ui.inGame.WaitingPanel;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -246,7 +247,8 @@ public class ChessKingApp extends GameApplication {
 
                 @Override
                 protected void onEndTurn(double remainTime) {
-                    getOpponentTimer().setCurrentGameTime(remainTime);
+                    //opponent timer
+                    getTimer(downSideColor.reverse()).setCurrentGameTime(remainTime);
                     enemyEndTurn();
                 }
 
@@ -620,21 +622,26 @@ public class ChessKingApp extends GameApplication {
      * @return if the connection is valid
      */
     public static boolean newClientGame(LanGameInfo lanGameInfo, ColorType side, boolean isNewGame) {
-        ChessKingApp.lanGameInfo = lanGameInfo;
-        if (lanGameInfo.getClient().getConnections().size() < 1)
+        if (lanGameInfo.getClient().getConnections().size() < 1) {
             return false;
+        }
 
         createNewGame(GameType.CLIENT);
-        GameInfo gameInfo = lanGameInfo.getGameInfo();
-        upPlayer = gameInfo.getPlayer1();
+        loadGameInfo(lanGameInfo);
+
         downSideColor = side;
         isEnemyOnTurn = downSideColor == ColorType.BLACK;
-
-        gameTimeInSec = gameInfo.getGameTime();
-        turnTimeInSec = gameInfo.getGameTime();
         isNewClientGame = isNewGame;
         getGameController().startNewGame();
         return true;
+    }
+
+    private static void loadGameInfo(LanGameInfo lanGameInfo) {
+        GameInfo gameInfo = lanGameInfo.getGameInfo();
+        ChessKingApp.lanGameInfo = lanGameInfo;
+        upPlayer = gameInfo.getPlayer1();
+        turnTimeInSec = gameInfo.getGameTime();
+        gameTimeInSec = gameInfo.getGameTime();
     }
 
     public static boolean newServerGame(LanServerCore lanServerCore, GameInfo gameInfo) {
@@ -677,18 +684,33 @@ public class ChessKingApp extends GameApplication {
         return newClientGame(info, downSideColor, true);
     }
 
+    private static boolean newViewGame(LanGameInfo lanGameInfo, Player whitePlayer, boolean isNewGame) {
+        if (lanGameInfo.getClient().getConnections().size() < 1 ||
+                lanGameInfo.getGameInfo().getPlayer2() == null) {
+            return false;
+        }
+        gameType = GameType.VIEW;
+
+        gameCore.initialGame();
+        loadGameInfo(lanGameInfo);
+        GameInfo gameInfo = lanGameInfo.getGameInfo();
+        if (whitePlayer.equals(gameInfo.getPlayer1()))
+            downSideColor = ColorType.WHITE;
+        else if (whitePlayer.equals(gameInfo.getPlayer2()))
+            downSideColor = ColorType.BLACK;
+        else
+            return false;
+
+        isNewClientGame = isNewGame;
+        getGameController().startNewGame();
+        return true;
+    }
+
     private static GameTimer getTimer(ColorType side) {
         if (side == ColorType.WHITE)
             return whiteTimer;
         else
             return blackTimer;
-    }
-
-    private static GameTimer getOpponentTimer() {
-        if (downSideColor == ColorType.WHITE)
-            return blackTimer;
-        else
-            return whiteTimer;
     }
 
     /**
@@ -751,6 +773,15 @@ public class ChessKingApp extends GameApplication {
         downPlayer = localPlayer;
         ChessKingApp.gameType = gameType;
         remainTime = new ArrayList<>();
+    }
+
+    public static void restartGame() {
+        if (gameType == GameType.LOCAL) {
+            newLocalGame(upPlayer, gameTimeInSec, turnTimeInSec);
+        }
+        else if (gameType == GameType.COMPUTER) {
+            newAiGame(ai.getDifficulty());
+        }
     }
 
     private static void randomSide() {
@@ -837,6 +868,7 @@ public class ChessKingApp extends GameApplication {
                         case NORMAL -> localPlayer.incScore(3);
                         case HARD -> localPlayer.incScore(5);
                     }
+                    SaveLoader.writePlayer(localPlayer);
                 }
 
                 if (downSideColor == ColorType.WHITE)
@@ -965,6 +997,7 @@ public class ChessKingApp extends GameApplication {
                     throw new RuntimeException("Cannot find chess!");
                 chess.getComponent(ChessComponent.class).computerExecuteMove(move);
             });
+            thread.setDaemon(true);
             thread.start();
         }
 
@@ -973,7 +1006,7 @@ public class ChessKingApp extends GameApplication {
             isNewClientGame = true;
         }
 
-        if (gameType == GameType.CLIENT && getb(IsMovingChess))
+        if (gameType == GameType.CLIENT && !isReconnecting)
             clientGameCore.sendMousePt(getInput().getMousePositionWorld());
     }
 
@@ -982,12 +1015,12 @@ public class ChessKingApp extends GameApplication {
     //initialize the inputs
     @Override
     protected void initInput() {
-//        getInput().addAction(new UserAction("Win") {
-//            @Override
-//            protected void onActionBegin() {
-//                endGame(ClientEndGameType.WIN);
-//            }
-//        }, KeyCode.W);
+        getInput().addAction(new UserAction("Win") {
+            @Override
+            protected void onActionBegin() {
+                endGame(ClientEndGameType.WIN);
+            }
+        }, KeyCode.W);
 //
 //        getInput().addAction(new UserAction("Lose") {
 //            @Override

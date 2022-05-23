@@ -11,14 +11,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static edu.sustech.chessking.gameLogic.multiplayer.protocol.LanProtocol.*;
 
-public class LanServerSearcher extends Thread{
+abstract public class LanServerSearcher extends Thread{
     private final MulticastSocket socket;
     private final Thread thread;
-    private Consumer<String> onFailToSearch;
     private final List<LanServerInfo> entryList = new LinkedList<>();
     private final List<LanGameInfo> gameInfoList = new LinkedList<>();
 
@@ -32,7 +30,7 @@ public class LanServerSearcher extends Thread{
     }
 
     @Override
-    public void run() {
+    public final void run() {
         byte[] bs = new byte[1024];
         while (!this.isInterrupted() && thread.isAlive()) {
             DatagramPacket datagramPocket = new DatagramPacket(bs, bs.length);
@@ -43,7 +41,7 @@ public class LanServerSearcher extends Thread{
                 continue;
             }
             catch (IOException e) {
-                onFailToSearch.accept("Couldn't ping server");
+                onFailToSearch("Couldn't ping server");
                 break;
             }
 
@@ -82,7 +80,7 @@ public class LanServerSearcher extends Thread{
                 LanGameInfo lanGameInfo = new LanGameInfo(newInfo, client);
                 client.setOnConnected(connection -> {
                     //add listener for updating the gameInfo
-                    connection.addMessageHandler((conn, msg) -> {
+                    connection.addMessageHandlerFX((conn, msg) -> {
                         if (msg.exists(SendGameInfo))
                             lanGameInfo.setGameInfo(msg.get(SendGameInfo));
                     });
@@ -103,16 +101,14 @@ public class LanServerSearcher extends Thread{
         }
     }
 
-    public void setOnFailToSearch(Consumer<String> onFailToSearch) {
-        this.onFailToSearch = onFailToSearch;
-    }
+    abstract protected void onFailToSearch(String msg);
 
-    public void stopListening() {
+    public final void stopListening() {
         interrupt();
         getGameInfoList().forEach(gameInfo -> gameInfo.getClient().disconnect());
     }
 
-    public void stopListeningExcept(Client<Bundle> exceptClient) {
+    public final void stopListeningExcept(Client<Bundle> exceptClient) {
         interrupt();
         getGameInfoList().forEach(gameInfo -> {
             Client<Bundle> client = gameInfo.getClient();
@@ -121,11 +117,11 @@ public class LanServerSearcher extends Thread{
         });
     }
 
-    public List<LanGameInfo> getGameInfoList() {
+    public final List<LanGameInfo> getGameInfoList() {
         return Collections.unmodifiableList(gameInfoList);
     }
 
-    public void updateGameInfoList() {
+    public final void updateGameInfoList() {
         getGameInfoList().forEach(gameInfo -> {
                     Connection<Bundle> connection =
                             gameInfo.getClient().getConnections().get(0);

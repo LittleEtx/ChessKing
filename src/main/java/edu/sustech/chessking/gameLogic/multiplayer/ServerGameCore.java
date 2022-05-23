@@ -84,12 +84,12 @@ abstract public class ServerGameCore {
             return;
 
         viewerList.add(viewerConn);
-        viewerConn.addMessageHandler(gameInfoListener);
+        viewerConn.addMessageHandlerFX(gameInfoListener);
     }
 
     public void quitView(Connection<Bundle> viewerConn) {
         viewerList.remove(viewerConn);
-        viewerConn.removeMessageHandler(gameInfoListener);
+        viewerConn.removeMessageHandlerFX(gameInfoListener);
     }
 
     abstract protected void onDisconnecting(Connection<Bundle> connection);
@@ -117,8 +117,8 @@ abstract public class ServerGameCore {
 
         waitingForRejoin = false;
         //add handler to the new connection
-        player.addMessageHandler(playerListener);
-        player.addMessageHandler(gameInfoListener);
+        player.addMessageHandlerFX(playerListener);
+        player.addMessageHandlerFX(gameInfoListener);
     }
 
     private void broadcastViewer(Bundle msg) {
@@ -133,19 +133,19 @@ abstract public class ServerGameCore {
     }
 
     public void startGame() {
-        player1.addMessageHandler(playerListener);
-        player2.addMessageHandler(playerListener);
+        player1.addMessageHandlerFX(playerListener);
+        player2.addMessageHandlerFX(playerListener);
 
-        player1.addMessageHandler(gameInfoListener);
-        player2.addMessageHandler(gameInfoListener);
-        viewerList.forEach(conn -> conn.addMessageHandler(gameInfoListener));
+        player1.addMessageHandlerFX(gameInfoListener);
+        player2.addMessageHandlerFX(gameInfoListener);
+        viewerList.forEach(conn -> conn.addMessageHandlerFX(gameInfoListener));
     }
 
     public void endGame() {
-        player1.removeMessageHandler(playerListener);
-        player1.removeMessageHandler(gameInfoListener);
-        player2.removeMessageHandler(playerListener);
-        player2.removeMessageHandler(gameInfoListener);
-        viewerList.forEach(conn -> conn.removeMessageHandler(gameInfoListener));
+        player1.removeMessageHandlerFX(playerListener);
+        player1.removeMessageHandlerFX(gameInfoListener);
+        player2.removeMessageHandlerFX(playerListener);
+        player2.removeMessageHandlerFX(gameInfoListener);
+        viewerList.forEach(conn -> conn.removeMessageHandlerFX(gameInfoListener));
     }
 }
