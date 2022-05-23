@@ -5,6 +5,8 @@ import com.almasb.fxgl.scene.SubScene;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.gameLogic.Player;
 import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -25,10 +27,8 @@ import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
 
 public class ChoosePlayer2 extends SubScene {
     private Player p2;
-    private static double gameTime = 3600;
-    private static double turnTime = 300;
-    public static void setGameTime(double a) {gameTime = a;}
-    public static void setTurnTime(double a) {turnTime = a;}
+    private final DoubleProperty gameTime = new SimpleDoubleProperty(30 * 60);
+    private final DoubleProperty turnTime = new SimpleDoubleProperty(5 * 60);
     public ChoosePlayer2(Player player){
         Rectangle bg = new Rectangle(1200,800, Color.web("#00000080"));
         getContentRoot().getChildren().add(bg);
@@ -74,7 +74,7 @@ public class ChoosePlayer2 extends SubScene {
 
                 if(event.getClickCount()==2){
                     getSceneService().popSubScene();
-                    ChessKingApp.newLocalGame(p2,gameTime,turnTime);
+                    ChessKingApp.newLocalGame(p2,gameTime.get(),turnTime.get());
                 }
             });
         }
@@ -101,7 +101,7 @@ public class ChoosePlayer2 extends SubScene {
                 opponent.setName("YourOpponent");
                 opponent.setAvatar("avatar5");
                 getSceneService().popSubScene();
-                ChessKingApp.newLocalGame(opponent, gameTime, turnTime);
+                ChessKingApp.newLocalGame(opponent, gameTime.get(), turnTime.get());
             }else{
                 System.out.println("no player2 detected");
             }
@@ -123,7 +123,7 @@ public class ChoosePlayer2 extends SubScene {
         setTimeBtn.setLayoutY(100);
         setTimeBtn.setLayoutX(350);
         setTimeBtn.setOnAction(event -> {
-            getSceneService().pushSubScene(new SetTimeDuel());
+            getSceneService().pushSubScene(new SetTimeDuel(gameTime, turnTime));
         });
 
         VBox vb = new VBox(20,choosePlayerText,playerSP,buttons);

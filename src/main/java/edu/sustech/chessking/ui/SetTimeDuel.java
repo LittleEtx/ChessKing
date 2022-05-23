@@ -2,6 +2,7 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.scene.SubScene;
+import javafx.beans.property.DoubleProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -25,7 +26,12 @@ public class SetTimeDuel extends SubScene {
 
     private final Slider turnTimeSlider = new Slider(10,600,300);
     private final Label turnTimeValueText = new Label();
-    public SetTimeDuel() {
+    private final DoubleProperty gameTimePro;
+    private final DoubleProperty turnTimePro;
+
+    public SetTimeDuel(DoubleProperty gameTimePro, DoubleProperty turnTimePro) {
+        this.gameTimePro = gameTimePro;
+        this.turnTimePro = turnTimePro;
         Rectangle bg = new Rectangle(1200,800, Color.web("#00000080"));
         getContentRoot().getChildren().add(bg);
 
@@ -85,14 +91,14 @@ public class SetTimeDuel extends SubScene {
         Button doneBtn = new Button("Done");
         doneBtn.getStyleClass().add("newPlayer-subScene-button");
         doneBtn.setOnAction(event -> {
-            getSceneService().popSubScene();
             if(!noTimeCB.isSelected()) {
-                ChoosePlayer2.setGameTime(gameTimeSlider.getValue());
-                ChoosePlayer2.setTurnTime(turnTimeSlider.getValue());
+                gameTimePro.set(gameTimeSlider.getValue());
+                turnTimePro.set(turnTimeSlider.getValue());
             }else{
-                ChoosePlayer2.setGameTime(-1);
-                ChoosePlayer2.setTurnTime(-1);
+                gameTimePro.set(-1);
+                turnTimePro.set(-1);
             }
+            getSceneService().popSubScene();
         });
 
         windowBg.getChildren().addAll(gameTime,turnTime,noTimeCB,doneBtn);
@@ -115,6 +121,6 @@ public class SetTimeDuel extends SubScene {
         int gameTimeSecond = (int) second;
         int gameTimeMinute = gameTimeSecond / 60;
         gameTimeSecond = gameTimeSecond - gameTimeMinute * 60;
-        return String.format("%03d:%02d",gameTimeMinute,gameTimeSecond);
+        return String.format("%d:%02d",gameTimeMinute,gameTimeSecond);
     }
 }

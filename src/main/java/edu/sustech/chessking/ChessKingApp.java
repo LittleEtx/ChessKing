@@ -272,12 +272,15 @@ public class ChessKingApp extends GameApplication {
             if (gameType == GameType.CLIENT) {
                 getDialogService().showConfirmationBox(
                         "Your opponent asked for reversing, do you agree?",
-                        agree -> clientGameCore.replyReverse(agree)
+                        agree -> {
+                            clientGameCore.replyReverse(agree);
+                            reverseMove(2);
+                        }
                 );
             }
             else {
-                WaitingPanel.startWaiting("Waiting for" + getOpponent().getName() +
-                        "\nto agree reverse");
+                WaitingPanel.startWaiting("Waiting for" +
+                        getOpponent().getName() + "\nto agree reverse");
             }
         }
 
@@ -312,8 +315,8 @@ public class ChessKingApp extends GameApplication {
                 );
             }
             else {
-                WaitingPanel.startWaiting("Waiting for" + getOpponent().getName() +
-                        "\nto agree a draw");
+                WaitingPanel.startWaiting("Waiting for" +
+                        getOpponent().getName() + "\nto agree a draw");
             }
         }
 
@@ -405,7 +408,8 @@ public class ChessKingApp extends GameApplication {
                     chatBox.setFromHistory(moveHistory);
                     initChess();
                     receiveRecord[0] = true;
-                    TurnVisual.spawnExMark(moveHistory.getLastMove().getPosition());
+                    if (moveHistory.getMoveNum() > 0)
+                        TurnVisual.spawnExMark(moveHistory.getLastMove().getPosition());
                     ChessComponent.setCheckedKing();
                     checkReceiveAllInfo();
                 }
@@ -758,13 +762,12 @@ public class ChessKingApp extends GameApplication {
         gameCore.initialGame();
         loadGameInfo(lanGameInfo);
         GameInfo gameInfo = lanGameInfo.getGameInfo();
+        downSideColor = ColorType.WHITE;
         if (whitePlayer.equals(gameInfo.getPlayer1())) {
-            downSideColor = ColorType.WHITE;
             downPlayer = gameInfo.getPlayer1();
             upPlayer = gameInfo.getPlayer2();
         }
         else if (whitePlayer.equals(gameInfo.getPlayer2())) {
-            downSideColor = ColorType.BLACK;
             downPlayer = gameInfo.getPlayer2();
             upPlayer = gameInfo.getPlayer1();
         }
