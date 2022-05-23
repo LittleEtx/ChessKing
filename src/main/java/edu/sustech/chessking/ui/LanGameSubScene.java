@@ -17,6 +17,8 @@ import edu.sustech.chessking.gameLogic.multiplayer.protocol.GameState;
 import edu.sustech.chessking.gameLogic.multiplayer.protocol.NewGameInfo;
 import edu.sustech.chessking.ui.inGame.WaitingMark;
 import javafx.animation.PauseTransition;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -306,7 +308,6 @@ public class LanGameSubScene extends SubScene {
             }
         };
 
-
         if ((player2 == null && !selectedGame.getGameInfo().getPlayer1().equals(localPlayer)) ||
                 (selectedGame.getGameInfo().getState() == GameState.RECONNECTING &&
                         Objects.equals(player2, localPlayer))) {
@@ -321,6 +322,13 @@ public class LanGameSubScene extends SubScene {
     }
 
     private void newGame() {
+        DoubleProperty gameTime = new SimpleDoubleProperty();
+        DoubleProperty turnTime = new SimpleDoubleProperty();
+        SubScene scene =  new SetTimeDuel(gameTime, turnTime);
+        getSceneService().pushSubScene(scene);
+
+        //do sth here
+
         NewGameInfo info = new NewGameInfo(ChessKingApp.getLocalPlayer(),
                 -1, -1 , true);
 

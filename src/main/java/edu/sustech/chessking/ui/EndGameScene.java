@@ -13,8 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
-import static com.almasb.fxgl.dsl.FXGLForKtKt.getGameController;
-import static com.almasb.fxgl.dsl.FXGLForKtKt.getUIFactoryService;
+import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 import static edu.sustech.chessking.GameVars.GameTypeVar;
 
 public class EndGameScene extends SubScene {
@@ -30,15 +29,22 @@ public class EndGameScene extends SubScene {
         Rectangle rect = new Rectangle(1200,800,
                 Color.web("#00000060"));
 
+        HBox box = new HBox(50);
+        box.setAlignment(Pos.CENTER);
+        box.setLayoutX(600-185);
+        box.setLayoutY(600);
+
         Button exitBtn = new Button("Exit");
         exitBtn.getStyleClass().add("endGame-button");
         exitBtn.setOnAction(event -> getGameController().gotoMainMenu());
         exitBtn.setPrefWidth(200);
 
-        HBox box = new HBox(50,exitBtn);
-        box.setAlignment(Pos.CENTER);
-        box.setLayoutX(600-185);
-        box.setLayoutY(600);
+        Button replayBtn = new Button("Replay");
+        replayBtn.getStyleClass().add("endGame-button");
+        replayBtn.setOnAction(event -> ChessKingApp.loadRecentReplay());
+        replayBtn.setPrefWidth(200);
+
+        box.getChildren().addAll(exitBtn, replayBtn);
 
         if (FXGL.geto(GameTypeVar) == GameType.COMPUTER) {
             Button newGame = new Button("New Game");
@@ -51,8 +57,7 @@ public class EndGameScene extends SubScene {
 
         VBox vb = new VBox(100,text,box);
         vb.setAlignment(Pos.CENTER);
-        vb.setLayoutX(400);
-        vb.setLayoutY(300);
+        vb.setPrefSize(getAppWidth(), getAppHeight());
 
         getContentRoot().getChildren().addAll(rect,vb);
     }

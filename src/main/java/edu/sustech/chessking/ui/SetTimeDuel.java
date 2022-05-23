@@ -26,12 +26,7 @@ public class SetTimeDuel extends SubScene {
 
     private final Slider turnTimeSlider = new Slider(10,600,300);
     private final Label turnTimeValueText = new Label();
-    private final DoubleProperty gameTimePro;
-    private final DoubleProperty turnTimePro;
-
     public SetTimeDuel(DoubleProperty gameTimePro, DoubleProperty turnTimePro) {
-        this.gameTimePro = gameTimePro;
-        this.turnTimePro = turnTimePro;
         Rectangle bg = new Rectangle(1200,800, Color.web("#00000080"));
         getContentRoot().getChildren().add(bg);
 
@@ -112,7 +107,6 @@ public class SetTimeDuel extends SubScene {
     protected void onUpdate(double tpf) {
 
         gameTimeValueText.setText(getTime(gameTimeSlider.getValue()));
-
         turnTimeValueText.setText(getTime(turnTimeSlider.getValue()));
 
     }

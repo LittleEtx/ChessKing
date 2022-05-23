@@ -72,6 +72,7 @@ public class ChessKingApp extends GameApplication {
     public static ColorType downSideColor;
     private static LanGameInfo lanGameInfo;
     private static boolean isNewClientGame = true;
+    private static Replay recentReplay = null;
     private ChessComponent movingChessComponent;
     private LocalTimer betweenClickTimer;
     private static String serverIP = "localhost";
@@ -270,11 +271,12 @@ public class ChessKingApp extends GameApplication {
         @Override
         protected void onRequestReverse() {
             if (gameType == GameType.CLIENT) {
-                getDialogService().showConfirmationBox(
-                        "Your opponent asked for reversing, do you agree?",
+                WaitingPanel.startChoosing(
+                        "Your opponent asked for\nreversing, do you agree?",
                         agree -> {
                             clientGameCore.replyReverse(agree);
-                            reverseMove(2);
+                            if (agree)
+                                reverseMove(2);
                         }
                 );
             }
@@ -306,11 +308,12 @@ public class ChessKingApp extends GameApplication {
         @Override
         protected void onRequestDrawn() {
             if (gameType == GameType.CLIENT) {
-                getDialogService().showConfirmationBox(
-                        "Your opponent purpose a draw, do you agree?",
+                WaitingPanel.startChoosing(
+                        "Your opponent purpose \na draw, do you agree?",
                         accept -> {
                             clientGameCore.replyDrawn(accept);
-                            endGame(ClientEndGameType.DRAWN);
+                            if (accept)
+                                endGame(ClientEndGameType.DRAWN);
                         }
                 );
             }
@@ -636,6 +639,12 @@ public class ChessKingApp extends GameApplication {
         replayTimeList = replay.getRemainingTime();
         getGameController().startNewGame();
         return true;
+    }
+
+    public static void loadRecentReplay() {
+        if (recentReplay == null || !loadReplay(recentReplay)) {
+            getDialogService().showMessageBox("Cannot read save!");
+        }
     }
 
     private static boolean readSave(Save save) {
@@ -973,8 +982,8 @@ public class ChessKingApp extends GameApplication {
                 endGameType = EndGameType.NOT_FINISH;
             }
         }
-
-        saveGame(new Replay(getSave(), endGameType));
+        recentReplay = new Replay(getSave(), endGameType);
+        saveGame(recentReplay);
         getSceneService().pushSubScene(new EndGameScene(str));
     }
 
@@ -1277,17 +1286,8 @@ public class ChessKingApp extends GameApplication {
                 return;
             }
 
-            getDialogService().showConfirmationBox(
-                    "Arr you sure to ask for reverse?\n" +
-                            "Your opponent may refuse and you can't ask again",
-                    sure -> {
-                        if (sure) {
-                            WaitingPanel.startWaiting();
-                            clientGameCore.requestReverse();
-                        }
-
-                    }
-            );
+            WaitingPanel.startWaiting();
+            clientGameCore.requestReverse();
         }
     }
     public static void onSuggestDraw() {
