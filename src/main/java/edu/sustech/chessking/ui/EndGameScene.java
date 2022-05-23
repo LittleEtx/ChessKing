@@ -33,6 +33,7 @@ public class EndGameScene extends SubScene {
         Button exitBtn = new Button("Exit");
         exitBtn.getStyleClass().add("endGame-button");
         exitBtn.setOnAction(event -> getGameController().gotoMainMenu());
+        exitBtn.setPrefWidth(200);
 
         HBox box = new HBox(50,exitBtn);
         box.setAlignment(Pos.CENTER);
@@ -41,6 +42,7 @@ public class EndGameScene extends SubScene {
 
         if (FXGL.geto(GameTypeVar) == GameType.COMPUTER) {
             Button newGame = new Button("New Game");
+            newGame.setPrefWidth(200);
             newGame.getStyleClass().add("endGame-button");
             newGame.setOnAction(event -> ChessKingApp.restartGame());
             box.getChildren().add(newGame);

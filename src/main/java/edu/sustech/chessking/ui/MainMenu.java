@@ -193,15 +193,6 @@ public class MainMenu extends FXGLMenu {
         Button localFight = new Button("New Duel");
         localFight.getStyleClass().add("menu-button");
 
-        Button setTimeBtn = new Button();
-        setTimeBtn.getStyleClass().add("setTime-button");
-        setTimeBtn.setLayoutY(500+10);
-        setTimeBtn.setLayoutX(600-170-40);
-        getContentRoot().getChildren().add(setTimeBtn);
-        setTimeBtn.setOnAction(event -> {
-            getSceneService().pushSubScene(new SetTimeDuel());
-        });
-
         //start a new game with AI when clicked
         Button localAIbtn = new Button("Fight AI");
         localAIbtn.getStyleClass().add("menu-button");
@@ -260,7 +251,7 @@ public class MainMenu extends FXGLMenu {
 
         backBtn.setOnAction(event -> {
            getContentRoot().getChildren().removeAll(localGameBoxc1,
-                   localGameBoxc2,localGameTitle,viewGameBtn,backBtn, setTimeBtn);
+                   localGameBoxc2,localGameTitle,viewGameBtn,backBtn);
            setMainMenuBtn();
         });
     }

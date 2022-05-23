@@ -118,6 +118,14 @@ public class ChoosePlayer2 extends SubScene {
         backBtn.setLayoutX(810);
         backBtn.setLayoutY(100);
 
+        Button setTimeBtn = new Button();
+        setTimeBtn.getStyleClass().add("setTime-button");
+        setTimeBtn.setLayoutY(100);
+        setTimeBtn.setLayoutX(350);
+        setTimeBtn.setOnAction(event -> {
+            getSceneService().pushSubScene(new SetTimeDuel());
+        });
+
         VBox vb = new VBox(20,choosePlayerText,playerSP,buttons);
         vb.setAlignment(Pos.CENTER);
         vb.setStyle("-fx-background-radius: 10;" +
@@ -128,7 +136,7 @@ public class ChoosePlayer2 extends SubScene {
         vb.setLayoutY(100);
 
         getContentRoot().getChildren().add(vb);
-        getContentRoot().getChildren().add(backBtn);
+        getContentRoot().getChildren().addAll(backBtn,setTimeBtn);
     }
 
     private void setTransparent(HashMap<Button,Player> buttons){
