@@ -16,6 +16,11 @@
     -fx-text-fill:#E0E0E0;
 }
 
+.menu_button:pressed, .menu_button:default:hover:pressed {
+    -fx-background-color: #404040;
+    -fx-text-fill: #E0E0E0;
+}
+
 .setting-box {
     -fx-background-image: url("gear.png");
     -fx-background-size: 60 60;
@@ -505,4 +510,61 @@
     -fx-background-size: 45 45;
     -fx-pref-height: 45;
     -fx-pref-width: 45;
+}
+
+
+/**
+rewrite the fxgl's buttons
+ */
+.fxgl_button {
+    -fx-padding: 5 22 5 22;
+    -fx-background-color:#40404080;
+    -fx-background-radius:20;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 20;
+    -fx-border-color:black;
+    -fx-border-style:solid;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+}
+
+.fxgl_button:hover {
+    -fx-background-color:#404040;
+    -fx-text-fill:#E0E0E0;
+}
+
+.fxgl_button:pressed, .fxgl_button:default:hover:pressed {
+    -fx-background-color: #404040;
+    -fx-text-fill: #E0E0E0;
+}
+
+.fxgl_button:focused {
+    -fx-text-fill: white;
+}
+
+.fxgl_button:disabled, .fxgl_button:default:disabled {
+    -fx-opacity: 0.4;
+    -fx-text-fill: #a9a9a9;
+}
+
+
+/**
+ * Dialogs
+ */
+.dialog-border {
+    -fx-border-color: black;
+    -fx-border-width: 5;
+    -fx-border-style: solid;
+    -fx-background-color: linear-gradient(from 0.0% 0.0% to 100.0% 0.0%, #193237ff 0.0%, #2e4e58ff 50.0%, #39687cff 100.0%);
+}
+
+/**
+rewrite the fxgl window-titlebar
+ */
+.window-titlebar {
+    -fx-background-color: white;
+}
+
+.window-titlebar Text{
+    -fx-fill: #004f7e;
 }
