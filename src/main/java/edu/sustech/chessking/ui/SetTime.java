@@ -19,9 +19,9 @@ import javafx.scene.text.Text;
 import static com.almasb.fxgl.dsl.FXGL.getSceneService;
 import static com.almasb.fxgl.dsl.FXGL.getUIFactoryService;
 
-public class SetTimeDuel extends SubScene {
+public class SetTime extends SubScene {
 
-    private final Slider gameTimeSlider = new Slider(0,7200,3600);
+    private final Slider gameTimeSlider = new Slider(0,5400,2700);
     private final Label gameTimeValueText = new Label();
 
     private final Slider turnTimeSlider = new Slider(10,600,300);
@@ -112,7 +112,8 @@ public class SetTimeDuel extends SubScene {
     }
 
     private String getTime(double second){
-        int gameTimeSecond = (int) second;
+        int gameTimeSecond = (int) Math.floor(second);
+        gameTimeSecond = gameTimeSecond-gameTimeSecond%30;
         int gameTimeMinute = gameTimeSecond / 60;
         gameTimeSecond = gameTimeSecond - gameTimeMinute * 60;
         return String.format("%d:%02d",gameTimeMinute,gameTimeSecond);
