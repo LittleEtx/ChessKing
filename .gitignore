@@ -29,3 +29,4 @@ replay_pid*
 # game create file
 *.data
 *.save
+*.config

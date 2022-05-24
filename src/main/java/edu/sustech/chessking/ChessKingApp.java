@@ -152,8 +152,10 @@ public class ChessKingApp extends GameApplication {
     //initialize before game starts and get some resources
     @Override
     protected void onPreInit() {
-        getSettings().setGlobalSoundVolume(1);
-        getSettings().setGlobalMusicVolume(0.4);
+
+
+        System.out.println(getSettings().getGlobalMusicVolume());
+        System.out.println(getSettings().getGlobalSoundVolume());
     }
 
     // ===============================
@@ -170,7 +172,6 @@ public class ChessKingApp extends GameApplication {
         gameSettings.getCSSList().add("cssUI.css");
 
         gameSettings.setDefaultCursor(getCursor(cursorDefault));
-
         gameSettings.setSceneFactory(new SceneFactory(){
             @Override
             public FXGLMenu newMainMenu() {
@@ -1119,20 +1120,20 @@ public class ChessKingApp extends GameApplication {
 //            }
 //        }, KeyCode.L);
 //
-//        getInput().addAction(new UserAction("add Message") {
-//            @Override
-//            protected void onActionBegin() {
-//                double random = Math.random();
-//                chatBox.addMessage(String.valueOf(random));
-//            }
-//        }, KeyCode.A);
-//
-//        getInput().addAction(new UserAction("delete Message") {
-//            @Override
-//            protected void onActionBegin() {
-//                chatBox.deleteMessage();
-//            }
-//        }, KeyCode.D);
+        getInput().addAction(new UserAction("add Message") {
+            @Override
+            protected void onActionBegin() {
+                double random = Math.random();
+                chatBox.addMessage(String.valueOf(random));
+            }
+        }, KeyCode.A);
+
+        getInput().addAction(new UserAction("delete Message") {
+            @Override
+            protected void onActionBegin() {
+                chatBox.shiftHighlight(-1);
+            }
+        }, KeyCode.D);
 
         //left click action
         getInput().addAction(new UserAction("LeftClick") {
@@ -1246,6 +1247,7 @@ public class ChessKingApp extends GameApplication {
             throw new RuntimeException("Can not find chess!");
 
         chess.getComponent(ChessComponent.class).executeMove(move);
+        chatBox.shiftHighlight(1);
         set(TurnVar, turn.reverse());
     }
 
@@ -1383,6 +1385,8 @@ public class ChessKingApp extends GameApplication {
             chess.getComponent(ChessComponent.class).reverseMove(move);
             if (gameType != GameType.REPLAY)
                 chatBox.deleteMessage();
+            else
+                chatBox.shiftHighlight(-1);
 
             set(TurnVar, ((ColorType)geto(TurnVar)).reverse());
 

@@ -177,9 +177,6 @@ public class LanGameSubScene extends SubScene {
             gameInfo.setLayoutX(20);
             gameInfo.setLayoutY(20);
 
-//            System.out.println(game.getGameTime());
-//            System.out.println(game.getTurnTime());
-
             Text gameTime = getUIFactoryService().newText("Game Time: " +
                             GameTimer.getTimeStr(game.getGameTime() > 0 ? game.getGameTime(): null),
                     Color.WHITE, 15);
@@ -359,9 +356,7 @@ public class LanGameSubScene extends SubScene {
                     @Override
                     protected void onOpponentDropOut() {
                         serverGameInfo.setPlayer2(null);
-                        pushWaitingPane("Waiting for others to join in", event -> {
-                            this.stop();
-                        });
+                        pushWaitingPane("Waiting for others to join in", event -> this.stop());
                     }
 
                     @Override
@@ -389,15 +384,14 @@ public class LanGameSubScene extends SubScene {
                 return;
             }
 
-            pushWaitingPane("Waiting for others to join in", event -> {
-                lanServerCore.stop();
-            });
+            pushWaitingPane("Waiting for others to join in", event -> lanServerCore.stop());
         });
 
         getSceneService().pushSubScene(scene);
     }
 
     private void pushWaitingPane(String msg, EventHandler<ActionEvent> quitHandler) {
+        getContentRoot().getChildren().remove(waitingPane);
         waitingBox.getChildren().clear();
         Texture waitTexture = waitingMark.get();
 
@@ -407,8 +401,8 @@ public class LanGameSubScene extends SubScene {
         Button quitButton = new Button("Quit");
         quitButton.getStyleClass().add("menu-button");
         quitButton.setOnAction(event -> {
-            getContentRoot().getChildren().remove(waitingPane);
             quitHandler.handle(event);
+            getContentRoot().getChildren().remove(waitingPane);
         });
 
         waitingBox.getChildren().addAll(waitTexture, text, quitButton);
@@ -431,7 +425,7 @@ public class LanGameSubScene extends SubScene {
                 "Are you sure to quit the game?", yes -> {
                     lanServer.stop();
                     getContentRoot().getChildren().remove(waitingPane);
-        }));
+                }));
 
         Button startButton = new Button("Start");
         startButton.getStyleClass().add("menu-button");
@@ -482,7 +476,7 @@ public class LanGameSubScene extends SubScene {
         if (isWaiting && selectedGame.getClient().getConnections().size() < 1) {
             getContentRoot().getChildren().remove(waitingPane);
             isWaiting = false;
-            getDialogService().showMessageBox("Game owner leave game!");
+            getDialogService().showMessageBox("Game owner leaves game!");
         }
         lanServerSearcher.updateGameInfoList();
     }

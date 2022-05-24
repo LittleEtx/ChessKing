@@ -7,6 +7,8 @@ import com.almasb.fxgl.scene.Scene;
 import com.almasb.fxgl.texture.Texture;
 import edu.sustech.chessking.ChessKingApp;
 import edu.sustech.chessking.GameType;
+import edu.sustech.chessking.gameLogic.gameSave.SaveLoader;
+import edu.sustech.chessking.gameLogic.gameSave.SettingsManager;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
@@ -48,9 +50,14 @@ public class GameMenu extends FXGLMenu {
 
         getContentRoot().getChildren().addAll(rect, vb);
 
-
         Texture texture = FXGL.texture("Loading.png", 100, 120);
         vb.getChildren().add(texture);
+
+        SettingsManager settings = SaveLoader.readSettings();
+        getSettings().setGlobalMusicVolume(Double.
+                parseDouble(settings.get(SettingsManager.MusicVolume)));
+        getSettings().setGlobalSoundVolume(Double.
+                parseDouble(settings.get(SettingsManager.SoundVolume)));
 
         Text musicText = getUIFactoryService().newText("Music Volume", Color.WHITE, 20);
         musicSlider = new Slider(0, 1, getSettings().getGlobalMusicVolume());
@@ -130,5 +137,13 @@ public class GameMenu extends FXGLMenu {
         getSettings().setGlobalMusicVolume(musicSlider.getValue());
         soundValueText.setText(String.format("%.0f", soundSlider.getValue() * 100));
         getSettings().setGlobalSoundVolume(soundSlider.getValue());
+    }
+
+    @Override
+    public void onExitingTo(Scene nextState) {
+        SettingsManager settings = new SettingsManager();
+        settings.put(SettingsManager.MusicVolume, String.valueOf(musicSlider.getValue()));
+        settings.put(SettingsManager.SoundVolume, String.valueOf(soundSlider.getValue()));
+        SaveLoader.writeSettings(settings);
     }
 }

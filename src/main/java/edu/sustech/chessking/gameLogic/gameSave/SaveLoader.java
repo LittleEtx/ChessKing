@@ -21,13 +21,14 @@ import static edu.sustech.chessking.gameLogic.enumType.EndGameType.NOT_FINISH;
 import static edu.sustech.chessking.gameLogic.enumType.EndGameType.toEnum;
 
 public class SaveLoader {
-    private static final File localSavePath = new File("saves/localSaves");
-    private static final File serverSavePath = new File("saves/serverSaves");
+    private static final File LocalSavePath = new File("saves/localSaves");
+    private static final File ServerSavePath = new File("saves/serverSaves");
 
-    private static final File playerPath = new File("saves/player");
+    private static final File PlayerPath = new File("saves/player");
+    private static final File SettingFile = new File("chessKing.config");
 
     private static File getPlayerFile(String playerName) {
-        return new File(playerPath + "/" +
+        return new File(PlayerPath + "/" +
                 playerName + ".data");
     }
     private static File getExistPlayerFile(String playerName) {
@@ -44,11 +45,11 @@ public class SaveLoader {
      * @return all available saves of a player, in order of time
      */
     public static List<Save> readLocalSaveList(Player player) {
-        return getSaves(localSavePath, player, Save.class);
+        return getSaves(LocalSavePath, player, Save.class);
     }
 
     public static List<Replay> readLocalReplayList(Player player) {
-        return getSaves(localSavePath, player, Replay.class);
+        return getSaves(LocalSavePath, player, Replay.class);
     }
 
     /**
@@ -56,11 +57,11 @@ public class SaveLoader {
      * @return all available saves of a player, in order of time
      */
     public static List<Save> readServerSaveList(String serverIdentifier, Player player) {
-        return getSaves(new File(serverSavePath + "/" + serverIdentifier), player, Save.class);
+        return getSaves(new File(ServerSavePath + "/" + serverIdentifier), player, Save.class);
     }
 
     public static List<Replay> readServerReplayList(String serverIdentifier, Player player) {
-        return getSaves(new File(serverSavePath + "/" + serverIdentifier), player, Replay.class);
+        return getSaves(new File(ServerSavePath + "/" + serverIdentifier), player, Replay.class);
     }
 
 
@@ -181,7 +182,7 @@ public class SaveLoader {
      * @return if save success
      */
     public static boolean writeLocalSave(Player player, Save save) {
-        return writeSave(new File(localSavePath + "/" +
+        return writeSave(new File(LocalSavePath + "/" +
                 player.getName()), save);
     }
 
@@ -191,7 +192,7 @@ public class SaveLoader {
      * @return if save success
      */
     public static boolean writeServerSave(String serverIdentifier, Player player, Save save) {
-        return writeSave(new File(serverSavePath + "/" +
+        return writeSave(new File(ServerSavePath + "/" +
                 serverIdentifier + "/" + player.getName()), save);
     }
 
@@ -247,10 +248,10 @@ public class SaveLoader {
      */
     public static ArrayList<Player> readPlayerList() {
         ArrayList<Player> playerList = new ArrayList<>();
-        if (!playerPath.exists())
+        if (!PlayerPath.exists())
             return playerList;
 
-        File[] allPlayers = playerPath.listFiles();
+        File[] allPlayers = PlayerPath.listFiles();
         if (allPlayers == null)
             return playerList;
 
@@ -278,12 +279,12 @@ public class SaveLoader {
      * @return if save success
      */
     public static boolean writePlayer(Player player) {
-        if (!playerPath.exists()) {
-            if (!playerPath.mkdirs())
+        if (!PlayerPath.exists()) {
+            if (!PlayerPath.mkdirs())
                 return false;
         }
 
-        File playerFile = new File(playerPath + "/" + player.getName() + ".data");
+        File playerFile = new File(PlayerPath + "/" + player.getName() + ".data");
         try (FileWriter writer = new FileWriter(playerFile)) {
             writer.write(player.toString());
         } catch (Exception e) {
@@ -309,11 +310,11 @@ public class SaveLoader {
             return false;
         }
         //if change name not succeed
-        if (!playerFile.renameTo(new File(playerPath + "/" +
+        if (!playerFile.renameTo(new File(PlayerPath + "/" +
                 newName + ".data")))
             return false;
 
-        mergeSaves(localSavePath, oldName, newName);
+        mergeSaves(LocalSavePath, oldName, newName);
         return true;
     }
 
@@ -322,7 +323,7 @@ public class SaveLoader {
      * @return if change succeed
      */
     public static boolean changeServerPlayerName(String serverIdentifier, String oldName, String newName) {
-        return mergeSaves(new File(serverSavePath + "/" +
+        return mergeSaves(new File(ServerSavePath + "/" +
                 serverIdentifier), oldName ,newName);
     }
 
@@ -396,7 +397,7 @@ public class SaveLoader {
             return false;
 
         File playerSaveFile = new File(
-                 localSavePath + "/" + player.getName());
+                 LocalSavePath + "/" + player.getName());
 
         if (playerSaveFile.exists() && playerSaveFile.isDirectory())
             playerSaveFile.delete();
@@ -405,11 +406,11 @@ public class SaveLoader {
     }
 
     public static boolean deleteLocalSave(Player player, Save save) {
-        return deleteSave(localSavePath, player, save);
+        return deleteSave(LocalSavePath, player, save);
     }
 
     public static boolean deleteServerSave(String serverIdentifier, Player player, Save save) {
-        return deleteSave(new File(serverSavePath + "/" +
+        return deleteSave(new File(ServerSavePath + "/" +
                 serverIdentifier), player, save);
     }
 
@@ -421,6 +422,30 @@ public class SaveLoader {
             return false;
 
         return saveFile.delete();
+    }
+
+    public static SettingsManager readSettings() {
+        SettingsManager settings = new SettingsManager();
+        if (!SettingFile.exists() || !SettingFile.isFile())
+            return settings;
+
+        try {
+            String[] data = Files.readString(SettingFile.toPath()).split("\n");
+            for (String msg : data) {
+                settings.read(msg);
+            }
+        } catch (Exception ignore) {
+        }
+        return settings;
+    }
+
+    public static boolean writeSettings(SettingsManager settings) {
+        try (FileWriter writer = new FileWriter(SettingFile)) {
+            writer.write(settings.toString());
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 
 }

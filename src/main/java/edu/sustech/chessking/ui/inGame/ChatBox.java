@@ -2,15 +2,16 @@ package edu.sustech.chessking.ui.inGame;
 
 import edu.sustech.chessking.gameLogic.Move;
 import edu.sustech.chessking.gameLogic.MoveHistory;
+import javafx.animation.PauseTransition;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ public class ChatBox {
     private final VBox messagesVB;
     private final ScrollPane messages;
     private Move.StringType stringType = Move.StringType.CONCISE;
-    private final List<Text> msgList = new ArrayList<>();
+    private final List<Label> msgList = new ArrayList<>();
     private int hlIndex = -1;
 
     public ChatBox() {
@@ -33,10 +34,10 @@ public class ChatBox {
         messagesVB.setStyle("-fx-background-color: #FF634720;");
         VBox.setVgrow(messagesVB, Priority.ALWAYS);
 
-        Group group = new Group();
-        group.getChildren().add(messagesVB);
+//        Group group = new Group();
+//        group.getChildren().add(messagesVB);
 
-        messages = new ScrollPane(group);
+        messages = new ScrollPane(messagesVB);
         messages.setPrefViewportWidth(375);
         messages.setPrefViewportHeight(370);
         messages.setMaxHeight(370);
@@ -59,35 +60,59 @@ public class ChatBox {
             msg.setFill(Color.BLACK);
             msg.setStroke(Color.BLACK);
         }
-        messagesVB.getChildren().add(msg);
-        msgList.add(msg);
+
+
+        Label msgLabel = new Label("", msg);
+        msgLabel.setPrefHeight(30);
+        msgList.add(msgLabel);
+
+        messagesVB.getChildren().add(msgLabel);
         shiftHighlight(1);
 
-        messages.setVvalue(messages.getVmax());
+//        PauseTransition pt = new PauseTransition(Duration.seconds(0.1));
+//        pt.setOnFinished(event -> messages.setVvalue(messages.getVmax()));
+//        pt.play();
     }
 
     public void addMessage(Move move) {
         addMessage(move.toString(stringType));
     }
 
-    public void shiftHighlight(int forward) {
-        int newIndex  = hlIndex + forward;
-        if (hlIndex < msgList.size() && hlIndex >= 0)
-            msgList.get(hlIndex).setStyle("-fx-border-width: 0;");
-
-        hlIndex = newIndex;
-
-        if (hlIndex < msgList.size() && hlIndex >= 0) {
-            Text text = msgList.get(newIndex);
-            text.setStyle("-fx-border-color: #20f1e5;" +
-                    "-fx-border-width: 5;");
-        }
-    }
-
     public void setFromHistory(MoveHistory moveHistory) {
         deleteMessage();
         for (Move move : moveHistory) {
             addMessage(move);
+        }
+    }
+
+    public void shiftHighlight(int forward) {
+        int newIndex  = hlIndex + forward;
+        if (msgList.size() > 0 && newIndex < 0)
+            return;
+
+        if (hlIndex < msgList.size() && hlIndex >= 0)
+            msgList.get(hlIndex).setStyle("-fx-border-width: 0;");
+
+        hlIndex = newIndex;
+        if (hlIndex < msgList.size() && hlIndex >= 0) {
+            Label text = msgList.get(newIndex);
+            text.setStyle("-fx-border-color: #20f1e5;" +
+                    "-fx-border-width: 5;");
+
+            PauseTransition pt = new PauseTransition(Duration.seconds(0.1));
+            pt.setOnFinished(event -> {
+                double viewMinY = 370 - messages.getViewportBounds().getMaxY();
+                double viewMaxY = viewMinY + 370  - text.getHeight();
+                double textY = text.getLayoutY();
+
+                if (viewMinY > textY) {
+                    messages.setVvalue(textY/ (messagesVB.getHeight() - 370));
+                }
+                else if (textY > viewMaxY) {
+                    messages.setVvalue((textY - 370 + text.getHeight()) / (messagesVB.getHeight() - 370));
+                }
+            });
+            pt.play();
         }
     }
 
@@ -99,13 +124,13 @@ public class ChatBox {
         if (msgList.isEmpty())
             return;
 
-        shiftHighlight(-1);
         msgList.remove(msgList.size() - 1);
         messagesVB.getChildren().remove(msgList.size());
-        messages.setVvalue(messages.getVmax());
+        shiftHighlight(-1);
     }
 
     public void deleteAllMessages(){
-        messagesVB.getChildren().removeAll();
+        messagesVB.getChildren().clear();
+        msgList.clear();
     }
 }
