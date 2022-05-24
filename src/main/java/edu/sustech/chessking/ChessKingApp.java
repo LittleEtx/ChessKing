@@ -43,7 +43,6 @@ import edu.sustech.chessking.ui.inGame.EatRecorder;
 import edu.sustech.chessking.ui.inGame.TurnVisual;
 import edu.sustech.chessking.ui.inGame.WaitingPanel;
 import javafx.animation.PauseTransition;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -1096,34 +1095,34 @@ public class ChessKingApp extends GameApplication {
     //initialize the inputs
     @Override
     protected void initInput() {
-        getInput().addAction(new UserAction("Win") {
-            @Override
-            protected void onActionBegin() {
-                endGame(ClientEndGameType.WIN);
-            }
-        }, KeyCode.W);
-//
-//        getInput().addAction(new UserAction("Lose") {
+//        getInput().addAction(new UserAction("Win") {
 //            @Override
 //            protected void onActionBegin() {
-//                endGame(ClientEndGameType.LOST);
+//                endGame(ClientEndGameType.WIN);
 //            }
-//        }, KeyCode.L);
+//        }, KeyCode.W);
+////
+////        getInput().addAction(new UserAction("Lose") {
+////            @Override
+////            protected void onActionBegin() {
+////                endGame(ClientEndGameType.LOST);
+////            }
+////        }, KeyCode.L);
+////
+//        getInput().addAction(new UserAction("add Message") {
+//            @Override
+//            protected void onActionBegin() {
+//                double random = Math.random();
+//                chatBox.addMessage(String.valueOf(random));
+//            }
+//        }, KeyCode.A);
 //
-        getInput().addAction(new UserAction("add Message") {
-            @Override
-            protected void onActionBegin() {
-                double random = Math.random();
-                chatBox.addMessage(String.valueOf(random));
-            }
-        }, KeyCode.A);
-
-        getInput().addAction(new UserAction("delete Message") {
-            @Override
-            protected void onActionBegin() {
-                chatBox.shiftHighlight(-1);
-            }
-        }, KeyCode.D);
+//        getInput().addAction(new UserAction("delete Message") {
+//            @Override
+//            protected void onActionBegin() {
+//                chatBox.shiftHighlight(-1);
+//            }
+//        }, KeyCode.D);
 
         //left click action
         getInput().addAction(new UserAction("LeftClick") {

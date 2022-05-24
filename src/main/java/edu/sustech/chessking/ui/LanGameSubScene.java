@@ -33,10 +33,7 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
@@ -49,7 +46,7 @@ public class LanGameSubScene extends SubScene {
     private final VBox waitingBox;
     private LanServerSearcher lanServerSearcher;
     private double timer = 0;
-    private List<LanGameInfo> gameInfoList;
+    private List<LanGameInfo> gameInfoList = new ArrayList<>();
 
     private LanGameInfo selectedGame = null;
     private boolean isStartGame = false;
