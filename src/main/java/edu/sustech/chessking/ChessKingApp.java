@@ -161,6 +161,7 @@ public class ChessKingApp extends GameApplication {
     @Override
     public void initSettings(GameSettings gameSettings) {
         gameSettings.setTitle("Chess King");
+        gameSettings.setAppIcon("Icon.png");
         gameSettings.setVersion("0.1");
         gameSettings.setHeight(800);
         gameSettings.setWidth(1200);
