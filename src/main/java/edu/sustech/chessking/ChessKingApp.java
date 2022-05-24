@@ -149,22 +149,12 @@ public class ChessKingApp extends GameApplication {
     }
 
     // ===============================
-    //initialize before game starts and get some resources
-    @Override
-    protected void onPreInit() {
-
-
-        System.out.println(getSettings().getGlobalMusicVolume());
-        System.out.println(getSettings().getGlobalSoundVolume());
-    }
-
-    // ===============================
     //initialize game settings
     @Override
     public void initSettings(GameSettings gameSettings) {
         gameSettings.setTitle("Chess King");
         gameSettings.setAppIcon("Icon.png");
-        gameSettings.setVersion("0.1");
+        gameSettings.setVersion("1.0.0");
         gameSettings.setHeight(800);
         gameSettings.setWidth(1200);
         gameSettings.setPauseMusicWhenMinimized(true);

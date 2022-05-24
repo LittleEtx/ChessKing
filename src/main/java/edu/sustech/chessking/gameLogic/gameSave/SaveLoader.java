@@ -25,7 +25,7 @@ public class SaveLoader {
     private static final File ServerSavePath = new File("saves/serverSaves");
 
     private static final File PlayerPath = new File("saves/player");
-    private static final File SettingFile = new File("chessKing.config");
+    private static final File SettingFile = new File("chessKing.configure");
 
     private static File getPlayerFile(String playerName) {
         return new File(PlayerPath + "/" +
