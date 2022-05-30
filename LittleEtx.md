@@ -1,4 +1,4 @@
-# LittleEtx's Pre
+# Presentation
 
 ## The Game Engine
 ### FXGL
@@ -30,6 +30,8 @@ to fulfill random requirements of teachers.
 That is why we made a complete UI for the main menu, and put all the buttons there. We think that 
 makes a lot more sense than putting everything together with the chessboard.
 
+<img src="src/main/resources/assets/textures/pre/LocalGameMenu.png" alt="Local Game Menu" width="700">
+
 ### Make Rules of Chess Complete
 The rules for the chess in our project is not so complete. It doesn't include "Draw by agreement", 
 "Fifty-move rule", or "Surrender". So we added draw by agreement to our AI, so that you and him 
@@ -37,6 +39,8 @@ could shake hands peacefully and enjoy a win-win situation. You can also use the
 to force a draw game on your opponent, but we strongly doubt that anyone will do that. When you 
 don't want to play a game, and your mind is on leaving, you don't even need to wait fifteen 
 minutes to "Surrender".
+
+<img src="src/main/resources/assets/textures/pre/EndGameSurrender.png" width="700" alt="Lots of choices to end game">
 
 ### User Friendly
 User Interface
@@ -51,6 +55,8 @@ Game information display in game
 * Where to place your chess
 * All the steps
 * Checkmate notification
+
+<img src="src/main/resources/assets/textures/pre/Animations.png" width="400">
 
 Save and replay function
 * retract false move
@@ -92,10 +98,10 @@ We should have written a big ChooseSomething subscene to be the parent of all th
 have made my work as a UI designer much easier. I could also have spent less time on wrtting a same 
 background for each of my subscene.
 
-<img src="src/main/resources/assets/textures/pre/bad1.png" width="200">
-<img src="src/main/resources/assets/textures/pre/bad2.png" width="200">
-<img src="src/main/resources/assets/textures/pre/bad3.png" width="200">
-<img src="src/main/resources/assets/textures/pre/bad4.png" width="200">
+<img src="src/main/resources/assets/textures/pre/bad1.png" width="200" alt="bad1">
+<img src="src/main/resources/assets/textures/pre/bad2.png" width="200" alt="bad2">
+<img src="src/main/resources/assets/textures/pre/bad3.png" width="200" alt="bad3">
+<img src="src/main/resources/assets/textures/pre/bad4.png" width="200" alt="bad4">
 
 ### b)没有进行充分的测试，实例测试->Bug
 ### c)经常改架构
