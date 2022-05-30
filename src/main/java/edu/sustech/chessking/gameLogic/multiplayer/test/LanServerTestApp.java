@@ -231,6 +231,16 @@ public class LanServerTestApp extends GameApplication {
                     System.out.println("[Server] Opponent quit game!");
                     lanServerCore.stop();
                 }
+
+                @Override
+                protected void onWaitingReconnect(ColorType color) {
+                    System.out.println("[Server] opponent disconnect!");
+                }
+
+                @Override
+                protected void onReconnect() {
+                    System.out.println("[Server] opponent reconnect!");
+                }
             };
             listener.startListening();
 

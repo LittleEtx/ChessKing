@@ -63,8 +63,13 @@ public class ChessComponent extends Component {
     private enum AssistState {
         NONE, ALLY, ENEMY, CASTLE
     }
+
+    private enum TargetState {
+        NONE, ALLY, ENEMY
+    }
+
     private AssistState assistState = AssistState.NONE;
-    private boolean targetState = false;
+    private TargetState targetState = TargetState.NONE;
     public ChessComponent(Chess chess) {
         this.chess = chess;
     }
@@ -73,10 +78,10 @@ public class ChessComponent extends Component {
         if (gameCore.isChecked(gameCore.getTurn())) {
             ArrayList<Chess> kingList = new ArrayList<>();
             kingList.add(gameCore.getChessKing(gameCore.getTurn()));
-            set(TargetKingListVar, kingList);
+            set(KingTargetListVar, kingList);
         }
         else
-            set(TargetKingListVar, new ArrayList<Chess>());
+            set(KingTargetListVar, new ArrayList<Chess>());
 
     }
 
@@ -101,12 +106,14 @@ public class ChessComponent extends Component {
         entity.setPosition(toPoint(chess.getPosition()));
 
         //set allyList
-        getop(AllayListVar).addListener((ob, ov, nv) -> {
-            if (!getb(OpenAllayVisualVar) || !gameCore.isInTurn(chess))
+        getop(AllyListVar).addListener((ob, ov, nv) -> {
+            if (!getb(OpenAllayVisualVar))
                 return;
 
             if (!((ArrayList<?>)nv).contains(chess)) {
-                updateAssistState(AssistState.NONE);
+                if (assistState == AssistState.ALLY ||
+                        assistState == AssistState.CASTLE)
+                    updateAssistState(AssistState.NONE);
             }
             else {
                 if (chess.getPosition().equals(castleRookPos))
@@ -122,7 +129,7 @@ public class ChessComponent extends Component {
 
             if (!nv)
                 updateAssistState(AssistState.NONE);
-            else if (((ArrayList<?>)geto(AllayListVar)).contains(chess)) {
+            else if (((ArrayList<?>)geto(AllyListVar)).contains(chess)) {
                 if (chess.getPosition().equals(castleRookPos))
                     updateAssistState(AssistState.CASTLE);
                 else
@@ -132,11 +139,12 @@ public class ChessComponent extends Component {
 
         //set enemyList
         getop(EnemyListVar).addListener((ob, ov, nv) -> {
-            if (!getb(OpenEnemyVisualVar) || gameCore.isInTurn(chess))
+            if (!getb(OpenEnemyVisualVar))
                 return;
 
             if (!((ArrayList<?>)nv).contains(chess)) {
-                updateAssistState(AssistState.NONE);
+                if (assistState == AssistState.ENEMY)
+                    updateAssistState(AssistState.NONE);
             }
             else {
                 updateAssistState(AssistState.ENEMY);
@@ -153,29 +161,65 @@ public class ChessComponent extends Component {
                 updateAssistState(AssistState.ENEMY);
         });
 
-        //set targetList
+        //set targetAllyList
+        getop(AllyTargetListVar).addListener((ob, ov, nv) -> {
+            if (!getb(OpenTargetVisualVar))
+                return;
+
+            if (!((ArrayList<?>)nv).contains(chess)) {
+                if (targetState == TargetState.ALLY)
+                    updateTargetState(TargetState.NONE);
+            }
+            else
+                updateTargetState(TargetState.ALLY);
+        });
+
+        getbp(OpenTargetVisualVar).addListener((ob, ov, nv) -> {
+            if (gameCore.isInTurn(chess))
+                return;
+
+            if (!nv)
+                updateTargetState(TargetState.NONE);
+            else if (((ArrayList<?>)geto(AllyTargetListVar)).contains(chess))
+                updateTargetState(TargetState.ALLY);
+        });
+
+        //set targetEnemyList
         if (chess.getChessType() != ChessType.KING) {
             //will not set the king visual
-            getop(TargetListVar).addListener((ob, ov, nv) -> {
-                if (getb(OpenTargetVisualListVar))
-                    updateTargetState(((ArrayList<?>) nv).contains(chess));
+            getop(EnemyTargetListVar).addListener((ob, ov, nv) -> {
+                if (!getb(OpenTargetVisualVar))
+                    return;
+
+                if (!((ArrayList<?>)nv).contains(chess)) {
+                    if (targetState == TargetState.ENEMY)
+                        updateTargetState(TargetState.NONE);
+                }
+                else
+                    updateTargetState(TargetState.ENEMY);
             });
 
-            getbp(OpenTargetVisualListVar).addListener((ob, ov, nv) -> {
+            getbp(OpenTargetVisualVar).addListener((ob, ov, nv) -> {
                 if (!nv)
-                    updateTargetState(false);
-                else
-                    updateTargetState(((ArrayList<?>) geto(TargetListVar)).contains(chess));
+                    updateTargetState(TargetState.NONE);
+                else if (((ArrayList<?>)geto(EnemyTargetListVar)).contains(chess))
+                    updateTargetState(TargetState.ENEMY);
             });
-        } else
-            getop(TargetKingListVar).addListener((ob, ov, nv) ->
-                    updateTargetState(((ArrayList<?>) nv).contains(chess)));
+        }
+        //for king
+        else
+            getop(KingTargetListVar).addListener((ob, ov, nv) -> {
+                if (!((ArrayList<?>)nv).contains(chess))
+                    updateTargetState(TargetState.NONE);
+                else
+                    updateTargetState(TargetState.ENEMY);
+            });
     }
 
     public void setOutLine(boolean state) {
         //when end turn, close outline
-        if (!isChessMoveAvailable() ||
-                (!isMove && getb(IsMovingChess)))
+        if (geto(GameTypeVar) != GameType.REPLAY &&
+                (!isChessMoveAvailable() || (!isMove && getb(IsMovingChess))))
             state = false;
         //when moving chess, keep outline
         else if (isMove)
@@ -190,6 +234,8 @@ public class ChessComponent extends Component {
             texture = texture.outline(Color.WHITE, 5);
             vc.clearChildren();
             vc.addChild(texture);
+
+            setStationaryVisualEffect();
         }
         else {
             setPic(entity, chess);
@@ -231,23 +277,25 @@ public class ChessComponent extends Component {
         setToTop(entity);
     }
 
-    private void updateTargetState(boolean isTarget) {
-        if (targetState == isTarget)
+    private void updateTargetState(TargetState state) {
+        if (targetState == state)
             return;
 
-        targetState = isTarget;
-        if (targetState) {
-            if (targetMark == null) {
-                if (gameCore.isInTurn(chess) && chess.getChessType() != ChessType.KING) {
-                    targetMark = spawn("targetAllyMark", toPoint(chess.getPosition()));
-                    setToTop(entity);
-                }
-                else
-                    targetMark = spawn("targetEnemyMark", toPoint(chess.getPosition()));
-            }
-        }
-        else
+        targetState = state;
+        if (targetState == TargetState.NONE) {
             targetMark = deSpawn(targetMark);
+            return;
+        }
+
+        if (targetState == TargetState.ALLY) {
+            targetMark = spawn("targetAllyMark",
+                    toPoint(chess.getPosition()));
+            setToTop(entity);
+        }
+        else {
+            targetMark = spawn("targetEnemyMark",
+                    toPoint(chess.getPosition()));
+        }
     }
 
     private Entity deSpawn(Entity bounceEntity) {
@@ -512,30 +560,24 @@ public class ChessComponent extends Component {
                 removeRedCross();
 
             //set visual
+            //simulate move
             gameCore.moveChess(move);
+
             Chess newChess = chess.getNewChess(move);
-
-            List<Chess> allyList;
-            //if not moving king, set allay list
-            if (chess.getChessType() != ChessType.KING) {
-                allyList = gameCore.
-                        getTargetChess(pos, newChess.getColorType());
-            }
-            else {
-                allyList = new ArrayList<>();
-            }
-
-            List<Chess> targetList = gameCore.getTarget(newChess, ColorType.WHITE);
-            targetList.addAll(gameCore.getTarget(newChess, ColorType.BLACK));
-
-            List<Chess> enemyList = gameCore.getTargetChess(pos, newChess.getColorType());
+            ChessListGetter getter = new ChessListGetter(gameCore, newChess);
+            List<Chess> allyList = getter.getAllayList();
+            List<Chess> targetAllyList = getter.getAllyTargetList();
+            List<Chess> targetEnemyList = getter.getEnemyTargetList();
+            List<Chess> enemyList = getter.getEnemyList();
             List<Chess> targetKingList = gameCore.getTargetKingList();
+
             gameCore.reverseMove();
 
-            set(AllayListVar, allyList);
+            set(AllyListVar, allyList);
             set(EnemyListVar, enemyList);
-            set(TargetListVar, targetList);
-            set(TargetKingListVar, targetKingList);
+            set(AllyTargetListVar, targetAllyList);
+            set(EnemyTargetListVar, targetEnemyList);
+            set(KingTargetListVar, targetKingList);
 
             setToTop(entity);
         }
@@ -545,10 +587,19 @@ public class ChessComponent extends Component {
         }
     }
 
+    public void setStationaryVisualEffect() {
+        ChessListGetter getter = new ChessListGetter(gameCore, chess);
+        set(AllyListVar, getter.getAllayList());
+        set(EnemyListVar, getter.getEnemyList());
+        set(AllyTargetListVar, getter.getAllyTargetList());
+        set(EnemyTargetListVar, getter.getEnemyTargetList());
+    }
+
     private void clearVisualEffect() {
-        set(AllayListVar, new ArrayList<Chess>());
+        set(AllyListVar, new ArrayList<Chess>());
         set(EnemyListVar, new ArrayList<Chess>());
-        set(TargetListVar, new ArrayList<Chess>());
+        set(AllyTargetListVar, new ArrayList<Chess>());
+        set(EnemyTargetListVar, new ArrayList<Chess>());
         removeShadowChess();
         removeShadowRook();
         removeRedCross();
@@ -556,7 +607,7 @@ public class ChessComponent extends Component {
 
     private void setTargetKingList() {
         if (isMovingKing())
-            set(TargetKingListVar, new ArrayList<Chess>());
+            set(KingTargetListVar, new ArrayList<Chess>());
         else
             setCheckedKing();
     }

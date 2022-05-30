@@ -70,6 +70,15 @@ public class VisualLogic {
         return null;
     }
 
+    public static Entity getBoardEntity(Point2D pt) {
+        List<Entity> board = getGameWorld().getEntitiesAt(pt);
+        for (Entity e : board) {
+            if (e.getType() == EntityType.BOARD)
+                return e;
+        }
+        return null;
+    }
+
     public static void setPic(Entity entity, Chess chess) {
         setPic(entity, chess, 80);
     }

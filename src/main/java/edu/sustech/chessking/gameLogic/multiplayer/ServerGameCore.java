@@ -17,6 +17,7 @@ abstract public class ServerGameCore {
     protected Connection<Bundle> player1;
     protected Connection<Bundle> player2;
     private boolean waitingForRejoin = false;
+    private ColorType disconnectColorType;
 
     private final MessageHandler<Bundle> gameInfoListener = (conn, msg) -> {
         Bundle bundle = new Bundle("");
@@ -47,8 +48,6 @@ abstract public class ServerGameCore {
 
     private final MessageHandler<Bundle> playerListener = (conn, msg) -> {
         if (waitingForRejoin) {
-//            if (!conn.equals(player1))
-//                System.out.println("still waiting for rejoining!");
             return;
         }
 
@@ -61,12 +60,20 @@ abstract public class ServerGameCore {
             throw new RuntimeException("Give Listener to a none player connection!");
 
         if (msg.exists(Color)) {
+            broadcastViewer(msg);
             if (!opponent.isConnected()) {
                 waitingForRejoin = true;
+
+                Bundle bundle = new Bundle("");
+                bundle.put(Color, msg.get(Color));
+                bundle.put(OpponentDropOut, "");
+                broadcastViewer(bundle);
+
+                disconnectColorType = msg.get(Color);
                 onDisconnecting(opponent);
             }
-            opponent.send(msg);
-            broadcastViewer(msg);
+            else
+                opponent.send(msg);
         }
     };
 
@@ -119,6 +126,11 @@ abstract public class ServerGameCore {
         //add handler to the new connection
         player.addMessageHandlerFX(playerListener);
         player.addMessageHandlerFX(gameInfoListener);
+
+        Bundle bundle = new Bundle("");
+        bundle.put(Color, disconnectColorType);
+        bundle.put(OpponentReconnect, "");
+        broadcastViewer(bundle);
     }
 
     private void broadcastViewer(Bundle msg) {

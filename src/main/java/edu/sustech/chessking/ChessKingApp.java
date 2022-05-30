@@ -135,15 +135,16 @@ public class ChessKingApp extends GameApplication {
         vars.put(TurnVar, ColorType.WHITE);
 
         //indicate the enemy end his turn
-        vars.put(AllayListVar, new ArrayList<Chess>());
+        vars.put(AllyListVar, new ArrayList<Chess>());
         vars.put(EnemyListVar, new ArrayList<Chess>());
-        vars.put(TargetListVar, new ArrayList<Chess>());
-        vars.put(TargetKingListVar, new ArrayList<Chess>());
+        vars.put(AllyTargetListVar, new ArrayList<Chess>());
+        vars.put(EnemyTargetListVar, new ArrayList<Chess>());
+        vars.put(KingTargetListVar, new ArrayList<Chess>());
         vars.put(AvailablePositionVar, new ArrayList<Position>());
 
         vars.put(OpenAllayVisualVar, true);
         vars.put(OpenEnemyVisualVar, true);
-        vars.put(OpenTargetVisualListVar, true);
+        vars.put(OpenTargetVisualVar, true);
     }
 
     // ===============================
@@ -199,6 +200,9 @@ public class ChessKingApp extends GameApplication {
         private ChessComponent cc;
 
         private boolean isMovingChess = false;
+        private PauseTransition pt;
+        private DialogBox box;
+
         public AppGameEventListener(Connection<Bundle> connection, ColorType side) {
             super(connection, side);
             this.side = side;
@@ -332,6 +336,29 @@ public class ChessKingApp extends GameApplication {
                     endGame(ClientEndGameType.BLACK_WIN);
                 else
                     endGame(ClientEndGameType.WHITE_WIN);
+            }
+        }
+
+        @Override
+        protected void onWaitingReconnect(ColorType color) {
+            if (gameType == GameType.VIEW) {
+                box = getDialogService().showProgressBox(color + " side disconnected! Waiting for rejoin in");
+                pt = new PauseTransition(Duration.minutes(5));
+                pt.setOnFinished(event -> {
+                    box.close();
+                    this.stopListening();
+                    getDialogService().showMessageBox(
+                            "Opponent failed to reconnect!",
+                            () -> getGameController().gotoMainMenu());
+                });
+            }
+        }
+
+        @Override
+        protected void onReconnect() {
+            if (gameType == GameType.VIEW) {
+                pt.stop();
+                box.close();
             }
         }
     }
@@ -1091,35 +1118,6 @@ public class ChessKingApp extends GameApplication {
     //initialize the inputs
     @Override
     protected void initInput() {
-//        getInput().addAction(new UserAction("Win") {
-//            @Override
-//            protected void onActionBegin() {
-//                endGame(ClientEndGameType.WIN);
-//            }
-//        }, KeyCode.W);
-////
-////        getInput().addAction(new UserAction("Lose") {
-////            @Override
-////            protected void onActionBegin() {
-////                endGame(ClientEndGameType.LOST);
-////            }
-////        }, KeyCode.L);
-////
-//        getInput().addAction(new UserAction("add Message") {
-//            @Override
-//            protected void onActionBegin() {
-//                double random = Math.random();
-//                chatBox.addMessage(String.valueOf(random));
-//            }
-//        }, KeyCode.A);
-//
-//        getInput().addAction(new UserAction("delete Message") {
-//            @Override
-//            protected void onActionBegin() {
-//                chatBox.shiftHighlight(-1);
-//            }
-//        }, KeyCode.D);
-
         //left click action
         getInput().addAction(new UserAction("LeftClick") {
             @Override
@@ -1164,6 +1162,13 @@ public class ChessKingApp extends GameApplication {
                             if (gameType == GameType.CLIENT)
                                 clientGameCore.putDownChess(movingChessComponent
                                         .getChess().getPosition());
+
+                            Entity chess = getChessEntity(getMousePt());
+                            if (chess != null) {
+                                chess.getComponent(ChessComponent.class).
+                                        setStationaryVisualEffect();
+                            }
+
                             return;
                         }
 
@@ -1191,6 +1196,12 @@ public class ChessKingApp extends GameApplication {
                 if (gameType == GameType.CLIENT)
                     clientGameCore.putDownChess(movingChessComponent
                             .getChess().getPosition());
+
+                Entity chess = getChessEntity(getMousePt());
+                if (chess != null) {
+                    chess.getComponent(ChessComponent.class).
+                            setStationaryVisualEffect();
+                }
             }
         }, MouseButton.SECONDARY);
     }

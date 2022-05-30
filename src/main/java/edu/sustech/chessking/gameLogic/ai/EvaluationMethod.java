@@ -1,10 +1,7 @@
 package edu.sustech.chessking.gameLogic.ai;
 
 import com.almasb.fxgl.dsl.FXGL;
-import edu.sustech.chessking.gameLogic.Chess;
-import edu.sustech.chessking.gameLogic.GameCore;
-import edu.sustech.chessking.gameLogic.Move;
-import edu.sustech.chessking.gameLogic.Position;
+import edu.sustech.chessking.gameLogic.*;
 import edu.sustech.chessking.gameLogic.ai.data.ChessPositionScore;
 import edu.sustech.chessking.gameLogic.ai.data.TargetScore;
 import edu.sustech.chessking.gameLogic.enumType.CastleType;
@@ -123,12 +120,12 @@ public class EvaluationMethod {
 
         gameCore.moveChess(move);
         Chess newChess = chess.getNewChess(move);
-
+        ChessListGetter getter = new ChessListGetter(gameCore, newChess);
         //now enemy's turn
-        List<Chess> allyList = gameCore.getTargetChess(pos, newChess.getColorType());
-        List<Chess> enemyList = gameCore.getTargetChess(pos, newChess.getColorType().reverse());
-        List<Chess> targetAllyList = gameCore.getTarget(newChess, newChess.getColorType());
-        List<Chess> targetEnemyList = gameCore.getTarget(newChess, newChess.getColorType().reverse());
+        List<Chess> allyList = getter.getAllayList();
+        List<Chess> enemyList = getter.getEnemyList();
+        List<Chess> targetAllyList = getter.getAllyTargetList();
+        List<Chess> targetEnemyList = getter.getEnemyTargetList();
         gameCore.reverseMove();
 
         //arrange from small to big

@@ -8,10 +8,9 @@ import edu.sustech.chessking.gameLogic.Player;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
 
 public class BackGroundComponent extends Component {
-    private String bg;
+    private final String bg;
     public BackGroundComponent(Player player) {
-        String bg = "background/"+player.getBackground()+".png";
-        this.bg = bg;
+        this.bg = "background/"+player.getBackground()+".png";
     }
 
     private void setBg(String bg) {

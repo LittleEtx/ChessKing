@@ -43,6 +43,8 @@ public class InGameProtocol {
     public static final String BlackGameTime = "blackGameTime"; //double
 
     public static final String DataNotSync = "dataNotSync"; //empty
+    public static final String OpponentDropOut = "opponentDropOut"; //empty
+    public static final String OpponentReconnect = "opponentDisconnect"; //empty
 
     public static final String Quit = "quit"; //empty
 

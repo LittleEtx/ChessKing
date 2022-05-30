@@ -8,11 +8,17 @@ import javafx.util.Duration;
 
 public class BounceComponent extends Component {
     private final Node texture;
-    private static final double startScale = 0.5;
+    private final double startScale;
     private static final double durSec = 0.3;
 
     public BounceComponent(Node texture) {
         this.texture = texture;
+        startScale = 0.5;
+    }
+
+    public BounceComponent(Node texture, double startScale) {
+        this.texture = texture;
+        this.startScale = startScale;
     }
 
     @Override

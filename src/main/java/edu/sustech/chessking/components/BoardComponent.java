@@ -6,8 +6,9 @@ import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.component.Component;
 import edu.sustech.chessking.GameType;
 import edu.sustech.chessking.VisualLogic;
+import edu.sustech.chessking.gameLogic.Chess;
+import edu.sustech.chessking.gameLogic.GameCore;
 import edu.sustech.chessking.gameLogic.Position;
-import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
@@ -15,8 +16,7 @@ import java.util.ArrayList;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 import static edu.sustech.chessking.GameVars.*;
-import static edu.sustech.chessking.VisualLogic.getChessEntity;
-import static edu.sustech.chessking.VisualLogic.toPoint;
+import static edu.sustech.chessking.VisualLogic.*;
 
 public class BoardComponent extends Component {
     private final Position position;
@@ -25,6 +25,8 @@ public class BoardComponent extends Component {
     private boolean transState = false;
     private final Color color1;
     private final Color color2;
+
+    private static ChessComponent component = null;
 
     public BoardComponent(Position position,Color color1,Color color2) {
         this.position = position;
@@ -52,7 +54,7 @@ public class BoardComponent extends Component {
 
     @Override
     public void onUpdate(double tpf) {
-        compareMouse();
+        updateVisual();
     }
 
     public void setTransition(boolean state) {
@@ -61,7 +63,14 @@ public class BoardComponent extends Component {
             return;
 
         if (state && !transState) {
-            outline = spawn("boardOutline", new SpawnData(toPoint(position)));
+            Color color;
+            if (((GameCore) geto(GameCoreVar)).getChess(position) == null)
+                color = Color.web("#ABE4FC");
+            else
+                color = Color.web("#EA6262");
+
+            outline = spawn("boardOutline",
+                    new SpawnData(toPoint(position)).put("color", color));
             transState = true;
         }
         if (!state && transState) {
@@ -71,26 +80,40 @@ public class BoardComponent extends Component {
         }
     }
 
-    public void compareMouse(){
-        if (transState)
-            return;
+    public void updateVisual(){
+        Entity chessEntity = getChessEntity(toPoint(position));
+        ChessComponent newComponent = null;
+        if (chessEntity != null)
+            newComponent = chessEntity.getComponent(ChessComponent.class);
 
-        Entity chess = getChessEntity(toPoint(position));
-        Point2D mouse = getInput().getMousePositionWorld();
-        if (Math.abs(mouse.getX() - entity.getX() - 40) < 40 &&
-                Math.abs(mouse.getY() - entity.getY() - 40) < 40) {
+        if (position.equals(getMousePos())) {
             entity.setOpacity(0.2);
-            if (chess != null && FXGL.geto(GameTypeVar) != GameType.REPLAY
-                    && FXGL.geto(GameTypeVar) != GameType.VIEW) {
-                chess.getComponent(ChessComponent.class).setOutLine(true);
+            if (FXGL.geto(GameTypeVar) == GameType.VIEW)
+                return;
+
+            if (newComponent != null &&
+                    (BoardComponent.component == null ||
+                    newComponent.getChess().getColorType()
+                    == component.getChess().getColorType())) {
+                newComponent.setOutLine(true);
             }
+            //when no chess or different color type chess:
+            else if (!getb(IsMovingChess) &&
+                    (geto(GameTypeVar) != GameType.COMPUTER ||
+                            geto(DownSideColorVar) == geto(TurnVar))) {
+
+                set(AllyListVar, new ArrayList<Chess>());
+                set(EnemyListVar, new ArrayList<Chess>());
+                set(AllyTargetListVar, new ArrayList<Chess>());
+                set(EnemyTargetListVar, new ArrayList<Chess>());
+            }
+            component = newComponent;
         }
         else {
             entity.setOpacity(1);
-            if (chess != null && FXGL.geto(GameTypeVar) != GameType.REPLAY
-                    && FXGL.geto(GameTypeVar) != GameType.VIEW) {
-                chess.getComponent(ChessComponent.class).setOutLine(false);
-            }
+            if (newComponent != null &&
+                    FXGL.geto(GameTypeVar) != GameType.VIEW)
+                newComponent.setOutLine(false);
         }
     }
 }

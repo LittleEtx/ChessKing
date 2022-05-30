@@ -11,6 +11,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
 
 import static com.almasb.fxgl.dsl.FXGLForKtKt.texture;
 
@@ -199,9 +200,12 @@ public class ChessKingEntityFactory implements EntityFactory {
     public Entity newBoardOutline(SpawnData data){
         Rectangle rect = new Rectangle(80, 80, Color.TRANSPARENT);
         rect.setStrokeWidth(5);
-        rect.setStroke(Color.web("#8baeb7"));
+        rect.setStrokeType(StrokeType.INSIDE);
+        rect.setStroke(data.get("color"));
         return FXGL.entityBuilder(data)
-                .with(new BounceComponent(rect))
+                .with(new BounceComponent(rect, 1.1))
                 .build();
     }
+
+
 }

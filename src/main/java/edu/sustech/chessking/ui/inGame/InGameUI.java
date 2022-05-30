@@ -86,8 +86,8 @@ public class InGameUI {
         targetBtn.setPrefSize(60,60);
         targetBtn.getStyleClass().add("setting-box-target-on");
         targetBtn.setOnMouseClicked(event -> {
-            set(OpenTargetVisualListVar, !getb(OpenTargetVisualListVar));
-            if(getb(OpenTargetVisualListVar)) {
+            set(OpenTargetVisualVar, !getb(OpenTargetVisualVar));
+            if(getb(OpenTargetVisualVar)) {
                 targetBtn.getStyleClass().removeAll("setting-box-target-off");
                 targetBtn.getStyleClass().add("setting-box-target-on");
             }else{

@@ -9,13 +9,14 @@ public class GameVars {
     public static final String IsMovingChess = "isMovingChess";
     public static final String TurnVar = "turn";
 
-    public static final String AllayListVar = "allyList";
+    public static final String AllyListVar = "allyList";
     public static final String EnemyListVar = "enemyList";
-    public static final String TargetListVar = "targetList";
-    public static final String TargetKingListVar = "targetKingList";
+    public static final String AllyTargetListVar = "allyTargetList";
+    public static final String EnemyTargetListVar = "enemyTargetList";
+    public static final String KingTargetListVar = "kingTargetList";
     public static final String AvailablePositionVar = "availablePosition";
 
     public static final String OpenAllayVisualVar = "openAllyVisual";
     public static final String OpenEnemyVisualVar = "openEnemyVisual";
-    public static final String OpenTargetVisualListVar = "openTargetVisual";
+    public static final String OpenTargetVisualVar = "openTargetVisual";
 }

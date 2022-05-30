@@ -49,6 +49,11 @@ abstract public class GameEventListener {
             onReachTimeLimit();
         if (msg.exists(Quit))
             onQuit();
+
+        if (msg.exists(OpponentDropOut))
+            onWaitingReconnect(((ColorType) msg.get(Color)).reverse());
+        if (msg.exists(OpponentReconnect))
+            onReconnect();
     };
 
     /**
@@ -90,17 +95,20 @@ abstract public class GameEventListener {
     abstract protected void onReplyDrawn(boolean result);
     abstract protected void onQuit();
 
+    abstract protected void onWaitingReconnect(ColorType color);
+    abstract protected void onReconnect();
+
     /**
      * start listening for game event
      */
-    public void startListening() {
+    public final void startListening() {
         connection.addMessageHandlerFX(gameEventListener);
     }
 
     /**
      * stop listening game events of the connection
      */
-    public void stopListening() {
+    public final void stopListening() {
         connection.removeMessageHandlerFX(gameEventListener);
     }
 }

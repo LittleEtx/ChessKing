@@ -81,7 +81,7 @@ public class Chess implements Serializable {
 
     public Chess getNewChess(Move move) {
         Chess chess = this.clone();
-        chess.moveTo(move.getPosition());
+        chess = chess.moveTo(move.getPosition());
         if (move.getMoveType().isPromote())
             chess = chess.promoteTo((ChessType) move.getMoveTarget()[0]);
         return chess;
