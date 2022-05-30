@@ -1,11 +1,11 @@
 # Chess King
 A chess game based on javafx and FXGL
 
-<img src="src/main/resources/assets/textures/Gameshot.png" alt="Chess King screenshot">
+<img src="src/main/resources/assets/textures/pre/Gameshot.png" alt="Chess King screenshot">
 
 ## Authors
-* LittleEtx (Li Tian) Mastermind for logics and coding. Big boss.
-* MrBHAAA (Zhang Luming) Servant for Boss Li, ugly UI design.
+*  **LittleEtx** (Li Tian) Mastermind for logics and coding. Big boss.
+*  **MrBHAAA** (Zhang Luming) Servant for Boss Li, ugly UI design.
 
 ## Operation
 Click your mouse to move the chess, and gain victory over your friends
@@ -40,7 +40,7 @@ ones who played this game have a liver-ache.
 The music in the main game is from [Ace Attorney](https://www.ace-attorney.com) by Capcom. Making anyone
 who play this game extra excited and scream out "OBJECTION!".
 
-<img src="src/main/resources/assets/textures/objection.png" width="400" alt="Objection!">
+<img src="src/main/resources/assets/textures/pre/objection.png" width="400" alt="Objection!">
 
 
 ### A Nintendo and Capcom Fan
