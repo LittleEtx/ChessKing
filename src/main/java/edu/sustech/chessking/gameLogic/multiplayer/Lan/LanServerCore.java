@@ -58,13 +58,7 @@ abstract public class LanServerCore {
         String localhost;
         try {
             localhost = InetAddress.getLocalHost().getHostAddress();
-            lanServerBroadcaster = new LanServerBroadcaster(
-                    localhost + ":" + port) {
-                @Override
-                protected void onFailToOpen(String msg) {
-                    throw new FailToAccessLanException("Fail to broadcast msg");
-                }
-            };
+            lanServerBroadcaster = new LanServerBroadcaster(localhost + ":" + port);
             lanServerBroadcaster.setDaemon(true);
         } catch (IOException e) {
             throw new FailToAccessLanException("Fail to get local host");
@@ -95,8 +89,6 @@ abstract public class LanServerCore {
                 connection.addMessageHandlerFX((conn, msg) -> {
             //when client search for the game
             if (msg.exists(HasGame)) {
-//                System.out.println(game.getTurnTime());
-//                System.out.println(game.getGameTime());
                 send(conn, SendGameInfo, game);
                 return;
             }

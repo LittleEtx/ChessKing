@@ -8,11 +8,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 
-abstract public class LanServerBroadcaster extends Thread {
+public class LanServerBroadcaster extends Thread {
     private final DatagramPacket datagramSocket;
     private final DatagramSocket socket;
-
-    abstract protected void onFailToOpen(String msg);
 
     public LanServerBroadcaster(String targetAddress) throws IOException {
         byte[] bs = targetAddress.getBytes(StandardCharsets.UTF_8);
@@ -27,7 +25,6 @@ abstract public class LanServerBroadcaster extends Thread {
         while (!this.isInterrupted()) {
             try {
                 socket.send(datagramSocket);
-                //System.out.println(LocalDateTime.now() + " send");
             } catch (IOException ignored) {
             }
         }

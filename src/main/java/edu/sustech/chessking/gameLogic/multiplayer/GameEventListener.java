@@ -25,10 +25,8 @@ abstract public class GameEventListener {
         if (msg.exists(Mouse))
             mousePt = toPoint2D(msg.get(Mouse));
 
-        if (msg.exists(PickUpChess)) {
-            System.out.println("[Client] Receive pick up chess");
+        if (msg.exists(PickUpChess))
             onPickUpChess(msg.get(PickUpChess));
-        }
         if (msg.exists(PutDownChess))
             onPutDownChess(msg.get(PutDownChess));
         if (msg.exists(MoveChess))

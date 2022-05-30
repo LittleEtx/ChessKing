@@ -66,9 +66,21 @@ because MrBHAAA's favourite game are pixel games. He believes that
 pixel art is an art that can find the essence of an object. He also likes 
 playing [Dead Cells](https://dead-cells.com), so it kinda looks like that.
 
-<!--
-***Add your funny details here
---->
+### Dead Fan of the Legend of Hei
+LittleEtx is dead fan of [the Legend of Hei](https://www.bilibili.com/bangumi/media/md1733/),
+and he owns a lot of its animation derivatives.
+
+<img src="pre/Hei_1.jpeg" width="200" alt="Hei1">
+<img src="pre/Hei_2.webp" width="200" alt="Hei2">
+Now that LittleEtx has acquired the chance of making his own game,
+he won't miss the chance to bring his beloved cat into it.
+In game, player can choose either the avatar of Hei or a pretty wallpaper
+of Hei and his master ShiFu. What a joy playing chess with Hei's accompany!
+
+<img src="pre/Hei_3.png" width="400" alt="Hei in game">
+
+
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -95,6 +107,9 @@ Music is found in bilibili videos
 
 One chess skin comes from 
 * [Chess game demo](https://github.com/DiDicpR/ChessDemoForCS102A)
+
+Some textures come from
+* [https://www.aigei.com](https://www.aigei.com)
 
 A lot of the pictures of buttons and backgrounds in the game are directly from apple, because MrBHAAA is a 
 super apple fan. So thank you Apple!

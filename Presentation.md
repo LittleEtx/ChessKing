@@ -1,8 +1,10 @@
-# Presentation
-
+# ChessKing Presentation
+* Over 10,000 lines of source code, 90 java files in total.
+* Start from 2022.4.12, over half and a month of development
+* Over 290 times of commitment on GitHub
 ## The Game Engine
 ### FXGL
-Useful module which is a super set of JavaFX.
+A useful game engine which is a super set of JavaFX.
 
 ### Based on javafx
 JavaFX offers full time support for MVC.
@@ -212,39 +214,131 @@ data.put("key", "value");
 connection.send(data);
 ```
 ### Structure
+There are three main structure for net work: 
+* ClientCore, responsible for sending message
+* ServerCore, broadcast the received message to other listeners
+* Listener,  listen the messages received from the server
 
-
+<img src="pre/Multi_2.jpg" width="400" alt="Minimax and Alpha-Beta pruning search">
 
 ### Abstract class for information receive
-Since time interval from request from the server to receive the result is not instant, 
-we use the abstract class to construct
+Since the interval from request from the server to receive the result is not instant, 
+we use the abstract class to construct the listener logic, while what will happen after receiving messages
+are left to the implements.
 
+```java
+//src/main/java/edu/sustech/chessking/gameLogic/multiplayer/GameEventListener.java
+abstract public class GameEventListener {
+    private final MessageHandler<Bundle> gameEventListener = (conn, msg) -> {
+        if (msg.exists(PickUpChess))
+            onPickUpChess(msg.get(PickUpChess));
+        if (msg.exists(PutDownChess))
+            onPutDownChess(msg.get(PutDownChess));
+        if (msg.exists(MoveChess))
+            onMoveChess(msg.get(MoveChess));
+        if (msg.exists(EndTurn))
+            onEndTurn(msg.get(EndTurn));
+    };
+    
+    abstract protected void onPickUpChess(Chess chess);
+    abstract protected void onPutDownChess(Position pos);
+
+    abstract protected void onMoveChess(Move move);
+    abstract protected void onEndTurn(double remainTime);
+}
+```
 
 
 ### Game Searching
-We want the client can automatically search for any existing game within the lan.
+We want the client can automatically search for any existing game within the lan. 
+Here we mainly refer to Minecraft for the implements. (We even dig into the source code of Minecraft)
+
+<img src="pre/Multi_1.jpg" width="400" alt="Lan Multiplayer in Minecraft">
+
+In short, the server will broadcast its IP and port to a non-existent address, 
+which is 224.0.2.60:4444, and the client will search the address for any IP and port,
+therefore the client can connect to the server.
+
+```java
+//src/main/java/edu/sustech/chessking/gameLogic/multiplayer/Lan/LanServerBroadcaster.java
+public class LanServerBroadcaster extends Thread {
+    private final DatagramPacket datagramSocket;
+    private final DatagramSocket socket;
+
+    public LanServerBroadcaster(String targetAddress) throws IOException {
+        byte[] bs = targetAddress.getBytes(StandardCharsets.UTF_8);
+        socket = new DatagramSocket();
+        InetAddress inetAddress = InetAddress.getByName(LanProtocol.Address);
+        datagramSocket = new DatagramPacket(bs,
+                bs.length, inetAddress, LanProtocol.Port);
+    }
+
+    @Override
+    public void run() {
+        while (!this.isInterrupted()) {
+            try {
+                socket.send(datagramSocket);
+            } catch (IOException ignored) {
+            }
+        }
+    }
+}
+
+//src/main/java/edu/sustech/chessking/gameLogic/multiplayer/Lan/LanServerSearcher.java
+abstract public class LanServerSearcher extends Thread{
+    private final MulticastSocket socket;
+    public LanServerSearcher() throws IOException {
+        socket = new MulticastSocket(Port);
+        socket.setSoTimeout(5000);
+        socket.joinGroup(new InetSocketAddress(
+                InetAddress.getByName(Address), 0), null);
+    }
+
+    @Override
+    public final void run() {
+        byte[] bs = new byte[1024];
+        while (!this.isInterrupted()) {
+            DatagramPacket datagramPocket = new DatagramPacket(bs, bs.length);
+            try {
+                socket.receive(datagramPocket);
+            } catch (SocketTimeoutException e) {
+                //Search time out
+                continue;
+            } catch (IOException e) {
+                onFailToSearch("Couldn't ping server");
+                break;
+            }
+        }
+    }
+}
+```
 
 ***
 ## Regrets
-### a)耦合度太高，没有满足单一职责原则，点名GameCore类，应该使用接口+继承
-#### LittleEtx
-
-_Some of your problems here plz._
-
-#### MrBHAAA
-Later I found that many of the subscenes inside the UI design package can actually inherit from a 
+### Poor code reuse
+Later I found that many of the sub-scenes inside the UI design package can actually inherit from a 
 more general parent. For example, the ChooseLocalPlayer, ChoosePlayer2, LoadSave, LoadReplay, DeleteSave, 
-DeletePlayer and DeleteReplay subscenes all have the same basic view elements consisting of a grey background,
+DeletePlayer and DeleteReplay sub-scenes all have the same basic view elements consisting of a grey background,
 a linear-gradient window, a title, a list in the middle, and some buttons at the bottom. 
 
-We should have written a big ChooseSomething subscene to be the parent of all these subscenes. That would 
+We should have written a big ChooseSomething sub scene to be the parent of all these subscenes. That would 
 have made my work as a UI designer much easier. I could also have spent less time on wrtting a same 
-background for each of my subscene.
+background for each of my sub scene.
 
 <img src="pre/bad1.png" width="200" alt="bad1">
 <img src="pre/bad2.png" width="200" alt="bad2">
 <img src="pre/bad3.png" width="200" alt="bad3">
 <img src="pre/bad4.png" width="200" alt="bad4">
 
-### b)没有进行充分的测试，实例测试->Bug
-### c)经常改架构
+### Poor code structure
+Especially the classes that are written in the early process of the project,
+the structure is rather a mixture, and I put a large bundle of if-else just in order to make it work.
+This results in many diffuse classes, such as the GameCore.java, it has over 1100 lines of codes, 
+which make it difficult for reconfiguration. One may notice that we use a single Chess class and
+ChessType enum type to represent different chess. I have to admit this is one of the worst failure in
+the project, since it make the code much harder to maintain, compared to the interface-inherit implement.
+
+### Lack of testing
+Although we have spent a lot of time debugging, many of which are found in the process of actually playing.
+Looking back, we should have designed a test class for each function we add. 
+This is also the common practise in development.
