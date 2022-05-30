@@ -2,17 +2,16 @@ package edu.sustech.chessking.components;
 
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.entity.component.Component;
-import com.almasb.fxgl.texture.Texture;
-
 import javafx.animation.ScaleTransition;
+import javafx.scene.Node;
 import javafx.util.Duration;
 
 public class BounceComponent extends Component {
-    private final Texture texture;
+    private final Node texture;
     private static final double startScale = 0.5;
     private static final double durSec = 0.3;
 
-    public BounceComponent(Texture texture) {
+    public BounceComponent(Node texture) {
         this.texture = texture;
     }
 

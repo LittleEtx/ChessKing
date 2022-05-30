@@ -32,6 +32,7 @@ import static com.almasb.fxgl.dsl.FXGL.set;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 import static edu.sustech.chessking.GameVars.*;
 import static edu.sustech.chessking.VisualLogic.*;
+import static edu.sustech.chessking.gameLogic.enumType.ChessType.QUEEN;
 
 public class ChessComponent extends Component {
     private Chess chess;
@@ -457,7 +458,7 @@ public class ChessComponent extends Component {
             Move move = gameCore.castToMove(chess, pos);
             //If promotion, set it to the queen
             if (move == null)
-                move = gameCore.castToMove(chess, pos, ChessType.QUEEN);
+                move = gameCore.castToMove(chess, pos, QUEEN);
 
             //set shadow chess if no chess in the position
             if (!gameCore.hasChess(pos)) {
@@ -510,36 +511,31 @@ public class ChessComponent extends Component {
             else
                 removeRedCross();
 
+            //set visual
+            gameCore.moveChess(move);
+            Chess newChess = chess.getNewChess(move);
+
+            List<Chess> allyList;
             //if not moving king, set allay list
             if (chess.getChessType() != ChessType.KING) {
-                ArrayList<Chess> allyList = gameCore.getAlly(pos);
-                //remove itself
-                allyList.remove(chess);
-                set(AllayListVar, allyList);
+                allyList = gameCore.
+                        getTargetChess(pos, newChess.getColorType());
             }
             else {
-                set(AllayListVar, new ArrayList<Chess>());
+                allyList = new ArrayList<>();
             }
 
-            ArrayList<Chess>[] chessList = gameCore.simulateMove(chess, pos);
-            chessList[1].addAll(chessList[2]);
-            //0 for enemy, 1 for target
-            set(EnemyListVar, chessList[0]);
-            set(TargetListVar, chessList[1]);
-            //update king state
-            ArrayList<Chess> kingList = new ArrayList<>();
+            List<Chess> targetList = gameCore.getTarget(newChess, ColorType.WHITE);
+            targetList.addAll(gameCore.getTarget(newChess, ColorType.BLACK));
 
-            //TO DO: when moving other chess, set targetKing
-            for (Chess chess : chessList[1]) {
-                //if target enemy chess
-                if (chess.getChessType() == ChessType.KING && !gameCore.isInTurn(chess))
-                    kingList.add(chess);
-            }
-            //if self king is targeted
-            if (gameCore.isMoveCauseDanger(gameCore.castToMove(chess, pos))) {
-                kingList.add(gameCore.getChessKing(gameCore.getTurn()));
-            }
-            set(TargetKingListVar, kingList);
+            List<Chess> enemyList = gameCore.getTargetChess(pos, newChess.getColorType());
+            List<Chess> targetKingList = gameCore.getTargetKingList();
+            gameCore.reverseMove();
+
+            set(AllayListVar, allyList);
+            set(EnemyListVar, enemyList);
+            set(TargetListVar, targetList);
+            set(TargetKingListVar, targetKingList);
 
             setToTop(entity);
         }

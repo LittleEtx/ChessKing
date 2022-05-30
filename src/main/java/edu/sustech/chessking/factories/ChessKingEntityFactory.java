@@ -194,4 +194,14 @@ public class ChessKingEntityFactory implements EntityFactory {
                 .view(texture("Waiting.png", 40, 40))
                 .build();
     }
+
+    @Spawns("boardOutline")
+    public Entity newBoardOutline(SpawnData data){
+        Rectangle rect = new Rectangle(80, 80, Color.TRANSPARENT);
+        rect.setStrokeWidth(5);
+        rect.setStroke(Color.web("#8baeb7"));
+        return FXGL.entityBuilder(data)
+                .with(new BounceComponent(rect))
+                .build();
+    }
 }

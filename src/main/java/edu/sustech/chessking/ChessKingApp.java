@@ -74,7 +74,6 @@ public class ChessKingApp extends GameApplication {
     private static Replay recentReplay = null;
     private ChessComponent movingChessComponent;
     private LocalTimer betweenClickTimer;
-    private static String serverIP = "localhost";
     private boolean cursorDefault = true;
     private static int reverseCount;
 
@@ -979,10 +978,7 @@ public class ChessKingApp extends GameApplication {
     }
 
     private static boolean saveGame(Save save) {
-        if (gameType != GameType.CLIENT)
-            return SaveLoader.writeLocalSave(localPlayer, save);
-        else
-            return SaveLoader.writeServerSave(serverIP, localPlayer, save);
+        return SaveLoader.writeLocalSave(localPlayer, save);
     }
 
     private static Save getSave() {
