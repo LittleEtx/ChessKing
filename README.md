@@ -1,13 +1,13 @@
 # Chess King
-### A chess game based on javafx and FXGL
+A chess game based on javafx and FXGL
 
-<img src="src/main/resources/assets/textures/Gameshot.png">
+<img src="src/main/resources/assets/textures/Gameshot.png" alt="Chess King screenshot">
 
 ## Authors
 * LittleEtx (Li Tian) Mastermind for logics and coding. Big boss.
 * MrBHAAA (Zhang Luming) Servant for Boss Li, ugly UI design.
 
-## Operatinon
+## Operation
 Click your mouse to move the chess, and gain victory over your friends
 or computers.
 
@@ -40,7 +40,7 @@ ones who played this game have a liver-ache.
 The music in the main game is from [Ace Attorney](https://www.ace-attorney.com) by Capcom. Making anyone
 who play this game extra excited and scream out "OBJECTION!".
 
-<img src="src/main/resources/assets/textures/objection.png" width="400">
+<img src="src/main/resources/assets/textures/objection.png" width="400" alt="Objection!">
 
 
 ### A Nintendo and Capcom Fan
@@ -50,14 +50,14 @@ and Link from [the Legend of Zelda](https://www.zelda.com/), Princess
 Daisy from [the Mario Franchise](https://mario.nintendo.com/characters/);
 the background music of [Animal Crossing](https://animal-crossing.com).
 
-<img src="https://www.zelda.com/breath-of-the-wild/assets/media/wallpapers/desktop-5.jpg" width="400">
+<img src="https://www.zelda.com/breath-of-the-wild/assets/media/wallpapers/desktop-5.jpg" width="400" alt="Zelda and Link">
 
 There are also a lot of [Ace Attorney](https://www.ace-attorney.com) 
 elements in this game. Including the avatar of [Phoenix Wright](https://aceattorney.fandom.com/wiki/Phoenix_Wright) shouting
 ["OBJECTION!!!"](https://aceattorney.fandom.com/wiki/Objection!), and 
 [Miles Edgeworth](https://aceattorney.fandom.com/wiki/Miles_Edgeworth) looking defeated.
 
-<img src="https://www.ace-attorney.com/images/anniversary_main-img.jpg" width = "400">
+<img src="https://www.ace-attorney.com/images/anniversary_main-img.jpg" width = "400" alt="Ace Attorney">
 
 
 ### A Hand-drawn Skin
