@@ -809,77 +809,99 @@ public class GameCore {
         return list;
     }
 
+//    /**
+//     * see after move the chess to the position, what will happen
+//     * @return 0 index: a list of different color chess that will target the position.
+//     * Will check if the enemy move will cause the king in danger. <br/>
+//     * 1 index: target enemy chess list. <br/>
+//     * 2 index: target ally chess list. Do not contain the King<br/>
+//     */
+//    public ArrayList<Chess>[] simulateMove(Chess chess, Position pos) {
+//        Move move;
+//        if (isPawnPromoteValid(chess))
+//            move = castToMove(chess, pos, QUEEN);
+//        else
+//            move = castToMove(chess, pos);
+//
+//        if (!isMoveAvailable(move)) {
+//            return null;
+//        }
+//
+//        moveChess(move);
+//        Chess nowChess = getChess(pos);
+//        if (nowChess == null) {
+//            return null;
+//        }
+//
+//        //get enemies
+//        ArrayList<Chess> enemyChessList = new ArrayList<>();
+//        ArrayList<Move> safeEatMove = getSafeEatMove(nowChess);
+//        for (Move enemyMove : safeEatMove) {
+//            enemyChessList.add(enemyMove.getChess());
+//        }
+//
+//        //get Enemy Targets
+//        ArrayList<Chess> targetEnemyList = new ArrayList<>();
+//        ArrayList<Move> availableMove = getAvailableMove(nowChess);
+//        for (Move targetMove : availableMove) {
+//            if (targetMove.getMoveType() == EAT ||
+//                    targetMove.getMoveType() == EAT_PROMOTE)
+//                targetEnemyList.add((Chess)targetMove.getMoveTarget()[0]);
+//        }
+//
+//        //get Allay target list
+//        ArrayList<Chess> targetAllyList = new ArrayList<>();
+//        for (Chess ally : chessboard) {
+//            //it is the turn of the enemy
+//            if (ally.getColorType() == turn || ally.getChessType() == KING)
+//                continue;
+//
+//            if (isEatValid(nowChess, ally.getPosition()) &&
+//                    !hasChessInBetween(nowChess.getPosition(), ally.getPosition()))
+//                targetAllyList.add(ally);
+//        }
+//
+//        reverseMove();
+//        return new ArrayList[]{enemyChessList, targetEnemyList, targetAllyList};
+//    }
+
     /**
-     * see after move the chess to the position, what will happen
-     * @return 0 index: a list of different color chess that will target the position.
-     * Will check if the enemy move will cause the king in danger. <br/>
-     * 1 index: target enemy chess list. <br/>
-     * 2 index: target ally chess list. Do not contain the King<br/>
+     * get the all the target in color of side of the chess
      */
-    public ArrayList<Chess>[] simulateMove(Chess chess, Position pos) {
-        Move move;
-        if (isPawnPromoteValid(chess))
-            move = castToMove(chess, pos, QUEEN);
-        else
-            move = castToMove(chess, pos);
+    public List<Chess> getTarget(Chess chess, ColorType side) {
+        if (!isChessInGame(chess))
+            throw new IllegalArgumentException("Chess not in game!");
+        List<Chess> targetList = new ArrayList<>();
 
-        if (!isMoveAvailable(move)) {
-            return null;
-        }
-
-        moveChess(move);
-        Chess nowChess = getChess(pos);
-        if (nowChess == null) {
-            return null;
-        }
-
-        //get enemies
-        ArrayList<Chess> enemyChessList = new ArrayList<>();
-        ArrayList<Move> safeEatMove = getSafeEatMove(nowChess);
-        for (Move enemyMove : safeEatMove) {
-            enemyChessList.add(enemyMove.getChess());
-        }
-
-        //get Enemy Targets
-        ArrayList<Chess> targetEnemyList = new ArrayList<>();
-        ArrayList<Move> availableMove = getAvailableMove(nowChess);
-        for (Move targetMove : availableMove) {
-            if (targetMove.getMoveType() == EAT ||
-                    targetMove.getMoveType() == EAT_PROMOTE)
-                targetEnemyList.add((Chess)targetMove.getMoveTarget()[0]);
-        }
-
-        //get Allay target list
-        ArrayList<Chess> targetAllyList = new ArrayList<>();
-        for (Chess ally : chessboard) {
-            //it is the turn of the enemy
-            if (ally.getColorType() == turn || ally.getChessType() == KING)
+        for (Chess target : chessboard) {
+            //if not the chess of side or friendly king
+            if (target.getColorType() != side ||
+                    (target.getColorType() == chess.getColorType() && target.getChessType() == KING))
                 continue;
 
-            if (isEatValid(nowChess, ally.getPosition()) &&
-                    !hasChessInBetween(nowChess.getPosition(), ally.getPosition()))
-                targetAllyList.add(ally);
+            if (isEatValid(chess, target.getPosition()) &&
+                    !hasChessInBetween(chess.getPosition(), target.getPosition()))
+                targetList.add(target);
         }
-
-        reverseMove();
-        return new ArrayList[]{enemyChessList, targetEnemyList, targetAllyList};
+        return targetList;
     }
 
     /**
-     * Will check if the chess case danger. If already been checked, return null
-     * @return a list of the same color chess that will protect the position.
+     * Will check if the move cause danger. If already been checked, return empty list
+     * @return a list of the same color chess that will target the position.
      */
-    public ArrayList<Chess> getAlly(Position position) {
+    public ArrayList<Chess> getTargetChess(Position position, ColorType side) {
         ArrayList<Chess> targetChessList = new ArrayList<>();
-        if (isChecked(turn))
+        if (isChecked(side))
             return targetChessList;
-        ArrayList<Chess> possibleList = getEnemyChess(position, turn.reverse());
+        ArrayList<Chess> possibleList = getEnemyChess(position, side.reverse());
         for (Chess chess : possibleList) {
-            //simply to see after the chess move to the protection area,
-            //will the king in danger
-            if (chess.getChessType() != KING) {
+            //if is not in turn and not the king
+            //check if the move will cause danger
+            if (chess.getColorType() == turn &&
+                    chess.getChessType() != KING) {
                 chessboard.setNull(chess.getPosition());
-                if (!isChecked(turn))
+                if (!isChecked(side))
                     targetChessList.add(chess);
                 chessboard.setChess(chess);
             }
@@ -887,6 +909,15 @@ public class GameCore {
                 targetChessList.add(chess);
         }
         return targetChessList;
+    }
+
+    public List<Chess> getTargetKingList() {
+        List<Chess> kingList = new ArrayList<>();
+        if (isChecked(WHITE))
+            kingList.add(getChessKing(WHITE));
+        if (isChecked(BLACK))
+            kingList.add(getChessKing(BLACK));
+        return kingList;
     }
 
     //==================================

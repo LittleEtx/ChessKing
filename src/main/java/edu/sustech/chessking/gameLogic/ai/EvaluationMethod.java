@@ -10,8 +10,8 @@ import edu.sustech.chessking.gameLogic.ai.data.TargetScore;
 import edu.sustech.chessking.gameLogic.enumType.CastleType;
 import edu.sustech.chessking.gameLogic.enumType.ChessType;
 
-import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import static edu.sustech.chessking.gameLogic.enumType.ColorType.WHITE;
 
@@ -121,12 +121,15 @@ public class EvaluationMethod {
         //originScore
         int score = getScore(move) + getPositionScore(chess, pos);
 
-        ArrayList<Chess> allyList = gameCore.getAlly(pos);
-        allyList.remove(chess);
-        ArrayList<Chess>[] list = gameCore.simulateMove(chess, pos);
-        ArrayList<Chess> enemyList = list[0];
-        ArrayList<Chess> targetEnemyList = list[1];
-        ArrayList<Chess> targetAllyList = list[2];
+        gameCore.moveChess(move);
+        Chess newChess = chess.getNewChess(move);
+
+        //now enemy's turn
+        List<Chess> allyList = gameCore.getTargetChess(pos, newChess.getColorType());
+        List<Chess> enemyList = gameCore.getTargetChess(pos, newChess.getColorType().reverse());
+        List<Chess> targetAllyList = gameCore.getTarget(newChess, newChess.getColorType());
+        List<Chess> targetEnemyList = gameCore.getTarget(newChess, newChess.getColorType().reverse());
+        gameCore.reverseMove();
 
         //arrange from small to big
         allyList.sort(Comparator.comparingInt(EvaluationMethod::getChessScore));

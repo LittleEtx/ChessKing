@@ -2,6 +2,7 @@ package edu.sustech.chessking.components;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.component.Component;
 import edu.sustech.chessking.GameType;
 import edu.sustech.chessking.VisualLogic;
@@ -9,19 +10,17 @@ import edu.sustech.chessking.gameLogic.Position;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.util.Duration;
 
 import java.util.ArrayList;
 
-import static com.almasb.fxgl.dsl.FXGL.getInput;
-import static com.almasb.fxgl.dsl.FXGL.getop;
-import static edu.sustech.chessking.GameVars.GameTypeVar;
+import static com.almasb.fxgl.dsl.FXGL.*;
+import static edu.sustech.chessking.GameVars.*;
 import static edu.sustech.chessking.VisualLogic.getChessEntity;
 import static edu.sustech.chessking.VisualLogic.toPoint;
 
 public class BoardComponent extends Component {
     private final Position position;
-    private TwinkleComponent twinkleComponent;
+    private Entity outline = null;
 
     private boolean transState = false;
     private final Color color1;
@@ -47,11 +46,8 @@ public class BoardComponent extends Component {
         Rectangle rect = new Rectangle(80,80,color);
         entity.getViewComponent().addChild(rect);
 
-        twinkleComponent = entity.getComponent(TwinkleComponent.class);
-        twinkleComponent.setDuration(Duration.seconds(1.5)).
-                setFromOpacity(1.0).setToOpacity(0.2);
-
-        getop("availablePosition").addListener((ob, ov, nv) -> setTransition(((ArrayList<?>) nv).contains(position)));
+        getop(AvailablePositionVar).addListener((ob, ov, nv) ->
+                setTransition(((ArrayList<?>) nv).contains(position)));
     }
 
     @Override
@@ -60,12 +56,17 @@ public class BoardComponent extends Component {
     }
 
     public void setTransition(boolean state) {
+        if (geto(GameTypeVar) == GameType.COMPUTER &&
+                geto(TurnVar) != geto(DownSideColorVar))
+            return;
+
         if (state && !transState) {
-            twinkleComponent.play();
+            outline = spawn("boardOutline", new SpawnData(toPoint(position)));
             transState = true;
         }
         if (!state && transState) {
-            twinkleComponent.stop();
+            if (outline != null)
+                outline.getComponent(BounceComponent.class).deSpawn();
             transState = false;
         }
     }
