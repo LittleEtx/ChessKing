@@ -99,7 +99,6 @@ public class EvaluationMethod {
      * the chess it can protect and chess it threatens
      */
     public static int getAccurateScore(Move move, GameCore gameCore) {
-        //System.out.println("simulate " + move.toString());
         //a move cause danger is surely not to take
         if (gameCore.isMoveCauseDanger(move))
             return -KingScore;
