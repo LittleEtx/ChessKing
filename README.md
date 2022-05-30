@@ -72,6 +72,7 @@ and he owns a lot of its animation derivatives.
 
 <img src="pre/Hei_1.jpeg" width="200" alt="Hei1">
 <img src="pre/Hei_2.webp" width="200" alt="Hei2">
+
 Now that LittleEtx has acquired the chance of making his own game,
 he won't miss the chance to bring his beloved cat into it.
 In game, player can choose either the avatar of Hei or a pretty wallpaper
