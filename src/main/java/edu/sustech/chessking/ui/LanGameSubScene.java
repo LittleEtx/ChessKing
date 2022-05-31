@@ -2,6 +2,7 @@ package edu.sustech.chessking.ui;
 
 import com.almasb.fxgl.core.serialization.Bundle;
 import com.almasb.fxgl.dsl.FXGL;
+import com.almasb.fxgl.net.Client;
 import com.almasb.fxgl.net.Connection;
 import com.almasb.fxgl.scene.SubScene;
 import com.almasb.fxgl.texture.Texture;
@@ -49,6 +50,7 @@ public class LanGameSubScene extends SubScene {
     private List<LanGameInfo> gameInfoList = new ArrayList<>();
 
     private LanGameInfo selectedGame = null;
+    private Client<Bundle> onGoingClient = null;
     private boolean isStartGame = false;
     private WaitingMark waitingMark;
     private final Pane waitingPane;
@@ -247,10 +249,11 @@ public class LanGameSubScene extends SubScene {
 
     @Override
     public void onDestroy() {
-        if (!isStartGame)
+        if (!isStartGame) {
             lanServerSearcher.stopListening();
+        }
         else
-            lanServerSearcher.stopListeningExcept(selectedGame.getClient());
+            lanServerSearcher.stopListeningExcept(onGoingClient);
 
         if (waitingMark != null)
             waitingMark.stop();
@@ -266,7 +269,7 @@ public class LanGameSubScene extends SubScene {
         }
 
         DialogBox box = getDialogService().showProgressBox("Joining in...");
-
+        onGoingClient = selectedGame.getClient();
         Connection<Bundle> connection = selectedGame.getClient().getConnections().get(0);
         Player localPlayer = ChessKingApp.getLocalPlayer();
         LanClientCore lanClient = new LanClientCore(connection, localPlayer) {
@@ -428,9 +431,12 @@ public class LanGameSubScene extends SubScene {
         startButton.getStyleClass().add("menu-button");
         startButton.setOnAction(event ->  {
             getContentRoot().getChildren().remove(waitingPane);
+            isStartGame = true;
+            onGoingClient = lanServer.getLocalClient();
             if (!ChessKingApp.newServerGame(lanServer, serverGameInfo)) {
                 lanServer.stop();
                 showMessage("Can not open game!");
+                isStartGame = false;
             }
         });
 

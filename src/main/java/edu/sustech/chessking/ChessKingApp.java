@@ -108,7 +108,7 @@ public class ChessKingApp extends GameApplication {
     private static ClientGameCore clientGameCore;
 
     private enum ClientEndGameType {
-        LOST, WIN, DRAWN, BLACK_WIN, WHITE_WIN;
+        LOST, WIN, DRAWN, BLACK_WIN, WHITE_WIN
 
     }
 
@@ -153,7 +153,7 @@ public class ChessKingApp extends GameApplication {
     public void initSettings(GameSettings gameSettings) {
         gameSettings.setTitle("Chess King");
         gameSettings.setAppIcon("Icon.png");
-        gameSettings.setVersion("1.0.0");
+        gameSettings.setVersion("1.0.1");
         gameSettings.setHeight(800);
         gameSettings.setWidth(1200);
         gameSettings.setPauseMusicWhenMinimized(true);
@@ -533,9 +533,7 @@ public class ChessKingApp extends GameApplication {
         upEatRecorder = new EatRecorder(downSideColor.reverse());
         upEatRecorder.setFromHistory(gameCore.getGameHistory());
 
-        getop(TurnVar).addListener((ob, ov, nv) -> {
-            TurnVisual.spawnClock((ColorType) nv);
-        });
+        getop(TurnVar).addListener((ob, ov, nv) -> TurnVisual.spawnClock((ColorType) nv));
 
         TurnVisual.spawnClock(geto(TurnVar));
 
@@ -752,7 +750,7 @@ public class ChessKingApp extends GameApplication {
 
         if (!lanServerCore.startGame(whitePlayer,
                 gameCore::getGameHistory,
-                () -> (ColorType) geto(TurnVar),
+                () -> geto(TurnVar),
                 () -> remainTime,
                 side -> {
                     if (gameTimeInSec <= 0)

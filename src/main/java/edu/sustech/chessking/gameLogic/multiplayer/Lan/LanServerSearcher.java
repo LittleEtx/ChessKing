@@ -79,11 +79,12 @@ abstract public class LanServerSearcher extends Thread{
                 client.setOnConnected(connection -> {
                     //add listener for updating the gameInfo
                     connection.addMessageHandlerFX((conn, msg) -> {
-                        if (msg.exists(SendGameInfo))
+                        if (msg.exists(SendGameInfo)) {
                             lanGameInfo.setGameInfo(msg.get(SendGameInfo));
+                            if (!gameInfoList.contains(lanGameInfo))
+                                gameInfoList.add(lanGameInfo);
+                        }
                     });
-
-                    gameInfoList.add(lanGameInfo);
 
                     Bundle bundle = new Bundle("");
                     bundle.put(HasGame, "");
@@ -108,6 +109,7 @@ abstract public class LanServerSearcher extends Thread{
 
     public final void stopListeningExcept(Client<Bundle> exceptClient) {
         interrupt();
+
         getGameInfoList().forEach(gameInfo -> {
             Client<Bundle> client = gameInfo.getClient();
             if (!gameInfo.getClient().equals(exceptClient))
