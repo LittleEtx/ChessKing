@@ -1,5 +1,5 @@
 # Chess King
-A chess game based on javafx and FXGL
+A chess game based on javafx and [FXGL](https://github.com/AlmasB/FXGL)
 
 <img src="pre/Gameshot.png" alt="Chess King screenshot">
 
